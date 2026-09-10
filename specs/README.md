@@ -11,7 +11,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 03 | [03-catalogo-wcag.md](./03-catalogo-wcag.md) | Implemented | Dataset de criterios WCAG 2.2 A/AA cargado y consultable |
 | 04 | [04-rediseno-tailwind.md](./04-rediseno-tailwind.md) | Implemented | Sustituye Angular Material por componentes propios + Tailwind en shell y las 12 pantallas |
 | 05 | 05-auditorias-paginas.md | Pendiente | CRUD de auditorías y páginas |
-| 06 | 06-checklist-manual.md | Pendiente | Marcar estado/severidad/notas por criterio — con esto la app ya sustituye al Excel |
+| 06 | 06-checklist-manual.md | Pendiente | Marcar estado/severidad/notas por criterio — con esto la app ya sustituye al Excel. Incluye registrar varios errores (hallazgos) por criterio en una misma página, mostrados en un collapse por fila en la tabla del checklist cuando el criterio está en "Falla" |
 | 07 | 07-catalogo-componentes.md | Pendiente | Desplegable de componentes: seed Bootstrap + añadir propios |
 | 08 | 08-biblioteca-hallazgos.md | Pendiente | Guardar y sugerir hallazgos reutilizables (depende de 06 y 07) |
 | 09 | 09-exportacion.md | Pendiente | Export a Excel primero, PDF después |
