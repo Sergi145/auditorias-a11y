@@ -1,4 +1,4 @@
-<h1 class="mb-6 text-2xl font-semibold text-slate-900">Añadir página</h1>
+<h1 class="mb-6 text-2xl font-semibold text-slate-900">{{ titulo }}</h1>
 
 <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
   <app-form-field
@@ -50,7 +50,7 @@
   </app-form-field>
 
   <div class="formulario__acciones">
-    <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Cancelar</a>
-    <button appButton type="submit">Añadir página</button>
+    <a appButton variant="text" [routerLink]="enlaceCancelar">Cancelar</a>
+    <button appButton type="submit">{{ textoEnviar }}</button>
   </div>
 </form>

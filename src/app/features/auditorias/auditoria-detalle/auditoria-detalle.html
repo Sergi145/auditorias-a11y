@@ -1,4 +1,4 @@
-@if (auditoria) {
+@if (auditoria(); as auditoria) {
   <a appButton variant="text" routerLink="/auditorias">
     <app-icon name="arrow-back" />
     Volver a auditorías
@@ -22,8 +22,24 @@
         <app-icon name="download" />
         Exportar
       </a>
+      <a appButton variant="secondary" [routerLink]="['/auditorias', auditoriaId, 'editar']">
+        <app-icon name="edit" />
+        Editar
+      </a>
+      <button appButton variant="secondary" type="button" (click)="eliminar()">
+        <app-icon name="delete" />
+        Eliminar
+      </button>
     </div>
   </div>
+
+  <app-form-field label="Estado de la auditoría" class="max-w-[240px]" #campoEstado="appFormField">
+    <select appSelect [id]="campoEstado.id" [value]="auditoria.estado" (change)="cambiarEstado($event)">
+      @for (estado of estados; track estado) {
+        <option [value]="estado">{{ etiquetaEstado[estado] }}</option>
+      }
+    </select>
+  </app-form-field>
 
   <div class="pantalla__cabecera">
     <h2 class="text-xl font-semibold text-slate-900">Páginas</h2>
@@ -33,9 +49,9 @@
     </a>
   </div>
 
-  @if (paginas.length > 0) {
+  @if (paginas().length > 0) {
     <ul class="m-0 flex list-none flex-col gap-1 p-0">
-      @for (pagina of paginas; track pagina.id) {
+      @for (pagina of paginas(); track pagina.id) {
         <li>
           <a
             [routerLink]="['/auditorias', auditoriaId, 'paginas', pagina.id]"

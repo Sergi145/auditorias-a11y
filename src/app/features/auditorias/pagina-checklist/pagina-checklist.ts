@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type {
@@ -10,10 +11,12 @@ import type {
   Resultado,
   Severidad,
 } from '../../../core/models';
+import { PaginasService } from '../../../core/paginas';
 import { AppButton } from '../../../shared/ui/button';
 import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon, type IconName } from '../../../shared/ui/icon';
+import { ToastService } from '../../../shared/ui/toast';
 
 interface FilaChecklist {
   criterio: CriterioWCAG;
@@ -52,7 +55,10 @@ const ETIQUETA_CATEGORIA: Record<CategoriaWCAG, string> = {
 export class PaginaChecklist {
   private readonly mockData = inject(MockDataService);
   private readonly criteriosWcag = inject(CriteriosWcagService);
+  private readonly paginasService = inject(PaginasService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   protected readonly etiquetaEstado = ETIQUETA_ESTADO;
   protected readonly iconoEstado = ICONO_ESTADO;
@@ -60,7 +66,9 @@ export class PaginaChecklist {
 
   protected readonly auditoriaId = this.route.snapshot.paramMap.get('auditoriaId')!;
   protected readonly paginaId = this.route.snapshot.paramMap.get('paginaId')!;
-  protected readonly pagina = this.mockData.pagina(Number(this.paginaId));
+  protected readonly pagina = toSignal(this.paginasService.porId$(Number(this.paginaId)), {
+    initialValue: undefined,
+  });
 
   protected readonly niveles: NivelWCAG[] = ['A', 'AA'];
   protected readonly categorias: CategoriaWCAG[] = [
@@ -128,5 +136,17 @@ export class PaginaChecklist {
 
   protected onFiltroSeveridad(evento: Event): void {
     this.filtroSeveridad.set((evento.target as HTMLSelectElement).value as Severidad | 'todos');
+  }
+
+  protected async eliminarPagina(): Promise<void> {
+    const nombre = this.pagina()?.nombre ?? 'esta página';
+    const confirmado = window.confirm(
+      `¿Eliminar «${nombre}»? Esta acción no se puede deshacer.`,
+    );
+    if (!confirmado) return;
+
+    await this.paginasService.eliminar(Number(this.paginaId));
+    this.toast.mostrar('Página eliminada.');
+    void this.router.navigate(['/auditorias', this.auditoriaId]);
   }
 }

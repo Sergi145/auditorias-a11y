@@ -1,90 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { CriteriosWcagService } from './criterios-wcag';
-import type {
-  Auditoria,
-  Componente,
-  Evidencia,
-  HallazgoPlantilla,
-  Pagina,
-  Resultado,
-} from './models';
+import type { Componente, Evidencia, HallazgoPlantilla, Pagina, Resultado } from './models';
 
 // Datos de ejemplo para la maqueta navegable — ver specs/02-maqueta-m3.md.
-// Nada de esto persiste ni se lee de Dexie: es solo la forma de las
-// entidades reales para poder recorrer las 12 pantallas con contenido
-// plausible. Rebanadas futuras sustituyen este servicio por DatabaseService
-// sin tocar las plantillas, siempre que expongan los mismos métodos.
+// Auditoria y Pagina ya son reales (Dexie vía AuditoriasService/
+// PaginasService, ver specs/05-auditorias-paginas.md); lo que queda aquí
+// (Resultado, Evidencia, HallazgoPlantilla, Componente) sigue siendo mock
+// hasta sus propias rebanadas (06-checklist-manual, 07-catalogo-
+// componentes, 08-biblioteca-hallazgos).
 @Injectable({ providedIn: 'root' })
 export class MockDataService {
   private readonly criteriosWcag = inject(CriteriosWcagService);
-
-  private readonly auditoriasData: Auditoria[] = [
-    {
-      id: 1,
-      nombre: 'Portal de Atención Ciudadana',
-      cliente: 'Ayuntamiento de Rivas',
-      url_base: 'https://atencion-ciudadana.example.org',
-      fecha_inicio: '2026-08-10',
-      estandar_objetivo: 'AA',
-      estado: 'en_progreso',
-    },
-    {
-      id: 2,
-      nombre: 'Tienda online Kadela Home',
-      cliente: 'Kadela Home S.L.',
-      url_base: 'https://kadela-home.example.com',
-      fecha_inicio: '2026-07-01',
-      estandar_objetivo: 'AA',
-      estado: 'completada',
-    },
-    {
-      id: 3,
-      nombre: 'Intranet de RRHH',
-      cliente: 'Grupo Solmar',
-      url_base: 'https://intranet.solmar.example.com',
-      fecha_inicio: '2026-06-15',
-      estandar_objetivo: 'A',
-      estado: 'archivada',
-    },
-  ];
-
-  private readonly paginasData: Pagina[] = [
-    {
-      id: 1,
-      auditoria_id: 1,
-      nombre: 'Home',
-      url: 'https://atencion-ciudadana.example.org/',
-      notas_generales: 'Página de entrada con acceso a los trámites más usados.',
-    },
-    {
-      id: 2,
-      auditoria_id: 1,
-      nombre: 'Formulario de cita previa',
-      url: 'https://atencion-ciudadana.example.org/cita-previa',
-      notas_generales: '',
-    },
-    {
-      id: 3,
-      auditoria_id: 2,
-      nombre: 'Listado de productos',
-      url: 'https://kadela-home.example.com/productos',
-      notas_generales: '',
-    },
-    {
-      id: 4,
-      auditoria_id: 2,
-      nombre: 'Checkout',
-      url: 'https://kadela-home.example.com/checkout',
-      notas_generales: 'Flujo de pago en 3 pasos.',
-    },
-    {
-      id: 5,
-      auditoria_id: 3,
-      nombre: 'Panel de nóminas',
-      url: 'https://intranet.solmar.example.com/nominas',
-      notas_generales: '',
-    },
-  ];
 
   private readonly resultadosData: Resultado[] = [
     {
@@ -291,22 +217,6 @@ export class MockDataService {
     { id: 32, nombre: 'Chip de filtro', origen: 'personalizado', visible: true },
   ];
 
-  auditorias(): Auditoria[] {
-    return this.auditoriasData;
-  }
-
-  auditoria(id: number): Auditoria | undefined {
-    return this.auditoriasData.find((auditoria) => auditoria.id === id);
-  }
-
-  paginasDeAuditoria(auditoriaId: number): Pagina[] {
-    return this.paginasData.filter((pagina) => pagina.auditoria_id === auditoriaId);
-  }
-
-  pagina(id: number): Pagina | undefined {
-    return this.paginasData.find((pagina) => pagina.id === id);
-  }
-
   resultadosDePagina(paginaId: number): Resultado[] {
     return this.resultadosData.filter((resultado) => resultado.pagina_id === paginaId);
   }
@@ -347,13 +257,15 @@ export class MockDataService {
 
   // Resumen de progreso de una auditoría (% revisado, fallos por severidad)
   // usado en el listado (pantalla 1) y en el panel de progreso (pantalla 11).
-  progresoDeAuditoria(auditoriaId: number): {
+  // Recibe las páginas ya resueltas (por PaginasService, real desde
+  // specs/05-auditorias-paginas.md) en vez de leerlas él mismo — ver
+  // "Decisiones tomadas y descartadas" de esa spec.
+  progresoDeAuditoria(paginas: Pagina[]): {
     totalCriterios: number;
     revisados: number;
     porcentajeRevisado: number;
     fallosPorSeveridad: Record<'critica' | 'alta' | 'media' | 'baja', number>;
   } {
-    const paginas = this.paginasDeAuditoria(auditoriaId);
     const resultados = paginas.flatMap((pagina) => this.resultadosDePagina(pagina.id!));
     const totalCriterios = paginas.length * this.criteriosWcag.todos().length;
     const revisados = resultados.filter((resultado) => resultado.estado !== 'por_revisar').length;
