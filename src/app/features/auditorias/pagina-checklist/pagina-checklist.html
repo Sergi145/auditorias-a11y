@@ -1,0 +1,121 @@
+@if (pagina) {
+  <div class="pantalla__cabecera">
+    <div>
+      <h1>{{ pagina.nombre }}</h1>
+      <p class="subtitulo">{{ pagina.url }}</p>
+    </div>
+    <div class="acciones">
+      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'escaneo']">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        Escanear automáticamente
+      </a>
+      <a mat-button [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+    </div>
+  </div>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Nivel</mat-label>
+      <mat-select [value]="filtroNivel()" (selectionChange)="onFiltroNivel($event)">
+        <mat-option value="todos">Todos</mat-option>
+        @for (nivel of niveles; track nivel) {
+          <mat-option [value]="nivel">{{ nivel }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Categoría</mat-label>
+      <mat-select [value]="filtroCategoria()" (selectionChange)="onFiltroCategoria($event)">
+        <mat-option value="todos">Todas</mat-option>
+        @for (categoria of categorias; track categoria) {
+          <mat-option [value]="categoria">{{ etiquetaCategoria[categoria] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Estado</mat-label>
+      <mat-select [value]="filtroEstado()" (selectionChange)="onFiltroEstado($event)">
+        <mat-option value="todos">Todos</mat-option>
+        @for (estado of estados; track estado) {
+          <mat-option [value]="estado">{{ etiquetaEstado[estado] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Severidad</mat-label>
+      <mat-select [value]="filtroSeveridad()" (selectionChange)="onFiltroSeveridad($event)">
+        <mat-option value="todos">Todas</mat-option>
+        @for (severidad of severidades; track severidad) {
+          <mat-option [value]="severidad">{{ severidad }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="tabla-checklist__scroll">
+  <table mat-table [dataSource]="filasFiltradas()" class="tabla-checklist">
+    <ng-container matColumnDef="criterio">
+      <th mat-header-cell *matHeaderCellDef>Criterio</th>
+      <td mat-cell *matCellDef="let fila">
+        <strong>{{ fila.criterio.codigo }}</strong> {{ fila.criterio.nombre }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="nivel">
+      <th mat-header-cell *matHeaderCellDef>Nivel</th>
+      <td mat-cell *matCellDef="let fila">{{ fila.criterio.nivel }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="categoria">
+      <th mat-header-cell *matHeaderCellDef>Categoría</th>
+      <td mat-cell *matCellDef="let fila">{{ categoriaEtiqueta(fila) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let fila">
+        <mat-icon aria-hidden="true">{{ estadoIcono(fila) }}</mat-icon>
+        {{ estadoEtiqueta(fila) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="severidad">
+      <th mat-header-cell *matHeaderCellDef>Severidad</th>
+      <td mat-cell *matCellDef="let fila">{{ fila.resultado?.severidad ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>
+        <span class="visualmente-oculto">Acciones</span>
+      </th>
+      <td mat-cell *matCellDef="let fila">
+        <a
+          mat-button
+          [routerLink]="[
+            '/auditorias',
+            auditoriaId,
+            'paginas',
+            paginaId,
+            'criterios',
+            fila.criterio.codigo,
+          ]"
+        >
+          Revisar
+        </a>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  </div>
+
+  @if (filasFiltradas().length === 0) {
+    <p>Ningún criterio coincide con los filtros seleccionados.</p>
+  }
+} @else {
+  <p>No se ha encontrado la página.</p>
+}

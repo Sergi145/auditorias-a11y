@@ -1,0 +1,45 @@
+@if (pagina) {
+  <h1>Escaneo automático</h1>
+  <p class="subtitulo">{{ pagina.nombre }} · {{ pagina.url }}</p>
+
+  <mat-tab-group>
+    <mat-tab label="Pegar HTML">
+      <form class="formulario" [formGroup]="formularioHtml" (ngSubmit)="ejecutarEscaneo()">
+        <mat-form-field appearance="outline">
+          <mat-label>HTML de la página</mat-label>
+          <textarea matInput formControlName="html" rows="8" placeholder="<html>...</html>"></textarea>
+        </mat-form-field>
+        <div class="formulario__acciones">
+          <button mat-flat-button type="submit">
+            <mat-icon aria-hidden="true">search</mat-icon>
+            Ejecutar escaneo
+          </button>
+        </div>
+      </form>
+    </mat-tab>
+    <mat-tab label="URL en vivo">
+      <form class="formulario" [formGroup]="formularioUrl" (ngSubmit)="ejecutarEscaneo()">
+        <mat-form-field appearance="outline">
+          <mat-label>URL a escanear</mat-label>
+          <input matInput type="url" formControlName="url" />
+        </mat-form-field>
+        <div class="formulario__acciones">
+          <button mat-flat-button type="submit">
+            <mat-icon aria-hidden="true">search</mat-icon>
+            Ejecutar escaneo
+          </button>
+        </div>
+      </form>
+    </mat-tab>
+  </mat-tab-group>
+
+  <p class="nota">
+    <mat-icon aria-hidden="true">info</mat-icon>
+    Esta maqueta solo muestra el flujo de escaneo; el análisis real con axe-core llega en la
+    rebanada 09-escaneo-axe.
+  </p>
+
+  <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Volver al checklist</a>
+} @else {
+  <p>No se ha encontrado la página.</p>
+}

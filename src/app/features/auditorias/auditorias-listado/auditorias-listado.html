@@ -1,0 +1,40 @@
+<div class="pantalla__cabecera">
+  <h1>Auditorías</h1>
+  <a mat-flat-button routerLink="/auditorias/nueva">
+    <mat-icon aria-hidden="true">add</mat-icon>
+    Nueva auditoría
+  </a>
+</div>
+
+<div class="listado-auditorias">
+  @for (item of auditorias; track item.auditoria.id) {
+    <mat-card class="tarjeta-auditoria" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <a [routerLink]="['/auditorias', item.auditoria.id]">{{ item.auditoria.nombre }}</a>
+        </mat-card-title>
+        <mat-card-subtitle>{{ item.auditoria.cliente }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-chip-set aria-label="Metadatos de la auditoría">
+          <mat-chip>Nivel {{ item.auditoria.estandar_objetivo }}</mat-chip>
+          <mat-chip>{{ etiquetaEstado[item.auditoria.estado] }}</mat-chip>
+        </mat-chip-set>
+
+        <div class="progreso">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="item.porcentajeRevisado"
+            [attr.aria-label]="'Progreso revisado: ' + item.porcentajeRevisado + ' por ciento'"
+          />
+          <span>{{ item.porcentajeRevisado }}% revisado</span>
+        </div>
+
+        <p class="tarjeta-auditoria__fallos">
+          Fallos: {{ item.fallosPorSeveridad.critica }} crítica · {{ item.fallosPorSeveridad.alta }} alta
+          · {{ item.fallosPorSeveridad.media }} media · {{ item.fallosPorSeveridad.baja }} baja
+        </p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

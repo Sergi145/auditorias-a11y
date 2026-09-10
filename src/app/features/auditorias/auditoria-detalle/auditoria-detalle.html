@@ -1,0 +1,50 @@
+@if (auditoria) {
+  <a mat-button routerLink="/auditorias">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    Volver a auditorías
+  </a>
+
+  <div class="pantalla__cabecera">
+    <div>
+      <h1>{{ auditoria.nombre }}</h1>
+      <p class="subtitulo">{{ auditoria.cliente }} · {{ auditoria.url_base }}</p>
+      <mat-chip-set aria-label="Metadatos de la auditoría">
+        <mat-chip>Nivel {{ auditoria.estandar_objetivo }}</mat-chip>
+        <mat-chip>{{ etiquetaEstado[auditoria.estado] }}</mat-chip>
+      </mat-chip-set>
+    </div>
+    <div class="acciones">
+      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'progreso']">
+        <mat-icon aria-hidden="true">insights</mat-icon>
+        Progreso
+      </a>
+      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'exportar']">
+        <mat-icon aria-hidden="true">download</mat-icon>
+        Exportar
+      </a>
+    </div>
+  </div>
+
+  <div class="pantalla__cabecera">
+    <h2>Páginas</h2>
+    <a mat-flat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', 'nueva']">
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Añadir página
+    </a>
+  </div>
+
+  @if (paginas.length > 0) {
+    <mat-nav-list>
+      @for (pagina of paginas; track pagina.id) {
+        <a mat-list-item [routerLink]="['/auditorias', auditoriaId, 'paginas', pagina.id]">
+          <span matListItemTitle>{{ pagina.nombre }}</span>
+          <span matListItemLine>{{ pagina.url }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  } @else {
+    <p>Todavía no se ha añadido ninguna página.</p>
+  }
+} @else {
+  <p>No se ha encontrado la auditoría.</p>
+}

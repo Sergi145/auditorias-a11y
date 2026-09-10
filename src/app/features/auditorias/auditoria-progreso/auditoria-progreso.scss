@@ -1,0 +1,115 @@
+// Paleta de estado fija (crítica/alta/media/baja) de la skill de dataviz —
+// deliberadamente independiente del tema M3 violeta/naranja de la app,
+// porque la severidad es un significado universal, no de marca.
+:host {
+  --severidad-critica: #d03b3b;
+  --severidad-alta: #ec835a;
+  --severidad-media: #fab219;
+  --severidad-baja: #0ca30c;
+}
+
+.tile-hero {
+  max-width: 320px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container);
+  margin-block-end: 24px;
+}
+
+.tile-hero__label {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.tile-hero__valor {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 4px 0 12px;
+}
+
+.kpi-fila {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-block-end: 24px;
+  max-width: 640px;
+}
+
+.kpi-tile {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container);
+  border-inline-start: 4px solid var(--tile-color);
+
+  mat-icon {
+    color: var(--tile-color);
+  }
+}
+
+.kpi-tile--critica {
+  --tile-color: var(--severidad-critica);
+}
+
+.kpi-tile--alta {
+  --tile-color: var(--severidad-alta);
+}
+
+.kpi-tile--media {
+  --tile-color: var(--severidad-media);
+}
+
+.kpi-tile--baja {
+  --tile-color: var(--severidad-baja);
+}
+
+.kpi-tile__valor {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 8px 0 0;
+}
+
+.kpi-tile__etiqueta {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+  list-style: none;
+  padding: 0;
+}
+
+.ranking__fila {
+  display: grid;
+  grid-template-columns: 160px 1fr 32px;
+  align-items: center;
+  gap: 12px;
+}
+
+.ranking__nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking__barra-pista {
+  height: 24px;
+  border-radius: 4px;
+  background: var(--mat-sys-primary-container);
+  overflow: hidden;
+}
+
+.ranking__barra {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--mat-sys-primary);
+}
+
+.ranking__valor {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

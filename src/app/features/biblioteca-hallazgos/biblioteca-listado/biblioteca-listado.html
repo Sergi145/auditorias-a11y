@@ -1,0 +1,31 @@
+<h1>Biblioteca de hallazgos</h1>
+<p class="pantalla__intro">
+  Redacciones de hallazgos ya usadas en auditorías anteriores, listas para reutilizar.
+</p>
+
+<div class="listado-hallazgos">
+  @for (hallazgo of hallazgos; track hallazgo.id) {
+    <mat-card class="tarjeta-hallazgo" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <a [routerLink]="['/biblioteca', hallazgo.id]">{{ hallazgo.titulo }}</a>
+        </mat-card-title>
+        <mat-card-subtitle>
+          Criterio {{ hallazgo.criterio_codigo }}
+          @if (componenteDe(hallazgo.componente_id); as componente) {
+            · {{ componente.nombre }}
+          }
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ hallazgo.descripcion }}</p>
+        <mat-chip-set aria-label="Etiquetas del hallazgo">
+          @for (etiqueta of hallazgo.etiquetas; track etiqueta) {
+            <mat-chip>{{ etiqueta }}</mat-chip>
+          }
+        </mat-chip-set>
+        <p class="tarjeta-hallazgo__uso">Usado {{ hallazgo.veces_usado }} veces</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

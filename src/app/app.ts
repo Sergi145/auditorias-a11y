@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { DatabaseService } from './core/database';
+import { Shell } from './shared/shell/shell';
 
 @Component({
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [Shell],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',

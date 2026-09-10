@@ -28,11 +28,6 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/govuk-frontend/dist/govuk/assets",
-                "output": "/assets"
               }
             ],
             "styles": ["src/styles.scss"]

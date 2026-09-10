@@ -1,0 +1,48 @@
+<h1>Nueva auditoría</h1>
+
+<form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
+  <mat-form-field appearance="outline">
+    <mat-label>Nombre de la auditoría</mat-label>
+    <input matInput formControlName="nombre" required />
+    @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
+      <mat-error>Introduce un nombre.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Cliente</mat-label>
+    <input matInput formControlName="cliente" required />
+    @if (formulario.controls.cliente.invalid && formulario.controls.cliente.touched) {
+      <mat-error>Introduce el cliente.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>URL base</mat-label>
+    <input matInput type="url" formControlName="url_base" placeholder="https://ejemplo.org" required />
+    @if (formulario.controls.url_base.invalid && formulario.controls.url_base.touched) {
+      <mat-error>Introduce una URL válida (empieza por http:// o https://).</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Fecha de inicio</mat-label>
+    <input matInput type="date" formControlName="fecha_inicio" required />
+    @if (formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched) {
+      <mat-error>Selecciona una fecha.</mat-error>
+    }
+  </mat-form-field>
+
+  <fieldset class="formulario__grupo">
+    <legend>Nivel objetivo</legend>
+    <mat-radio-group formControlName="estandar_objetivo">
+      <mat-radio-button value="A">A</mat-radio-button>
+      <mat-radio-button value="AA">AA</mat-radio-button>
+    </mat-radio-group>
+  </fieldset>
+
+  <div class="formulario__acciones">
+    <a mat-button routerLink="/auditorias">Cancelar</a>
+    <button mat-flat-button type="submit">Crear auditoría</button>
+  </div>
+</form>

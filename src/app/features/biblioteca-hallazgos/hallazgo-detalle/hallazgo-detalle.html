@@ -1,0 +1,52 @@
+@if (hallazgo) {
+  <h1>{{ hallazgo.titulo }}</h1>
+  <p class="subtitulo">
+    Criterio {{ hallazgo.criterio_codigo }}
+    @if (criterio) {
+      · {{ criterio.nombre }}
+    }
+    @if (componente) {
+      · {{ componente.nombre }}
+    }
+    · Usado {{ hallazgo.veces_usado }} veces
+  </p>
+
+  <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
+    <mat-form-field appearance="outline">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="titulo" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción del hallazgo</mat-label>
+      <textarea matInput formControlName="descripcion" rows="4" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Recomendación de solución</mat-label>
+      <textarea matInput formControlName="recomendacion_fix" rows="4" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Severidad típica</mat-label>
+      <mat-select formControlName="severidad_tipica">
+        @for (severidad of severidades; track severidad) {
+          <mat-option [value]="severidad">{{ severidad }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-chip-set aria-label="Etiquetas">
+      @for (etiqueta of hallazgo.etiquetas; track etiqueta) {
+        <mat-chip>{{ etiqueta }}</mat-chip>
+      }
+    </mat-chip-set>
+
+    <div class="formulario__acciones">
+      <a mat-button routerLink="/biblioteca">Cancelar</a>
+      <button mat-flat-button type="submit">Guardar cambios</button>
+    </div>
+  </form>
+} @else {
+  <p>No se ha encontrado el hallazgo.</p>
+}
