@@ -78,14 +78,17 @@
   </div>
 
   <div class="overflow-x-auto">
-    <table class="w-full min-w-[640px] border-collapse text-sm">
+    <table class="w-full min-w-[720px] border-collapse text-sm">
       <thead>
         <tr class="border-b border-slate-200 text-left">
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">
+            <span class="sr-only">Expandir hallazgos</span>
+          </th>
           <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Criterio</th>
           <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Nivel</th>
           <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Categoría</th>
           <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Estado</th>
-          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Severidad</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Hallazgos</th>
           <th scope="col" class="py-2 pr-3 font-medium text-slate-700">
             <span class="sr-only">Acciones</span>
           </th>
@@ -95,6 +98,27 @@
         @for (fila of filasFiltradas(); track fila.criterio.codigo) {
           <tr class="border-b border-slate-100">
             <td class="py-2 pr-3">
+              @if (estadoDe(fila) === 'falla') {
+                <button
+                  type="button"
+                  class="foco rounded p-1 text-slate-600"
+                  [attr.aria-expanded]="estaExpandida(fila.criterio.codigo)"
+                  [attr.aria-controls]="collapseId(fila.criterio.codigo)"
+                  (click)="toggleExpandir(fila.criterio.codigo)"
+                >
+                  <app-icon
+                    name="chevron-down"
+                    class="transition-transform"
+                    [class.rotate-180]="estaExpandida(fila.criterio.codigo)"
+                  />
+                  <span class="sr-only">
+                    {{ estaExpandida(fila.criterio.codigo) ? 'Ocultar' : 'Ver' }} hallazgos de
+                    {{ fila.criterio.codigo }}
+                  </span>
+                </button>
+              }
+            </td>
+            <td class="py-2 pr-3">
               <strong>{{ fila.criterio.codigo }}</strong> {{ fila.criterio.nombre }}
             </td>
             <td class="py-2 pr-3">{{ fila.criterio.nivel }}</td>
@@ -103,7 +127,7 @@
               <app-icon [name]="estadoIcono(fila)" class="align-middle" />
               {{ estadoEtiqueta(fila) }}
             </td>
-            <td class="py-2 pr-3">{{ fila.resultado?.severidad ?? '—' }}</td>
+            <td class="py-2 pr-3">{{ fila.hallazgos.length || '—' }}</td>
             <td class="py-2 pr-3">
               <a
                 appButton
@@ -121,6 +145,61 @@
               </a>
             </td>
           </tr>
+          @if (estadoDe(fila) === 'falla') {
+            <tr [id]="collapseId(fila.criterio.codigo)" [hidden]="!estaExpandida(fila.criterio.codigo)">
+              <td></td>
+              <td colspan="6" class="pb-4">
+                @if (fila.hallazgos.length > 0) {
+                  <ul class="m-0 flex list-none flex-col gap-2 p-0">
+                    @for (hallazgo of fila.hallazgos; track hallazgo.id) {
+                      <li appCard class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p class="m-0 text-sm font-semibold text-slate-900">
+                            {{ etiquetaSeveridad[hallazgo.severidad] }}
+                            @if (componenteNombre(hallazgo); as nombreComponente) {
+                              · {{ nombreComponente }}
+                            }
+                          </p>
+                          <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
+                        </div>
+                        <div class="flex shrink-0 gap-2">
+                          <a
+                            appButton
+                            variant="text"
+                            [routerLink]="[
+                              '/auditorias',
+                              auditoriaId,
+                              'paginas',
+                              paginaId,
+                              'criterios',
+                              fila.criterio.codigo,
+                            ]"
+                            [queryParams]="{ hallazgo: hallazgo.id }"
+                          >
+                            <app-icon name="edit" />
+                            Editar
+                          </a>
+                          <button
+                            appButton
+                            variant="text"
+                            type="button"
+                            (click)="eliminarHallazgo(hallazgo)"
+                          >
+                            <app-icon name="delete" />
+                            Eliminar
+                          </button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="m-0 text-sm text-slate-600">
+                    Todavía no hay hallazgos registrados para este criterio.
+                  </p>
+                }
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

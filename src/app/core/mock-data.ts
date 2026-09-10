@@ -1,132 +1,13 @@
-import { Injectable, inject } from '@angular/core';
-import { CriteriosWcagService } from './criterios-wcag';
-import type { Componente, Evidencia, HallazgoPlantilla, Pagina, Resultado } from './models';
+import { Injectable } from '@angular/core';
+import type { Componente, HallazgoPlantilla } from './models';
 
 // Datos de ejemplo para la maqueta navegable — ver specs/02-maqueta-m3.md.
-// Auditoria y Pagina ya son reales (Dexie vía AuditoriasService/
-// PaginasService, ver specs/05-auditorias-paginas.md); lo que queda aquí
-// (Resultado, Evidencia, HallazgoPlantilla, Componente) sigue siendo mock
-// hasta sus propias rebanadas (06-checklist-manual, 07-catalogo-
-// componentes, 08-biblioteca-hallazgos).
+// Auditoria, Pagina, Resultado y Hallazgo ya son reales (Dexie, ver
+// specs/05-auditorias-paginas.md y specs/06-checklist-manual.md); lo que
+// queda aquí (HallazgoPlantilla, Componente) sigue siendo mock hasta sus
+// propias rebanadas (07-catalogo-componentes, 08-biblioteca-hallazgos).
 @Injectable({ providedIn: 'root' })
 export class MockDataService {
-  private readonly criteriosWcag = inject(CriteriosWcagService);
-
-  private readonly resultadosData: Resultado[] = [
-    {
-      id: 1,
-      pagina_id: 1,
-      criterio_codigo: '1.1.1',
-      estado: 'falla',
-      severidad: 'alta',
-      origen: 'automatico',
-      notas: 'El logo del cabecero no tiene texto alternativo.',
-      fecha_revision: '2026-08-12',
-    },
-    {
-      id: 2,
-      pagina_id: 1,
-      criterio_codigo: '1.4.3',
-      estado: 'falla',
-      severidad: 'media',
-      origen: 'manual',
-      componente_id: 5,
-      notas: 'El texto de ayuda en gris claro no alcanza 4.5:1 sobre fondo blanco.',
-      hallazgo_plantilla_id: 2,
-      fecha_revision: '2026-08-12',
-    },
-    {
-      id: 3,
-      pagina_id: 1,
-      criterio_codigo: '2.1.1',
-      estado: 'pasa',
-      origen: 'manual',
-      notas: 'Navegación completa con Tab/Shift+Tab verificada.',
-      fecha_revision: '2026-08-12',
-    },
-    {
-      id: 4,
-      pagina_id: 1,
-      criterio_codigo: '2.4.7',
-      estado: 'falla',
-      severidad: 'critica',
-      origen: 'manual',
-      componente_id: 14,
-      notas: 'Los enlaces del menú principal no muestran anillo de foco visible.',
-      hallazgo_plantilla_id: 3,
-      fecha_revision: '2026-08-13',
-    },
-    {
-      id: 5,
-      pagina_id: 1,
-      criterio_codigo: '2.4.11',
-      estado: 'por_revisar',
-      origen: 'automatico',
-      notas: '',
-    },
-    {
-      id: 6,
-      pagina_id: 1,
-      criterio_codigo: '3.1.1',
-      estado: 'pasa',
-      origen: 'automatico',
-      notas: '`<html lang="es">` presente.',
-      fecha_revision: '2026-08-12',
-    },
-    {
-      id: 7,
-      pagina_id: 1,
-      criterio_codigo: '3.3.2',
-      estado: 'no_aplica',
-      origen: 'manual',
-      notas: 'La página no tiene formularios.',
-      fecha_revision: '2026-08-12',
-    },
-    {
-      id: 8,
-      pagina_id: 1,
-      criterio_codigo: '4.1.2',
-      estado: 'por_revisar',
-      origen: 'automatico',
-      notas: '',
-    },
-    {
-      id: 9,
-      pagina_id: 2,
-      criterio_codigo: '3.3.2',
-      estado: 'falla',
-      severidad: 'alta',
-      origen: 'manual',
-      componente_id: 25,
-      notas: 'El campo "DNI" no tiene etiqueta asociada, solo placeholder.',
-      hallazgo_plantilla_id: 4,
-      fecha_revision: '2026-08-14',
-    },
-    {
-      id: 10,
-      pagina_id: 2,
-      criterio_codigo: '2.1.1',
-      estado: 'por_revisar',
-      origen: 'automatico',
-      notas: '',
-    },
-  ];
-
-  private readonly evidenciasData: Evidencia[] = [
-    {
-      id: 1,
-      resultado_id: 1,
-      tipo: 'nota',
-      texto: 'Captura pendiente de subir: cabecero con logo sin alt.',
-    },
-    {
-      id: 2,
-      resultado_id: 4,
-      tipo: 'nota',
-      texto: 'Verificado con navegación por teclado y extensión de contraste de foco.',
-    },
-  ];
-
   private readonly hallazgosPlantillaData: HallazgoPlantilla[] = [
     {
       id: 1,
@@ -217,20 +98,6 @@ export class MockDataService {
     { id: 32, nombre: 'Chip de filtro', origen: 'personalizado', visible: true },
   ];
 
-  resultadosDePagina(paginaId: number): Resultado[] {
-    return this.resultadosData.filter((resultado) => resultado.pagina_id === paginaId);
-  }
-
-  resultado(paginaId: number, criterioCodigo: string): Resultado | undefined {
-    return this.resultadosData.find(
-      (resultado) => resultado.pagina_id === paginaId && resultado.criterio_codigo === criterioCodigo,
-    );
-  }
-
-  evidenciasDeResultado(resultadoId: number): Evidencia[] {
-    return this.evidenciasData.filter((evidencia) => evidencia.resultado_id === resultadoId);
-  }
-
   hallazgosPlantilla(): HallazgoPlantilla[] {
     return this.hallazgosPlantillaData;
   }
@@ -253,38 +120,5 @@ export class MockDataService {
 
   componente(id: number): Componente | undefined {
     return this.componentesData.find((componente) => componente.id === id);
-  }
-
-  // Resumen de progreso de una auditoría (% revisado, fallos por severidad)
-  // usado en el listado (pantalla 1) y en el panel de progreso (pantalla 11).
-  // Recibe las páginas ya resueltas (por PaginasService, real desde
-  // specs/05-auditorias-paginas.md) en vez de leerlas él mismo — ver
-  // "Decisiones tomadas y descartadas" de esa spec.
-  progresoDeAuditoria(paginas: Pagina[]): {
-    totalCriterios: number;
-    revisados: number;
-    porcentajeRevisado: number;
-    fallosPorSeveridad: Record<'critica' | 'alta' | 'media' | 'baja', number>;
-  } {
-    const resultados = paginas.flatMap((pagina) => this.resultadosDePagina(pagina.id!));
-    const totalCriterios = paginas.length * this.criteriosWcag.todos().length;
-    const revisados = resultados.filter((resultado) => resultado.estado !== 'por_revisar').length;
-    const fallosPorSeveridad: Record<'critica' | 'alta' | 'media' | 'baja', number> = {
-      critica: 0,
-      alta: 0,
-      media: 0,
-      baja: 0,
-    };
-    for (const resultado of resultados) {
-      if (resultado.estado === 'falla' && resultado.severidad) {
-        fallosPorSeveridad[resultado.severidad]++;
-      }
-    }
-    return {
-      totalCriterios,
-      revisados,
-      porcentajeRevisado: totalCriterios === 0 ? 0 : Math.round((revisados / totalCriterios) * 100),
-      fallosPorSeveridad,
-    };
   }
 }

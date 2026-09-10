@@ -1,6 +1,6 @@
 # 06 — Checklist manual: estado, severidad y hallazgos por criterio
 
-**Estado:** Aprobado
+**Estado:** Implemented
 **Depende de:** Spec 01 (Fundación), Spec 03 (Catálogo WCAG), Spec 05 (CRUD de auditorías y páginas)
 **Fecha:** 2026-09-10
 
@@ -227,6 +227,17 @@ manual.
 - **`fallosPorSeveridad` pasa a contar por hallazgo en vez de por
   resultado**: consecuencia directa de permitir varios hallazgos por
   criterio; ya no equivale a "número de criterios en Falla".
+- **Se quitó el checkbox "guardar en biblioteca" y el selector "criterio al
+  que afecta"** del formulario de hallazgo (existían en el mock de
+  `criterio-revision` antes de esta rebanada): un `Hallazgo` real siempre
+  cuelga del resultado que se está revisando, y esta rebanada no persiste
+  `HallazgoPlantilla` (sigue mock hasta `08-biblioteca-hallazgos`), así que
+  ambos campos no hacían nada real — dejarlos habría sido una interacción a
+  medias.
+- **"Guardar revisión" solo navega de vuelta al checklist cuando el estado
+  guardado no es "Falla"**: en "Falla" se queda en la pantalla para poder
+  añadir hallazgos justo después de guardar, coherente con que la sección
+  de hallazgos solo se habilita una vez el resultado existe en Dexie.
 
 ## Riesgos identificados
 

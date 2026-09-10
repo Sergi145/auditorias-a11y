@@ -13,7 +13,7 @@
     }
   </ul>
 
-  <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
+  <form class="formulario" [formGroup]="formularioResultado" (ngSubmit)="guardarResultado()">
     <app-form-field label="Estado" #campoEstado="appFormField">
       <select
         appSelect
@@ -27,141 +27,213 @@
       </select>
     </app-form-field>
 
-    @if (muestraSeveridad()) {
-      <app-form-field label="Severidad" #campoSeveridad="appFormField">
-        <select
-          appSelect
-          [id]="campoSeveridad.id"
-          [attr.aria-describedby]="campoSeveridad.describedBy"
-          formControlName="severidad"
-        >
-          @for (severidad of severidades; track severidad) {
-            <option [ngValue]="severidad">{{ severidad }}</option>
-          }
-        </select>
-      </app-form-field>
-
-      <app-form-field label="Componente afectado" #campoComponente="appFormField">
-        <select
-          appSelect
-          [id]="campoComponente.id"
-          [attr.aria-describedby]="campoComponente.describedBy"
-          formControlName="componenteId"
-        >
-          <option [ngValue]="null">Selecciona un componente…</option>
-          @for (componente of componentes; track componente.id) {
-            <option [ngValue]="componente.id">{{ componente.nombre }}</option>
-          }
-        </select>
-      </app-form-field>
-
-      @if (muestraSeccionHallazgos()) {
-        <div class="my-4 max-w-[480px]">
-          <h2 class="text-lg font-semibold text-slate-900">Hallazgos sugeridos</h2>
-          @if (hallazgosSugeridos().length > 0) {
-            @for (hallazgo of hallazgosSugeridos(); track hallazgo.id) {
-              <article appCard class="mb-3">
-                <h3 class="text-base font-semibold text-slate-900">{{ hallazgo.titulo }}</h3>
-                <p class="text-sm text-slate-600">{{ hallazgo.descripcion }}</p>
-                <div class="mt-3 flex gap-2">
-                  <button appButton variant="text" type="button" (click)="usarHallazgo(hallazgo.id!)">
-                    Usar esta redacción
-                  </button>
-                  <a appButton variant="text" [routerLink]="['/biblioteca', hallazgo.id]">Ver en la biblioteca</a>
-                </div>
-              </article>
-            }
-          } @else {
-            <p class="text-sm text-slate-600">
-              No hay hallazgos guardados en la biblioteca para este componente.
-            </p>
-          }
-
-          @if (!anadiendoNuevo()) {
-            <button appButton variant="text" type="button" (click)="anadiendoNuevo.set(true)">
-              <app-icon name="add" />
-              Añadir hallazgo nuevo
-            </button>
-          } @else {
-            <article appCard class="mb-3">
-              <app-form-field label="Título del hallazgo" #campoNuevoTitulo="appFormField">
-                <input
-                  appInput
-                  type="text"
-                  [id]="campoNuevoTitulo.id"
-                  [attr.aria-describedby]="campoNuevoTitulo.describedBy"
-                  formControlName="nuevoTitulo"
-                />
-              </app-form-field>
-
-              <app-form-field label="Criterio al que afecta" #campoNuevoCriterio="appFormField">
-                <select
-                  appSelect
-                  [id]="campoNuevoCriterio.id"
-                  [attr.aria-describedby]="campoNuevoCriterio.describedBy"
-                  formControlName="nuevoCriterioCodigo"
-                >
-                  @for (c of criterios; track c.codigo) {
-                    <option [ngValue]="c.codigo">{{ c.codigo }} · {{ c.nombre }}</option>
-                  }
-                </select>
-              </app-form-field>
-
-              <p class="text-sm text-slate-600">
-                Escribe la descripción de este hallazgo en el campo «{{ etiquetaNotas() }}» de
-                abajo.
-              </p>
-
-              <div class="my-3 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="guardarEnBiblioteca"
-                  class="foco h-4 w-4 rounded border-slate-300 text-violet-700"
-                  formControlName="guardarEnBiblioteca"
-                />
-                <label for="guardarEnBiblioteca" class="text-sm text-slate-700">
-                  Guardar esta redacción en la biblioteca de hallazgos
-                </label>
-              </div>
-
-              <button appButton variant="text" type="button" (click)="cancelarHallazgoNuevo()">
-                Quitar hallazgo nuevo
-              </button>
-            </article>
-          }
-        </div>
-      }
-    }
-
-    <app-form-field [label]="etiquetaNotas()" #campoNotas="appFormField">
+    <app-form-field label="Notas" #campoNotas="appFormField">
       <textarea
         appInput
         [id]="campoNotas.id"
         [attr.aria-describedby]="campoNotas.describedBy"
         formControlName="notas"
-        rows="5"
+        rows="4"
       ></textarea>
     </app-form-field>
-
-    @if (evidencias.length > 0) {
-      <div class="my-4">
-        <h2 class="text-lg font-semibold text-slate-900">Evidencia</h2>
-        @for (evidencia of evidencias; track evidencia.id) {
-          <p>{{ evidencia.texto }}</p>
-        }
-      </div>
-    }
-
-    <p class="nota">
-      <app-icon name="info" />
-      Adjuntar capturas estará disponible en la rebanada 06-checklist-manual.
-    </p>
 
     <div class="formulario__acciones">
       <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
       <button appButton type="submit">Guardar revisión</button>
     </div>
   </form>
+
+  @if (muestraSeveridad()) {
+    <div class="my-4 max-w-[560px]">
+      <h2 class="text-lg font-semibold text-slate-900">Hallazgos</h2>
+
+      @if (avisoGuardarParaHallazgos()) {
+        <p class="nota">
+          <app-icon name="info" />
+          Guarda el estado como "Falla" para poder añadir hallazgos.
+        </p>
+      } @else {
+        @if (hallazgos().length > 0) {
+          <ul class="m-0 mb-3 flex list-none flex-col gap-3 p-0">
+            @for (hallazgo of hallazgos(); track hallazgo.id) {
+              <li>
+                @if (hallazgoEnEdicion() === hallazgo.id) {
+                  <article appCard [formGroup]="formularioHallazgo">
+                    <app-form-field label="Severidad" #campoSeveridadEditar="appFormField">
+                      <select
+                        appSelect
+                        [id]="campoSeveridadEditar.id"
+                        [attr.aria-describedby]="campoSeveridadEditar.describedBy"
+                        formControlName="severidad"
+                      >
+                        <option [ngValue]="null">Selecciona una severidad…</option>
+                        @for (severidad of severidades; track severidad) {
+                          <option [ngValue]="severidad">{{ severidad }}</option>
+                        }
+                      </select>
+                    </app-form-field>
+
+                    <app-form-field label="Componente afectado" #campoComponenteEditar="appFormField">
+                      <select
+                        appSelect
+                        [id]="campoComponenteEditar.id"
+                        [attr.aria-describedby]="campoComponenteEditar.describedBy"
+                        formControlName="componenteId"
+                      >
+                        <option [ngValue]="null">Selecciona un componente…</option>
+                        @for (componente of componentes; track componente.id) {
+                          <option [ngValue]="componente.id">{{ componente.nombre }}</option>
+                        }
+                      </select>
+                    </app-form-field>
+
+                    @if (hallazgosSugeridos().length > 0) {
+                      <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
+                      @for (plantilla of hallazgosSugeridos(); track plantilla.id) {
+                        <article appCard class="mb-3">
+                          <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
+                          <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
+                          <div class="mt-3 flex gap-2">
+                            <button appButton variant="text" type="button" (click)="usarPlantilla(plantilla)">
+                              Usar esta redacción
+                            </button>
+                            <a appButton variant="text" [routerLink]="['/biblioteca', plantilla.id]">
+                              Ver en la biblioteca
+                            </a>
+                          </div>
+                        </article>
+                      }
+                    }
+
+                    <app-form-field label="Descripción del hallazgo" #campoNotasEditar="appFormField">
+                      <textarea
+                        appInput
+                        [id]="campoNotasEditar.id"
+                        [attr.aria-describedby]="campoNotasEditar.describedBy"
+                        formControlName="notas"
+                        rows="4"
+                      ></textarea>
+                    </app-form-field>
+
+                    <div class="formulario__acciones">
+                      <button appButton variant="text" type="button" (click)="cancelarHallazgo()">
+                        Cancelar
+                      </button>
+                      <button appButton type="button" (click)="guardarHallazgo()">Guardar hallazgo</button>
+                    </div>
+                  </article>
+                } @else {
+                  <article appCard class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p class="m-0 text-sm font-semibold text-slate-900">
+                        {{ hallazgo.severidad }}
+                        @if (componenteNombre(hallazgo); as nombreComponente) {
+                          · {{ nombreComponente }}
+                        }
+                      </p>
+                      <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
+                    </div>
+                    <div class="flex shrink-0 gap-2">
+                      <button
+                        appButton
+                        variant="text"
+                        type="button"
+                        (click)="empezarEditarHallazgo(hallazgo)"
+                      >
+                        <app-icon name="edit" />
+                        Editar
+                      </button>
+                      <button appButton variant="text" type="button" (click)="eliminarHallazgo(hallazgo)">
+                        <app-icon name="delete" />
+                        Eliminar
+                      </button>
+                    </div>
+                  </article>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        @if (hallazgoEnEdicion() === 'nuevo') {
+          <article appCard class="mb-3" [formGroup]="formularioHallazgo">
+            <h3 class="text-base font-semibold text-slate-900">Nuevo hallazgo</h3>
+
+            <app-form-field label="Severidad" #campoSeveridadNuevo="appFormField">
+              <select
+                appSelect
+                [id]="campoSeveridadNuevo.id"
+                [attr.aria-describedby]="campoSeveridadNuevo.describedBy"
+                formControlName="severidad"
+              >
+                <option [ngValue]="null">Selecciona una severidad…</option>
+                @for (severidad of severidades; track severidad) {
+                  <option [ngValue]="severidad">{{ severidad }}</option>
+                }
+              </select>
+            </app-form-field>
+
+            <app-form-field label="Componente afectado" #campoComponenteNuevo="appFormField">
+              <select
+                appSelect
+                [id]="campoComponenteNuevo.id"
+                [attr.aria-describedby]="campoComponenteNuevo.describedBy"
+                formControlName="componenteId"
+              >
+                <option [ngValue]="null">Selecciona un componente…</option>
+                @for (componente of componentes; track componente.id) {
+                  <option [ngValue]="componente.id">{{ componente.nombre }}</option>
+                }
+              </select>
+            </app-form-field>
+
+            @if (hallazgosSugeridos().length > 0) {
+              <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
+              @for (plantilla of hallazgosSugeridos(); track plantilla.id) {
+                <article appCard class="mb-3">
+                  <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
+                  <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
+                  <div class="mt-3 flex gap-2">
+                    <button appButton variant="text" type="button" (click)="usarPlantilla(plantilla)">
+                      Usar esta redacción
+                    </button>
+                    <a appButton variant="text" [routerLink]="['/biblioteca', plantilla.id]">
+                      Ver en la biblioteca
+                    </a>
+                  </div>
+                </article>
+              }
+            }
+
+            <app-form-field label="Descripción del hallazgo" #campoNotasNuevo="appFormField">
+              <textarea
+                appInput
+                [id]="campoNotasNuevo.id"
+                [attr.aria-describedby]="campoNotasNuevo.describedBy"
+                formControlName="notas"
+                rows="4"
+              ></textarea>
+            </app-form-field>
+
+            <div class="formulario__acciones">
+              <button appButton variant="text" type="button" (click)="cancelarHallazgo()">Cancelar</button>
+              <button appButton type="button" (click)="guardarHallazgo()">Guardar hallazgo</button>
+            </div>
+          </article>
+        } @else {
+          <button appButton variant="text" type="button" (click)="empezarNuevoHallazgo()">
+            <app-icon name="add" />
+            Añadir hallazgo
+          </button>
+        }
+      }
+    </div>
+  }
+
+  <p class="nota">
+    <app-icon name="info" />
+    Adjuntar capturas llegará en una rebanada futura.
+  </p>
 } @else {
   <p>No se ha encontrado el criterio.</p>
 }
