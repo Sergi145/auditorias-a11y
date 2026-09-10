@@ -92,7 +92,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 ## 7. Stack técnico propuesto
 
 - **Frontend**: Angular + TypeScript, componentes standalone, Reactive Forms para el checklist.
-- **Diseño / UI**: adaptación del GOV.UK Design System — kit de Figma comunitario para maquetar pantallas, y el paquete `govuk-frontend` para el CSS/SCSS de los componentes (tablas, tags de estado, error summary, notification banner, details/accordion). Reskin de marca vía variables SCSS. El comportamiento interactivo se reimplementa con Angular CDK `a11y` en vez del JS vanilla de `govuk-frontend`. (Independiente del catálogo de componentes Bootstrap de §5.6, que clasifica lo auditado, no la UI propia.)
+- **Diseño / UI**: Material Design 3 (https://m3.material.io/foundations) vía Angular Material — tema M3 (color, tipografía, forma) configurado sobre los tokens oficiales. El comportamiento interactivo se apoya en la accesibilidad nativa de Angular Material más Angular CDK `a11y` donde haga falta complementarla. (Independiente del catálogo de componentes Bootstrap de §5.6, que clasifica lo auditado, no la UI propia. Sustituye la decisión previa de GOV.UK Design System, ver `specs/02-maqueta-m3.md`.)
 - **Accesibilidad de la propia app**: Angular CDK `a11y` (`LiveAnnouncer`, `FocusTrap`, `FocusMonitor`, `ListKeyManager`).
 - **Persistencia**: IndexedDB vía Dexie.js (MVP local-first); Supabase (Postgres) en fase 2.
 - **Escaneo automático**: axe-core (client-side) + función serverless con Playwright + axe-core para URLs en vivo.
