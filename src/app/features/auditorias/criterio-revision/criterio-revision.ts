@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type { EstadoResultado, Severidad } from '../../../core/models';
 
@@ -37,6 +38,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 })
 export class CriterioRevision {
   private readonly mockData = inject(MockDataService);
+  private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -49,7 +51,7 @@ export class CriterioRevision {
   protected readonly paginaId = this.route.snapshot.paramMap.get('paginaId')!;
   protected readonly codigo = this.route.snapshot.paramMap.get('codigo')!;
 
-  protected readonly criterio = this.mockData.criterio(this.codigo);
+  protected readonly criterio = this.criteriosWcag.porCodigo(this.codigo);
   protected readonly resultado = this.mockData.resultado(Number(this.paginaId), this.codigo);
   protected readonly evidencias = this.resultado?.id
     ? this.mockData.evidenciasDeResultado(this.resultado.id)

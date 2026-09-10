@@ -6,6 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type { Severidad } from '../../../core/models';
 
@@ -29,6 +30,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 })
 export class HallazgoDetalle {
   private readonly mockData = inject(MockDataService);
+  private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -37,7 +39,7 @@ export class HallazgoDetalle {
   protected readonly hallazgoId = Number(this.route.snapshot.paramMap.get('id'));
   protected readonly hallazgo = this.mockData.hallazgoPlantilla(this.hallazgoId);
   protected readonly criterio = this.hallazgo
-    ? this.mockData.criterio(this.hallazgo.criterio_codigo)
+    ? this.criteriosWcag.porCodigo(this.hallazgo.criterio_codigo)
     : undefined;
   protected readonly componente =
     this.hallazgo?.componente_id !== undefined
