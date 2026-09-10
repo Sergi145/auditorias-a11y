@@ -1,47 +1,52 @@
 @if (auditoria) {
-  <a mat-button routerLink="/auditorias">
-    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+  <a appButton variant="text" routerLink="/auditorias">
+    <app-icon name="arrow-back" />
     Volver a auditorías
   </a>
 
   <div class="pantalla__cabecera">
     <div>
-      <h1>{{ auditoria.nombre }}</h1>
+      <h1 class="text-2xl font-semibold text-slate-900">{{ auditoria.nombre }}</h1>
       <p class="subtitulo">{{ auditoria.cliente }} · {{ auditoria.url_base }}</p>
-      <mat-chip-set aria-label="Metadatos de la auditoría">
-        <mat-chip>Nivel {{ auditoria.estandar_objetivo }}</mat-chip>
-        <mat-chip>{{ etiquetaEstado[auditoria.estado] }}</mat-chip>
-      </mat-chip-set>
+      <ul aria-label="Metadatos de la auditoría" class="m-0 flex list-none flex-wrap gap-2 p-0">
+        <li><app-chip>Nivel {{ auditoria.estandar_objetivo }}</app-chip></li>
+        <li><app-chip>{{ etiquetaEstado[auditoria.estado] }}</app-chip></li>
+      </ul>
     </div>
     <div class="acciones">
-      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'progreso']">
-        <mat-icon aria-hidden="true">insights</mat-icon>
+      <a appButton variant="secondary" [routerLink]="['/auditorias', auditoriaId, 'progreso']">
+        <app-icon name="insights" />
         Progreso
       </a>
-      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'exportar']">
-        <mat-icon aria-hidden="true">download</mat-icon>
+      <a appButton variant="secondary" [routerLink]="['/auditorias', auditoriaId, 'exportar']">
+        <app-icon name="download" />
         Exportar
       </a>
     </div>
   </div>
 
   <div class="pantalla__cabecera">
-    <h2>Páginas</h2>
-    <a mat-flat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', 'nueva']">
-      <mat-icon aria-hidden="true">add</mat-icon>
+    <h2 class="text-xl font-semibold text-slate-900">Páginas</h2>
+    <a appButton [routerLink]="['/auditorias', auditoriaId, 'paginas', 'nueva']">
+      <app-icon name="add" />
       Añadir página
     </a>
   </div>
 
   @if (paginas.length > 0) {
-    <mat-nav-list>
+    <ul class="m-0 flex list-none flex-col gap-1 p-0">
       @for (pagina of paginas; track pagina.id) {
-        <a mat-list-item [routerLink]="['/auditorias', auditoriaId, 'paginas', pagina.id]">
-          <span matListItemTitle>{{ pagina.nombre }}</span>
-          <span matListItemLine>{{ pagina.url }}</span>
-        </a>
+        <li>
+          <a
+            [routerLink]="['/auditorias', auditoriaId, 'paginas', pagina.id]"
+            class="foco block rounded-lg px-3 py-2 hover:bg-slate-100"
+          >
+            <span class="block font-medium text-slate-900">{{ pagina.nombre }}</span>
+            <span class="block text-sm text-slate-600">{{ pagina.url }}</span>
+          </a>
+        </li>
       }
-    </mat-nav-list>
+    </ul>
   } @else {
     <p>Todavía no se ha añadido ninguna página.</p>
   }

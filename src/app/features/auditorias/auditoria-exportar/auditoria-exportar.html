@@ -1,27 +1,27 @@
 @if (auditoria) {
-  <h1>Exportar informe</h1>
+  <h1 class="text-2xl font-semibold text-slate-900">Exportar informe</h1>
   <p class="subtitulo">{{ auditoria.nombre }} · {{ auditoria.cliente }}</p>
 
   <p class="pantalla__intro">Genera el informe de esta auditoría en el formato que necesites.</p>
 
   <div class="acciones">
-    <button mat-flat-button type="button" (click)="exportar('Excel')">
-      <mat-icon aria-hidden="true">table_view</mat-icon>
+    <button appButton type="button" (click)="exportar('Excel')">
+      <app-icon name="table" />
       Exportar a Excel
     </button>
-    <button mat-stroked-button type="button" (click)="exportar('PDF')">
-      <mat-icon aria-hidden="true">picture_as_pdf</mat-icon>
+    <button appButton variant="secondary" type="button" (click)="exportar('PDF')">
+      <app-icon name="document" />
       Exportar a PDF
     </button>
   </div>
 
   <p class="nota">
-    <mat-icon aria-hidden="true">info</mat-icon>
+    <app-icon name="info" />
     Esta maqueta solo muestra el flujo de exportación; la generación real de los archivos llega en
-    la rebanada 08-exportacion.
+    la rebanada 09-exportacion.
   </p>
 
-  <a mat-button [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+  <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
 } @else {
   <p>No se ha encontrado la auditoría.</p>
 }

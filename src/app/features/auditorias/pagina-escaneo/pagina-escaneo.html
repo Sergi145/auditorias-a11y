@@ -1,45 +1,59 @@
 @if (pagina) {
-  <h1>Escaneo automático</h1>
+  <h1 class="text-2xl font-semibold text-slate-900">Escaneo automático</h1>
   <p class="subtitulo">{{ pagina.nombre }} · {{ pagina.url }}</p>
 
-  <mat-tab-group>
-    <mat-tab label="Pegar HTML">
-      <form class="formulario" [formGroup]="formularioHtml" (ngSubmit)="ejecutarEscaneo()">
-        <mat-form-field appearance="outline">
-          <mat-label>HTML de la página</mat-label>
-          <textarea matInput formControlName="html" rows="8" placeholder="<html>...</html>"></textarea>
-        </mat-form-field>
-        <div class="formulario__acciones">
-          <button mat-flat-button type="submit">
-            <mat-icon aria-hidden="true">search</mat-icon>
-            Ejecutar escaneo
-          </button>
-        </div>
-      </form>
-    </mat-tab>
-    <mat-tab label="URL en vivo">
-      <form class="formulario" [formGroup]="formularioUrl" (ngSubmit)="ejecutarEscaneo()">
-        <mat-form-field appearance="outline">
-          <mat-label>URL a escanear</mat-label>
-          <input matInput type="url" formControlName="url" />
-        </mat-form-field>
-        <div class="formulario__acciones">
-          <button mat-flat-button type="submit">
-            <mat-icon aria-hidden="true">search</mat-icon>
-            Ejecutar escaneo
-          </button>
-        </div>
-      </form>
-    </mat-tab>
-  </mat-tab-group>
+  <app-tabs [tabs]="tabs" label="Método de escaneo" [(selectedIndex)]="tabIndex" />
+
+  <div id="html-panel" role="tabpanel" aria-labelledby="html-tab" [hidden]="tabIndex() !== 0">
+    <form class="formulario pt-4" [formGroup]="formularioHtml" (ngSubmit)="ejecutarEscaneo()">
+      <app-form-field label="HTML de la página" #campoHtml="appFormField">
+        <textarea
+          appInput
+          [id]="campoHtml.id"
+          [attr.aria-describedby]="campoHtml.describedBy"
+          formControlName="html"
+          rows="8"
+          placeholder="<html>...</html>"
+        ></textarea>
+      </app-form-field>
+      <div class="formulario__acciones">
+        <button appButton type="submit">
+          <app-icon name="search" />
+          Ejecutar escaneo
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" [hidden]="tabIndex() !== 1">
+    <form class="formulario pt-4" [formGroup]="formularioUrl" (ngSubmit)="ejecutarEscaneo()">
+      <app-form-field label="URL a escanear" #campoUrl="appFormField">
+        <input
+          appInput
+          [id]="campoUrl.id"
+          [attr.aria-describedby]="campoUrl.describedBy"
+          type="url"
+          formControlName="url"
+        />
+      </app-form-field>
+      <div class="formulario__acciones">
+        <button appButton type="submit">
+          <app-icon name="search" />
+          Ejecutar escaneo
+        </button>
+      </div>
+    </form>
+  </div>
 
   <p class="nota">
-    <mat-icon aria-hidden="true">info</mat-icon>
+    <app-icon name="info" />
     Esta maqueta solo muestra el flujo de escaneo; el análisis real con axe-core llega en la
-    rebanada 09-escaneo-axe.
+    rebanada 10-escaneo-axe.
   </p>
 
-  <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Volver al checklist</a>
+  <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">
+    Volver al checklist
+  </a>
 } @else {
   <p>No se ha encontrado la página.</p>
 }

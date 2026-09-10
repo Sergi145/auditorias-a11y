@@ -1,65 +1,91 @@
-<a class="shell__skip-link" href="#contenido">Saltar al contenido principal</a>
+<a
+  href="#contenido"
+  class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-slate-900 focus:outline focus:outline-2 focus:outline-violet-700"
+>
+  Saltar al contenido principal
+</a>
 
-<mat-sidenav-container class="shell">
-  <mat-sidenav
-    #drawer
-    class="shell__nav"
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="isDesktop$ | async"
+<div class="flex h-full">
+  <app-drawer
+    [isHandset]="isHandset()"
+    [opened]="abierto()"
+    (openedChange)="onAbiertoChange($event)"
+    label="Navegación principal"
   >
-    <mat-nav-list aria-label="Navegación principal">
-      <a
-        mat-list-item
-        routerLink="/auditorias"
-        routerLinkActive
-        #auditoriasLink="routerLinkActive"
-        [activated]="auditoriasLink.isActive"
-      >
-        <mat-icon matListItemIcon>fact_check</mat-icon>
-        <span matListItemTitle>Auditorías</span>
-      </a>
-      <a
-        mat-list-item
-        routerLink="/biblioteca"
-        routerLinkActive
-        #bibliotecaLink="routerLinkActive"
-        [activated]="bibliotecaLink.isActive"
-      >
-        <mat-icon matListItemIcon>library_books</mat-icon>
-        <span matListItemTitle>Biblioteca de hallazgos</span>
-      </a>
-      <a
-        mat-list-item
-        routerLink="/componentes"
-        routerLinkActive
-        #componentesLink="routerLinkActive"
-        [activated]="componentesLink.isActive"
-      >
-        <mat-icon matListItemIcon>widgets</mat-icon>
-        <span matListItemTitle>Componentes</span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <header>
-      <mat-toolbar color="primary">
-        @if (isHandset$ | async) {
-          <button
-            mat-icon-button
-            type="button"
-            aria-label="Abrir menú de navegación"
-            (click)="drawer.toggle()"
+    <nav aria-label="Navegación principal">
+      <ul class="m-0 flex list-none flex-col gap-1 p-0">
+        <li>
+          <a
+            routerLink="/auditorias"
+            routerLinkActive
+            #auditoriasLink="routerLinkActive"
+            class="foco flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium"
+            [class.bg-violet-50]="auditoriasLink.isActive"
+            [class.text-violet-700]="auditoriasLink.isActive"
+            [class.text-slate-700]="!auditoriasLink.isActive"
+            [class.hover:bg-slate-100]="!auditoriasLink.isActive"
           >
-            <mat-icon>menu</mat-icon>
+            <app-icon name="clipboard-check" />
+            Auditorías
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/biblioteca"
+            routerLinkActive
+            #bibliotecaLink="routerLinkActive"
+            class="foco flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium"
+            [class.bg-violet-50]="bibliotecaLink.isActive"
+            [class.text-violet-700]="bibliotecaLink.isActive"
+            [class.text-slate-700]="!bibliotecaLink.isActive"
+            [class.hover:bg-slate-100]="!bibliotecaLink.isActive"
+          >
+            <app-icon name="book" />
+            Biblioteca de hallazgos
+          </a>
+        </li>
+        <li>
+          <a
+            routerLink="/componentes"
+            routerLinkActive
+            #componentesLink="routerLinkActive"
+            class="foco flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium"
+            [class.bg-violet-50]="componentesLink.isActive"
+            [class.text-violet-700]="componentesLink.isActive"
+            [class.text-slate-700]="!componentesLink.isActive"
+            [class.hover:bg-slate-100]="!componentesLink.isActive"
+          >
+            <app-icon name="grid" />
+            Componentes
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </app-drawer>
+
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="border-b border-slate-200">
+      <div class="flex items-center gap-2 px-4 py-3">
+        @if (isHandset()) {
+          <button
+            #botonMenu
+            type="button"
+            appButton
+            variant="icon"
+            aria-label="Abrir menú de navegación"
+            (click)="alternar()"
+          >
+            <app-icon name="menu" />
           </button>
         }
-        <span class="shell__title">Auditorías A11y</span>
-      </mat-toolbar>
+        <span class="shell__title text-lg font-semibold text-slate-900">Auditorías A11y</span>
+      </div>
     </header>
 
-    <main class="shell__content" id="contenido">
+    <main class="mx-auto w-full max-w-[960px] flex-1 p-6" id="contenido">
       <router-outlet />
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</div>
+
+<app-toast-host />

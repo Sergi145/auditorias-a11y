@@ -1,48 +1,97 @@
-<h1>Nueva auditoría</h1>
+<h1 class="mb-6 text-2xl font-semibold text-slate-900">Nueva auditoría</h1>
 
 <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
-  <mat-form-field appearance="outline">
-    <mat-label>Nombre de la auditoría</mat-label>
-    <input matInput formControlName="nombre" required />
-    @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
-      <mat-error>Introduce un nombre.</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="Nombre de la auditoría"
+    #campoNombre="appFormField"
+    [error]="
+      formulario.controls.nombre.invalid && formulario.controls.nombre.touched
+        ? 'Introduce un nombre.'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoNombre.id"
+      [attr.aria-describedby]="campoNombre.describedBy"
+      formControlName="nombre"
+      required
+    />
+  </app-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Cliente</mat-label>
-    <input matInput formControlName="cliente" required />
-    @if (formulario.controls.cliente.invalid && formulario.controls.cliente.touched) {
-      <mat-error>Introduce el cliente.</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="Cliente"
+    #campoCliente="appFormField"
+    [error]="
+      formulario.controls.cliente.invalid && formulario.controls.cliente.touched
+        ? 'Introduce el cliente.'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoCliente.id"
+      [attr.aria-describedby]="campoCliente.describedBy"
+      formControlName="cliente"
+      required
+    />
+  </app-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>URL base</mat-label>
-    <input matInput type="url" formControlName="url_base" placeholder="https://ejemplo.org" required />
-    @if (formulario.controls.url_base.invalid && formulario.controls.url_base.touched) {
-      <mat-error>Introduce una URL válida (empieza por http:// o https://).</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="URL base"
+    #campoUrl="appFormField"
+    [error]="
+      formulario.controls.url_base.invalid && formulario.controls.url_base.touched
+        ? 'Introduce una URL válida (empieza por http:// o https://).'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoUrl.id"
+      [attr.aria-describedby]="campoUrl.describedBy"
+      type="url"
+      formControlName="url_base"
+      placeholder="https://ejemplo.org"
+      required
+    />
+  </app-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Fecha de inicio</mat-label>
-    <input matInput type="date" formControlName="fecha_inicio" required />
-    @if (formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched) {
-      <mat-error>Selecciona una fecha.</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="Fecha de inicio"
+    #campoFecha="appFormField"
+    [error]="
+      formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched
+        ? 'Selecciona una fecha.'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoFecha.id"
+      [attr.aria-describedby]="campoFecha.describedBy"
+      type="date"
+      formControlName="fecha_inicio"
+      required
+    />
+  </app-form-field>
 
   <fieldset class="formulario__grupo">
     <legend>Nivel objetivo</legend>
-    <mat-radio-group formControlName="estandar_objetivo">
-      <mat-radio-button value="A">A</mat-radio-button>
-      <mat-radio-button value="AA">AA</mat-radio-button>
-    </mat-radio-group>
+    <div class="flex gap-4">
+      <label class="flex items-center gap-2 text-sm text-slate-800">
+        <input type="radio" formControlName="estandar_objetivo" value="A" class="foco h-4 w-4 accent-violet-700" />
+        A
+      </label>
+      <label class="flex items-center gap-2 text-sm text-slate-800">
+        <input type="radio" formControlName="estandar_objetivo" value="AA" class="foco h-4 w-4 accent-violet-700" />
+        AA
+      </label>
+    </div>
   </fieldset>
 
   <div class="formulario__acciones">
-    <a mat-button routerLink="/auditorias">Cancelar</a>
-    <button mat-flat-button type="submit">Crear auditoría</button>
+    <a appButton variant="text" routerLink="/auditorias">Cancelar</a>
+    <button appButton type="submit">Crear auditoría</button>
   </div>
 </form>

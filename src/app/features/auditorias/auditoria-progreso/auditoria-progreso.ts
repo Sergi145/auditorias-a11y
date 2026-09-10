@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MockDataService } from '../../../core/mock-data';
 import type { Severidad } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppIcon, type IconName } from '../../../shared/ui/icon';
+import { AppProgressBar } from '../../../shared/ui/progress-bar';
 
 interface StatSeveridad {
   severidad: Severidad;
   etiqueta: string;
-  icono: string;
+  icono: IconName;
   cantidad: number;
 }
 
@@ -19,13 +19,13 @@ interface FilaRanking {
 }
 
 // Pantalla 11 de specs/02-maqueta-m3.md: panel de progreso. Los colores de
-// severidad usan la paleta de estado fija de la skill de dataviz (nunca
-// theming, siempre con icono + etiqueta) — ver auditoria-progreso.scss.
+// severidad usan la paleta de estado fija definida en :root de
+// src/styles.scss (nunca theming, siempre con icono + etiqueta) —
+// deliberadamente independiente de cualquier color de marca.
 @Component({
   selector: 'app-auditoria-progreso',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [RouterLink, AppButton, AppIcon, AppProgressBar],
   templateUrl: './auditoria-progreso.html',
-  styleUrl: './auditoria-progreso.scss',
 })
 export class AuditoriaProgreso {
   private readonly mockData = inject(MockDataService);
@@ -43,25 +43,25 @@ export class AuditoriaProgreso {
     {
       severidad: 'critica',
       etiqueta: 'Crítica',
-      icono: 'report',
+      icono: 'alert-triangle',
       cantidad: this.progreso.fallosPorSeveridad.critica,
     },
     {
       severidad: 'alta',
       etiqueta: 'Alta',
-      icono: 'warning',
+      icono: 'alert-triangle',
       cantidad: this.progreso.fallosPorSeveridad.alta,
     },
     {
       severidad: 'media',
       etiqueta: 'Media',
-      icono: 'error_outline',
+      icono: 'alert-circle',
       cantidad: this.progreso.fallosPorSeveridad.media,
     },
     {
       severidad: 'baja',
       etiqueta: 'Baja',
-      icono: 'info_outline',
+      icono: 'info',
       cantidad: this.progreso.fallosPorSeveridad.baja,
     },
   ];

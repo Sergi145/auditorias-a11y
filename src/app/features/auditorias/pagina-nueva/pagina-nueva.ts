@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { AppButton } from '../../../shared/ui/button';
+import { AppInput } from '../../../shared/ui/field-controls';
+import { AppFormField } from '../../../shared/ui/form-field';
 
 // Pantalla 4 de specs/02-maqueta-m3.md: añadir página a una auditoría. Sin
 // persistencia — al enviar vuelve al detalle de la auditoría.
 @Component({
   selector: 'app-pagina-nueva',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [ReactiveFormsModule, RouterLink, AppButton, AppFormField, AppInput],
   templateUrl: './pagina-nueva.html',
 })
 export class PaginaNueva {

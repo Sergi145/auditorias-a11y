@@ -1,116 +1,117 @@
 @if (pagina) {
   <div class="pantalla__cabecera">
     <div>
-      <h1>{{ pagina.nombre }}</h1>
+      <h1 class="text-2xl font-semibold text-slate-900">{{ pagina.nombre }}</h1>
       <p class="subtitulo">{{ pagina.url }}</p>
     </div>
     <div class="acciones">
-      <a mat-stroked-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'escaneo']">
-        <mat-icon aria-hidden="true">search</mat-icon>
+      <a
+        appButton
+        variant="secondary"
+        [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'escaneo']"
+      >
+        <app-icon name="search" />
         Escanear automáticamente
       </a>
-      <a mat-button [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
     </div>
   </div>
 
-  <div class="filtros">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Nivel</mat-label>
-      <mat-select [value]="filtroNivel()" (selectionChange)="onFiltroNivel($event)">
-        <mat-option value="todos">Todos</mat-option>
+  <div class="mb-4 flex flex-wrap gap-3">
+    <app-form-field label="Nivel" class="min-w-[160px]" #refNivel="appFormField">
+      <select appSelect [id]="refNivel.id" [value]="filtroNivel()" (change)="onFiltroNivel($event)">
+        <option value="todos">Todos</option>
         @for (nivel of niveles; track nivel) {
-          <mat-option [value]="nivel">{{ nivel }}</mat-option>
+          <option [value]="nivel">{{ nivel }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </app-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Categoría</mat-label>
-      <mat-select [value]="filtroCategoria()" (selectionChange)="onFiltroCategoria($event)">
-        <mat-option value="todos">Todas</mat-option>
+    <app-form-field label="Categoría" class="min-w-[160px]" #refCategoria="appFormField">
+      <select
+        appSelect
+        [id]="refCategoria.id"
+        [value]="filtroCategoria()"
+        (change)="onFiltroCategoria($event)"
+      >
+        <option value="todos">Todas</option>
         @for (categoria of categorias; track categoria) {
-          <mat-option [value]="categoria">{{ etiquetaCategoria[categoria] }}</mat-option>
+          <option [value]="categoria">{{ etiquetaCategoria[categoria] }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </app-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Estado</mat-label>
-      <mat-select [value]="filtroEstado()" (selectionChange)="onFiltroEstado($event)">
-        <mat-option value="todos">Todos</mat-option>
+    <app-form-field label="Estado" class="min-w-[160px]" #refEstado="appFormField">
+      <select appSelect [id]="refEstado.id" [value]="filtroEstado()" (change)="onFiltroEstado($event)">
+        <option value="todos">Todos</option>
         @for (estado of estados; track estado) {
-          <mat-option [value]="estado">{{ etiquetaEstado[estado] }}</mat-option>
+          <option [value]="estado">{{ etiquetaEstado[estado] }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </app-form-field>
 
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Severidad</mat-label>
-      <mat-select [value]="filtroSeveridad()" (selectionChange)="onFiltroSeveridad($event)">
-        <mat-option value="todos">Todas</mat-option>
+    <app-form-field label="Severidad" class="min-w-[160px]" #refSeveridad="appFormField">
+      <select
+        appSelect
+        [id]="refSeveridad.id"
+        [value]="filtroSeveridad()"
+        (change)="onFiltroSeveridad($event)"
+      >
+        <option value="todos">Todas</option>
         @for (severidad of severidades; track severidad) {
-          <mat-option [value]="severidad">{{ severidad }}</mat-option>
+          <option [value]="severidad">{{ severidad }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </app-form-field>
   </div>
 
-  <div class="tabla-checklist__scroll">
-  <table mat-table [dataSource]="filasFiltradas()" class="tabla-checklist">
-    <ng-container matColumnDef="criterio">
-      <th mat-header-cell *matHeaderCellDef>Criterio</th>
-      <td mat-cell *matCellDef="let fila">
-        <strong>{{ fila.criterio.codigo }}</strong> {{ fila.criterio.nombre }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="nivel">
-      <th mat-header-cell *matHeaderCellDef>Nivel</th>
-      <td mat-cell *matCellDef="let fila">{{ fila.criterio.nivel }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="categoria">
-      <th mat-header-cell *matHeaderCellDef>Categoría</th>
-      <td mat-cell *matCellDef="let fila">{{ categoriaEtiqueta(fila) }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef>Estado</th>
-      <td mat-cell *matCellDef="let fila">
-        <mat-icon aria-hidden="true">{{ estadoIcono(fila) }}</mat-icon>
-        {{ estadoEtiqueta(fila) }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="severidad">
-      <th mat-header-cell *matHeaderCellDef>Severidad</th>
-      <td mat-cell *matCellDef="let fila">{{ fila.resultado?.severidad ?? '—' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef>
-        <span class="visualmente-oculto">Acciones</span>
-      </th>
-      <td mat-cell *matCellDef="let fila">
-        <a
-          mat-button
-          [routerLink]="[
-            '/auditorias',
-            auditoriaId,
-            'paginas',
-            paginaId,
-            'criterios',
-            fila.criterio.codigo,
-          ]"
-        >
-          Revisar
-        </a>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+  <div class="overflow-x-auto">
+    <table class="w-full min-w-[640px] border-collapse text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 text-left">
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Criterio</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Nivel</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Categoría</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Estado</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">Severidad</th>
+          <th scope="col" class="py-2 pr-3 font-medium text-slate-700">
+            <span class="sr-only">Acciones</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (fila of filasFiltradas(); track fila.criterio.codigo) {
+          <tr class="border-b border-slate-100">
+            <td class="py-2 pr-3">
+              <strong>{{ fila.criterio.codigo }}</strong> {{ fila.criterio.nombre }}
+            </td>
+            <td class="py-2 pr-3">{{ fila.criterio.nivel }}</td>
+            <td class="py-2 pr-3">{{ categoriaEtiqueta(fila) }}</td>
+            <td class="py-2 pr-3">
+              <app-icon [name]="estadoIcono(fila)" class="align-middle" />
+              {{ estadoEtiqueta(fila) }}
+            </td>
+            <td class="py-2 pr-3">{{ fila.resultado?.severidad ?? '—' }}</td>
+            <td class="py-2 pr-3">
+              <a
+                appButton
+                variant="text"
+                [routerLink]="[
+                  '/auditorias',
+                  auditoriaId,
+                  'paginas',
+                  paginaId,
+                  'criterios',
+                  fila.criterio.codigo,
+                ]"
+              >
+                Revisar
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </div>
 
   @if (filasFiltradas().length === 0) {

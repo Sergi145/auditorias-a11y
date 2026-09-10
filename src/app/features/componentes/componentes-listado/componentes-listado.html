@@ -1,22 +1,22 @@
-<h1>Componentes</h1>
+<h1 class="mb-2 text-2xl font-semibold text-slate-900">Componentes</h1>
 <p class="pantalla__intro">
   Catálogo usado para clasificar el tipo de componente afectado al redactar un hallazgo.
 </p>
 
-<h2>Predefinidos (Bootstrap)</h2>
-<mat-chip-set aria-label="Componentes predefinidos de Bootstrap">
+<h2 class="mt-6 text-xl font-semibold text-slate-900">Predefinidos (Bootstrap)</h2>
+<ul aria-label="Componentes predefinidos de Bootstrap" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
   @for (componente of bootstrap; track componente.id) {
-    <mat-chip>{{ componente.nombre }}</mat-chip>
+    <li><app-chip>{{ componente.nombre }}</app-chip></li>
   }
-</mat-chip-set>
+</ul>
 
-<h2>Personalizados</h2>
+<h2 class="mt-6 text-xl font-semibold text-slate-900">Personalizados</h2>
 @if (personalizados.length > 0) {
-  <mat-chip-set aria-label="Componentes personalizados">
+  <ul aria-label="Componentes personalizados" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
     @for (componente of personalizados; track componente.id) {
-      <mat-chip>{{ componente.nombre }}</mat-chip>
+      <li><app-chip>{{ componente.nombre }}</app-chip></li>
     }
-  </mat-chip-set>
+  </ul>
 } @else {
   <p>No se ha añadido ningún componente personalizado todavía.</p>
 }

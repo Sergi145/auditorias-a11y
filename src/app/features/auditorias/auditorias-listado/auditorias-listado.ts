@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MockDataService } from '../../../core/mock-data';
 import type { Auditoria, EstadoAuditoria, Severidad } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppCard } from '../../../shared/ui/card';
+import { AppChip } from '../../../shared/ui/chip';
+import { AppIcon } from '../../../shared/ui/icon';
+import { AppProgressBar } from '../../../shared/ui/progress-bar';
 
 interface AuditoriaConProgreso {
   auditoria: Auditoria;
@@ -24,16 +24,8 @@ const ETIQUETA_ESTADO: Record<EstadoAuditoria, string> = {
 // global, % completado y fallos por severidad — datos de MockDataService.
 @Component({
   selector: 'app-auditorias-listado',
-  imports: [
-    RouterLink,
-    MatButtonModule,
-    MatCardModule,
-    MatChipsModule,
-    MatIconModule,
-    MatProgressBarModule,
-  ],
+  imports: [RouterLink, AppButton, AppCard, AppChip, AppIcon, AppProgressBar],
   templateUrl: './auditorias-listado.html',
-  styleUrl: './auditorias-listado.scss',
 })
 export class AuditoriasListado {
   private readonly mockData = inject(MockDataService);

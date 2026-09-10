@@ -1,29 +1,56 @@
-<h1>Añadir página</h1>
+<h1 class="mb-6 text-2xl font-semibold text-slate-900">Añadir página</h1>
 
 <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
-  <mat-form-field appearance="outline">
-    <mat-label>Nombre de la página</mat-label>
-    <input matInput formControlName="nombre" required />
-    @if (formulario.controls.nombre.invalid && formulario.controls.nombre.touched) {
-      <mat-error>Introduce un nombre.</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="Nombre de la página"
+    #campoNombre="appFormField"
+    [error]="
+      formulario.controls.nombre.invalid && formulario.controls.nombre.touched
+        ? 'Introduce un nombre.'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoNombre.id"
+      [attr.aria-describedby]="campoNombre.describedBy"
+      formControlName="nombre"
+      required
+    />
+  </app-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>URL</mat-label>
-    <input matInput type="url" formControlName="url" placeholder="https://ejemplo.org/pagina" required />
-    @if (formulario.controls.url.invalid && formulario.controls.url.touched) {
-      <mat-error>Introduce una URL válida (empieza por http:// o https://).</mat-error>
-    }
-  </mat-form-field>
+  <app-form-field
+    label="URL"
+    #campoUrl="appFormField"
+    [error]="
+      formulario.controls.url.invalid && formulario.controls.url.touched
+        ? 'Introduce una URL válida (empieza por http:// o https://).'
+        : null
+    "
+  >
+    <input
+      appInput
+      [id]="campoUrl.id"
+      [attr.aria-describedby]="campoUrl.describedBy"
+      type="url"
+      formControlName="url"
+      placeholder="https://ejemplo.org/pagina"
+      required
+    />
+  </app-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Notas generales</mat-label>
-    <textarea matInput formControlName="notas_generales" rows="3"></textarea>
-  </mat-form-field>
+  <app-form-field label="Notas generales" #campoNotas="appFormField">
+    <textarea
+      appInput
+      [id]="campoNotas.id"
+      [attr.aria-describedby]="campoNotas.describedBy"
+      formControlName="notas_generales"
+      rows="3"
+    ></textarea>
+  </app-form-field>
 
   <div class="formulario__acciones">
-    <a mat-button [routerLink]="['/auditorias', auditoriaId]">Cancelar</a>
-    <button mat-flat-button type="submit">Añadir página</button>
+    <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Cancelar</a>
+    <button appButton type="submit">Añadir página</button>
   </div>
 </form>
