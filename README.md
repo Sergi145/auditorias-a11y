@@ -21,7 +21,22 @@ hallazgos reutilizables para no reescribir errores ya detectados.
 Angular + TypeScript · Angular CDK a11y · Dexie.js (IndexedDB) · axe-core ·
 SheetJS / jsPDF · Vercel o Netlify.
 
+## Desarrollo
+
+Requiere Node.js y npm.
+
+```bash
+npm install      # instalar dependencias
+npm start        # levantar en local (http://localhost:4200)
+npm test         # tests unitarios (Vitest)
+npm run e2e      # tests end-to-end (Playwright)
+npm run lint     # ESLint (angular-eslint)
+npm run build    # build de producción
+```
+
 ## Estado actual
 
-Fase de especificación. Siguiente paso: rebanada 01 — fundación (ver
-[`specs/01-fundacion.md`](./specs/01-fundacion.md)).
+Rebanada 01 — fundación construida: esqueleto Angular standalone, esquema
+Dexie completo, routing base y tooling de calidad. Sin pantallas de negocio
+todavía. Siguiente paso: rebanada 02 — catálogo WCAG (ver
+[`specs/README.md`](./specs/README.md)).

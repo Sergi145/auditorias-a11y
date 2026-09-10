@@ -1,0 +1,4 @@
+// Tokens de color, tipografía y espaciado del GOV.UK Design System — ver
+// specs/00-producto.md §7 y CLAUDE.md. El JS interactivo de govuk-frontend
+// no se usa: el comportamiento se reimplementa con Angular CDK a11y.
+@use "govuk-frontend/dist/govuk/index" as *;

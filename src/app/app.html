@@ -1,0 +1,30 @@
+<a href="#contenido" class="govuk-skip-link" data-module="govuk-skip-link">Saltar al contenido principal</a>
+
+<header class="govuk-header" data-module="govuk-header">
+  <div class="govuk-header__container govuk-width-container">
+    <div class="govuk-header__logo">
+      <a href="/" class="govuk-header__link govuk-header__link--homepage">
+        <span class="govuk-header__product-name">Auditorías A11y</span>
+      </a>
+    </div>
+    <nav aria-label="Menú principal" class="govuk-header__navigation">
+      <ul class="govuk-header__navigation-list">
+        <li class="govuk-header__navigation-item">
+          <a class="govuk-header__link" routerLink="/auditorias" routerLinkActive="govuk-header__navigation-item--active">Auditorías</a>
+        </li>
+        <li class="govuk-header__navigation-item">
+          <a class="govuk-header__link" routerLink="/biblioteca" routerLinkActive="govuk-header__navigation-item--active">Biblioteca de hallazgos</a>
+        </li>
+        <li class="govuk-header__navigation-item">
+          <a class="govuk-header__link" routerLink="/componentes" routerLinkActive="govuk-header__navigation-item--active">Componentes</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper" id="contenido">
+    <router-outlet />
+  </main>
+</div>
