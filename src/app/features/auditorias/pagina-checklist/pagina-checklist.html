@@ -1,10 +1,22 @@
-@if (pagina) {
+@if (pagina(); as pagina) {
   <div class="pantalla__cabecera">
     <div>
       <h1 class="text-2xl font-semibold text-slate-900">{{ pagina.nombre }}</h1>
       <p class="subtitulo">{{ pagina.url }}</p>
     </div>
     <div class="acciones">
+      <a
+        appButton
+        variant="secondary"
+        [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'editar']"
+      >
+        <app-icon name="edit" />
+        Editar página
+      </a>
+      <button appButton variant="secondary" type="button" (click)="eliminarPagina()">
+        <app-icon name="delete" />
+        Eliminar página
+      </button>
       <a
         appButton
         variant="secondary"

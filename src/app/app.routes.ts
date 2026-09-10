@@ -31,6 +31,11 @@ export const routes: Routes = [
       import('./features/auditorias/pagina-escaneo/pagina-escaneo').then((m) => m.PaginaEscaneo),
   },
   {
+    path: 'auditorias/:auditoriaId/paginas/:paginaId/editar',
+    loadComponent: () =>
+      import('./features/auditorias/pagina-nueva/pagina-nueva').then((m) => m.PaginaNueva),
+  },
+  {
     path: 'auditorias/:auditoriaId/paginas/:paginaId/criterios/:codigo',
     loadComponent: () =>
       import('./features/auditorias/criterio-revision/criterio-revision').then(
@@ -56,6 +61,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auditorias/auditoria-exportar/auditoria-exportar').then(
         (m) => m.AuditoriaExportar,
+      ),
+  },
+  {
+    path: 'auditorias/:auditoriaId/editar',
+    loadComponent: () =>
+      import('./features/auditorias/auditoria-nueva/auditoria-nueva').then(
+        (m) => m.AuditoriaNueva,
       ),
   },
   {

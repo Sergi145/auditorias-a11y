@@ -21,7 +21,9 @@ export type IconName =
   | 'check-circle'
   | 'x-circle'
   | 'minus-circle'
-  | 'help-circle';
+  | 'help-circle'
+  | 'edit'
+  | 'delete';
 
 @Component({
   selector: 'app-icon',
@@ -115,6 +117,15 @@ export type IconName =
           <circle cx="12" cy="12" r="9" />
           <path d="M9.5 9a2.5 2.5 0 0 1 4.6 1.35c0 1.65-2.1 2.15-2.1 3.65" />
           <path d="M12 17h.01" />
+        }
+        @case ('edit') {
+          <path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3Z" />
+          <path d="M13 6l3 3" />
+        }
+        @case ('delete') {
+          <path d="M4 7h16" />
+          <path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+          <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
         }
       }
     </svg>
