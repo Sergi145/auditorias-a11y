@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { CriteriosWcagService } from './criterios-wcag';
 import type {
   Auditoria,
   Componente,
-  CriterioWCAG,
   Evidencia,
   HallazgoPlantilla,
   Pagina,
@@ -16,6 +16,8 @@ import type {
 // sin tocar las plantillas, siempre que expongan los mismos métodos.
 @Injectable({ providedIn: 'root' })
 export class MockDataService {
+  private readonly criteriosWcag = inject(CriteriosWcagService);
+
   private readonly auditoriasData: Auditoria[] = [
     {
       id: 1,
@@ -81,75 +83,6 @@ export class MockDataService {
       nombre: 'Panel de nóminas',
       url: 'https://intranet.solmar.example.com/nominas',
       notas_generales: '',
-    },
-  ];
-
-  private readonly criteriosWCAGData: CriterioWCAG[] = [
-    {
-      codigo: '1.1.1',
-      nombre: 'Contenido no textual',
-      nivel: 'A',
-      categoria: 'perceptible',
-      descripcion: 'Todo contenido no textual tiene una alternativa textual equivalente.',
-      tecnicas: ['G94', 'G95', 'H37'],
-    },
-    {
-      codigo: '1.4.3',
-      nombre: 'Contraste (mínimo)',
-      nivel: 'AA',
-      categoria: 'perceptible',
-      descripcion: 'El texto tiene una relación de contraste de al menos 4.5:1 con el fondo.',
-      tecnicas: ['G18', 'G145'],
-    },
-    {
-      codigo: '2.1.1',
-      nombre: 'Teclado',
-      nivel: 'A',
-      categoria: 'operable',
-      descripcion: 'Toda la funcionalidad está disponible mediante teclado.',
-      tecnicas: ['G202'],
-    },
-    {
-      codigo: '2.4.7',
-      nombre: 'Foco visible',
-      nivel: 'AA',
-      categoria: 'operable',
-      descripcion: 'Cualquier interfaz operable con teclado tiene un indicador de foco visible.',
-      tecnicas: ['G149', 'G165'],
-    },
-    {
-      codigo: '2.4.11',
-      nombre: 'Foco no oscurecido (mínimo)',
-      nivel: 'AA',
-      categoria: 'operable',
-      descripcion:
-        'El elemento con foco de teclado no queda completamente oculto por otro contenido.',
-      tecnicas: ['C43'],
-    },
-    {
-      codigo: '3.1.1',
-      nombre: 'Idioma de la página',
-      nivel: 'A',
-      categoria: 'comprensible',
-      descripcion: 'El idioma por defecto de cada página se puede determinar por software.',
-      tecnicas: ['H57'],
-    },
-    {
-      codigo: '3.3.2',
-      nombre: 'Etiquetas o instrucciones',
-      nivel: 'A',
-      categoria: 'comprensible',
-      descripcion: 'Se proporcionan etiquetas o instrucciones cuando el contenido requiere entrada del usuario.',
-      tecnicas: ['G131', 'G89'],
-    },
-    {
-      codigo: '4.1.2',
-      nombre: 'Nombre, función, valor',
-      nivel: 'A',
-      categoria: 'robusto',
-      descripcion:
-        'Para todo componente de interfaz, el nombre, la función y el valor se pueden determinar por software.',
-      tecnicas: ['G108', 'ARIA16'],
     },
   ];
 
@@ -374,14 +307,6 @@ export class MockDataService {
     return this.paginasData.find((pagina) => pagina.id === id);
   }
 
-  criteriosWCAG(): CriterioWCAG[] {
-    return this.criteriosWCAGData;
-  }
-
-  criterio(codigo: string): CriterioWCAG | undefined {
-    return this.criteriosWCAGData.find((criterio) => criterio.codigo === codigo);
-  }
-
   resultadosDePagina(paginaId: number): Resultado[] {
     return this.resultadosData.filter((resultado) => resultado.pagina_id === paginaId);
   }
@@ -430,7 +355,7 @@ export class MockDataService {
   } {
     const paginas = this.paginasDeAuditoria(auditoriaId);
     const resultados = paginas.flatMap((pagina) => this.resultadosDePagina(pagina.id!));
-    const totalCriterios = paginas.length * this.criteriosWCAGData.length;
+    const totalCriterios = paginas.length * this.criteriosWcag.todos().length;
     const revisados = resultados.filter((resultado) => resultado.estado !== 'por_revisar').length;
     const fallosPorSeveridad: Record<'critica' | 'alta' | 'media' | 'baja', number> = {
       critica: 0,

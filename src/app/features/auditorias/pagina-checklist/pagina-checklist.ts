@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule, type MatSelectChange } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type {
   CategoriaWCAG,
@@ -59,6 +60,7 @@ const ETIQUETA_CATEGORIA: Record<CategoriaWCAG, string> = {
 })
 export class PaginaChecklist {
   private readonly mockData = inject(MockDataService);
+  private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly etiquetaEstado = ETIQUETA_ESTADO;
@@ -93,7 +95,7 @@ export class PaginaChecklist {
   protected readonly filtroEstado = signal<EstadoResultado | 'todos'>('todos');
   protected readonly filtroSeveridad = signal<Severidad | 'todos'>('todos');
 
-  private readonly filas: FilaChecklist[] = this.mockData.criteriosWCAG().map((criterio) => ({
+  private readonly filas: FilaChecklist[] = this.criteriosWcag.todos().map((criterio) => ({
     criterio,
     resultado: this.mockData.resultado(Number(this.paginaId), criterio.codigo),
   }));
