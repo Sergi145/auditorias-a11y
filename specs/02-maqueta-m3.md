@@ -1,6 +1,6 @@
 # 02 — Maqueta completa (Material Design 3)
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** Spec 01 (Fundación)
 **Fecha:** 2026-09-10
 

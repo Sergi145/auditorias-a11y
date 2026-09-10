@@ -1,0 +1,94 @@
+@if (criterio) {
+  <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    Volver al checklist
+  </a>
+
+  <h1>{{ criterio.codigo }} · {{ criterio.nombre }}</h1>
+  <p class="subtitulo">Nivel {{ criterio.nivel }} · {{ criterio.categoria }}</p>
+  <p>{{ criterio.descripcion }}</p>
+  <mat-chip-set aria-label="Técnicas relacionadas">
+    @for (tecnica of criterio.tecnicas; track tecnica) {
+      <mat-chip>{{ tecnica }}</mat-chip>
+    }
+  </mat-chip-set>
+
+  <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select formControlName="estado">
+        @for (estado of estados; track estado) {
+          <mat-option [value]="estado">{{ estado }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (muestraSeveridad()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Severidad</mat-label>
+        <mat-select formControlName="severidad">
+          @for (severidad of severidades; track severidad) {
+            <mat-option [value]="severidad">{{ severidad }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Componente afectado</mat-label>
+        <mat-select formControlName="componenteId">
+          @for (componente of componentes; track componente.id) {
+            <mat-option [value]="componente.id">{{ componente.nombre }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (hallazgosSugeridos().length > 0) {
+        <div class="sugerencias">
+          <h2>Hallazgos sugeridos</h2>
+          @for (hallazgo of hallazgosSugeridos(); track hallazgo.id) {
+            <mat-card appearance="outlined" class="sugerencia">
+              <mat-card-header>
+                <mat-card-title>{{ hallazgo.titulo }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>{{ hallazgo.descripcion }}</p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button type="button" (click)="usarHallazgo(hallazgo.id!)">
+                  Usar esta redacción
+                </button>
+                <a mat-button [routerLink]="['/biblioteca', hallazgo.id]">Ver en la biblioteca</a>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Notas</mat-label>
+      <textarea matInput formControlName="notas" rows="5"></textarea>
+    </mat-form-field>
+
+    @if (evidencias.length > 0) {
+      <div class="evidencias">
+        <h2>Evidencia</h2>
+        @for (evidencia of evidencias; track evidencia.id) {
+          <p>{{ evidencia.texto }}</p>
+        }
+      </div>
+    }
+
+    <p class="nota">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      Adjuntar capturas estará disponible en la rebanada 04-checklist-manual.
+    </p>
+
+    <div class="formulario__acciones">
+      <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
+      <button mat-flat-button type="submit">Guardar revisión</button>
+    </div>
+  </form>
+} @else {
+  <p>No se ha encontrado el criterio.</p>
+}

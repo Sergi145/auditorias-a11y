@@ -1,0 +1,49 @@
+@if (auditoria) {
+  <div class="pantalla__cabecera">
+    <div>
+      <h1>Progreso</h1>
+      <p class="subtitulo">{{ auditoria.nombre }}</p>
+    </div>
+    <a mat-button [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+  </div>
+
+  <div class="tile-hero">
+    <p class="tile-hero__label">Revisado</p>
+    <p class="tile-hero__valor">{{ porcentajeRevisado }}%</p>
+    <mat-progress-bar
+      mode="determinate"
+      [value]="porcentajeRevisado"
+      [attr.aria-label]="'Progreso revisado: ' + porcentajeRevisado + ' por ciento'"
+    />
+  </div>
+
+  <h2>Fallos por severidad</h2>
+  <div class="kpi-fila">
+    @for (stat of statsSeveridad; track stat.severidad) {
+      <div class="kpi-tile" [class]="'kpi-tile--' + stat.severidad">
+        <mat-icon aria-hidden="true">{{ stat.icono }}</mat-icon>
+        <p class="kpi-tile__valor">{{ stat.cantidad }}</p>
+        <p class="kpi-tile__etiqueta">{{ stat.etiqueta }}</p>
+      </div>
+    }
+  </div>
+
+  <h2>Páginas con más incidencias</h2>
+  @if (rankingPaginas.length > 0) {
+    <ul class="ranking">
+      @for (fila of rankingPaginas; track fila.nombre) {
+        <li class="ranking__fila">
+          <span class="ranking__nombre">{{ fila.nombre }}</span>
+          <div class="ranking__barra-pista">
+            <div class="ranking__barra" [style.width.%]="(fila.cantidad / maxIncidencias) * 100"></div>
+          </div>
+          <span class="ranking__valor">{{ fila.cantidad }}</span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p>Esta auditoría todavía no tiene páginas.</p>
+  }
+} @else {
+  <p>No se ha encontrado la auditoría.</p>
+}

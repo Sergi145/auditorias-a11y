@@ -1,0 +1,22 @@
+<h1>Componentes</h1>
+<p class="pantalla__intro">
+  Catálogo usado para clasificar el tipo de componente afectado al redactar un hallazgo.
+</p>
+
+<h2>Predefinidos (Bootstrap)</h2>
+<mat-chip-set aria-label="Componentes predefinidos de Bootstrap">
+  @for (componente of bootstrap; track componente.id) {
+    <mat-chip>{{ componente.nombre }}</mat-chip>
+  }
+</mat-chip-set>
+
+<h2>Personalizados</h2>
+@if (personalizados.length > 0) {
+  <mat-chip-set aria-label="Componentes personalizados">
+    @for (componente of personalizados; track componente.id) {
+      <mat-chip>{{ componente.nombre }}</mat-chip>
+    }
+  </mat-chip-set>
+} @else {
+  <p>No se ha añadido ningún componente personalizado todavía.</p>
+}

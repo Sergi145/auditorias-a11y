@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.shell {
+  height: 100%;
+}
+
+.shell__nav {
+  width: 280px;
+}
+
+.shell__title {
+  margin-inline-start: 8px;
+  font: var(--mat-sys-title-large);
+}
+
+// El top app bar de M3 usa un fondo casi neutro por diseño (no un bloque de
+// color sólido como en M2); un borde sutil basta para separarlo del
+// contenido sin romper la paleta M3.
+header {
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+}
+
+.shell__content {
+  padding: 24px;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.shell__skip-link {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: -9999px;
+  z-index: 1000;
+  padding: 8px 16px;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+
+  &:focus {
+    inset-inline-start: 8px;
+    inset-block-start: 8px;
+  }
+}

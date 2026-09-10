@@ -1,4 +1,130 @@
-// Tokens de color, tipografía y espaciado del GOV.UK Design System — ver
-// specs/00-producto.md §7 y CLAUDE.md. El JS interactivo de govuk-frontend
-// no se usa: el comportamiento se reimplementa con Angular CDK a11y.
-@use "govuk-frontend/dist/govuk/index" as *;
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+
+  // Tema Material Design 3 — ver specs/02-maqueta-m3.md y
+  // https://m3.material.io/foundations. `primary` y `tertiary` son las
+  // paletas semilla (secondary se deriva automáticamente de `primary`);
+  // el "shape" de M3 no se configura aquí porque cada componente de
+  // Angular Material ya aplica la escala de forma M3 por defecto.
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$violet-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+// Utilidades de layout compartidas por las pantallas de la maqueta — ver
+// specs/02-maqueta-m3.md. Centralizadas aquí porque los estilos de
+// componente están encapsulados (no se pueden compartir entre ellos).
+.pantalla__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-block-end: 24px;
+}
+
+.pantalla__intro,
+.subtitulo {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.pantalla__intro {
+  margin-block-end: 24px;
+}
+
+.subtitulo {
+  margin-block: 4px 12px;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 480px;
+}
+
+.formulario__grupo {
+  border: none;
+  padding: 0;
+  margin-block: 8px;
+
+  legend {
+    font: var(--mat-sys-label-large);
+    margin-block-end: 8px;
+    padding: 0;
+  }
+}
+
+.formulario__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-block-start: 16px;
+}
+
+// Aviso informativo para pantallas cuya acción no ejecuta lógica real
+// todavía (escaneo, exportación) — ver "Qué NO entra" en 02-maqueta-m3.md.
+.nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+  margin-block: 16px;
+  max-width: 640px;
+}
+
+// Oculta visualmente sin ocultar a lectores de pantalla — ver
+// specs/00-producto.md §8 (dogfooding WCAG 2.2 AA).
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
