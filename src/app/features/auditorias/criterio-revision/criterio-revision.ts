@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,7 +17,8 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 
 // Pantalla 7 de specs/02-maqueta-m3.md: revisión manual de un criterio.
 // Sin persistencia — "Guardar revisión" vuelve al checklist sin escribir
-// nada. Elegir una redacción sugerida de la biblioteca solo rellena el
+// nada. Elegir una redacción sugerida de la biblioteca, o marcar "guardar
+// en la biblioteca" al añadir un hallazgo nuevo, solo rellena el
 // formulario en memoria (interacción de UI, no lógica de negocio real).
 @Component({
   selector: 'app-criterio-revision',
@@ -50,6 +51,7 @@ export class CriterioRevision {
   protected readonly codigo = this.route.snapshot.paramMap.get('codigo')!;
 
   protected readonly criterio = this.criteriosWcag.porCodigo(this.codigo);
+  protected readonly criterios = this.criteriosWcag.todos();
   protected readonly resultado = this.mockData.resultado(Number(this.paginaId), this.codigo);
   protected readonly evidencias = this.resultado?.id
     ? this.mockData.evidenciasDeResultado(this.resultado.id)
@@ -60,31 +62,58 @@ export class CriterioRevision {
     severidad: [(this.resultado?.severidad ?? null) as Severidad | null],
     componenteId: [(this.resultado?.componente_id ?? null) as number | null],
     notas: [this.resultado?.notas ?? ''],
+    guardarEnBiblioteca: [false],
+    nuevoTitulo: [''],
+    nuevoCriterioCodigo: [this.codigo, Validators.required],
   });
 
   private readonly estadoActual = toSignal(this.formulario.controls.estado.valueChanges, {
     initialValue: this.formulario.controls.estado.value,
   });
-  private readonly componenteIdActual = toSignal(
+  protected readonly componenteIdActual = toSignal(
     this.formulario.controls.componenteId.valueChanges,
     { initialValue: this.formulario.controls.componenteId.value },
   );
 
   protected readonly muestraSeveridad = computed(() => this.estadoActual() === 'falla');
 
-  protected readonly hallazgosSugeridos = computed(() =>
-    this.estadoActual() === 'falla'
-      ? this.mockData.hallazgosSugeridosPara(this.codigo, this.componenteIdActual() ?? undefined)
-      : [],
+  // Sin componente seleccionado no hay nada que sugerir todavía: hace falta
+  // saber a qué componente afecta el fallo para filtrar la biblioteca.
+  protected readonly muestraSeccionHallazgos = computed(
+    () => this.estadoActual() === 'falla' && this.componenteIdActual() !== null,
   );
+
+  protected readonly hallazgosSugeridos = computed(() => {
+    const componenteId = this.componenteIdActual();
+    if (!this.muestraSeccionHallazgos() || componenteId === null) return [];
+    return this.mockData.hallazgosSugeridosPara(this.codigo, componenteId);
+  });
+
+  // Con un hallazgo en juego (sugerido o nuevo), "Notas" pasa a ser la
+  // descripción de ese hallazgo en lugar de un campo de notas genérico.
+  protected readonly etiquetaNotas = computed(() =>
+    this.muestraSeccionHallazgos() ? 'Descripción del hallazgo' : 'Notas',
+  );
+
+  protected readonly anadiendoNuevo = signal(false);
 
   protected usarHallazgo(hallazgoId: number): void {
     const hallazgo = this.mockData.hallazgoPlantilla(hallazgoId);
     if (!hallazgo) return;
+    this.cancelarHallazgoNuevo();
     this.formulario.controls.notas.setValue(
       `${hallazgo.descripcion}\n\n${hallazgo.recomendacion_fix}`,
     );
     this.formulario.controls.severidad.setValue(hallazgo.severidad_tipica);
+  }
+
+  protected cancelarHallazgoNuevo(): void {
+    this.anadiendoNuevo.set(false);
+    this.formulario.patchValue({
+      nuevoTitulo: '',
+      nuevoCriterioCodigo: this.codigo,
+      guardarEnBiblioteca: false,
+    });
   }
 
   protected guardar(): void {
