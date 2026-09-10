@@ -1,78 +1,91 @@
 @if (criterio) {
-  <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">
-    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+  <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">
+    <app-icon name="arrow-back" />
     Volver al checklist
   </a>
 
-  <h1>{{ criterio.codigo }} · {{ criterio.nombre }}</h1>
+  <h1 class="text-2xl font-semibold text-slate-900">{{ criterio.codigo }} · {{ criterio.nombre }}</h1>
   <p class="subtitulo">Nivel {{ criterio.nivel }} · {{ criterio.categoria }}</p>
   <p>{{ criterio.descripcion }}</p>
-  <mat-chip-set aria-label="Técnicas relacionadas">
+  <ul aria-label="Técnicas relacionadas" class="m-0 flex list-none flex-wrap gap-2 p-0">
     @for (tecnica of criterio.tecnicas; track tecnica) {
-      <mat-chip>{{ tecnica }}</mat-chip>
+      <li><app-chip>{{ tecnica }}</app-chip></li>
     }
-  </mat-chip-set>
+  </ul>
 
   <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
-    <mat-form-field appearance="outline">
-      <mat-label>Estado</mat-label>
-      <mat-select formControlName="estado">
+    <app-form-field label="Estado" #campoEstado="appFormField">
+      <select
+        appSelect
+        [id]="campoEstado.id"
+        [attr.aria-describedby]="campoEstado.describedBy"
+        formControlName="estado"
+      >
         @for (estado of estados; track estado) {
-          <mat-option [value]="estado">{{ estado }}</mat-option>
+          <option [ngValue]="estado">{{ estado }}</option>
         }
-      </mat-select>
-    </mat-form-field>
+      </select>
+    </app-form-field>
 
     @if (muestraSeveridad()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Severidad</mat-label>
-        <mat-select formControlName="severidad">
+      <app-form-field label="Severidad" #campoSeveridad="appFormField">
+        <select
+          appSelect
+          [id]="campoSeveridad.id"
+          [attr.aria-describedby]="campoSeveridad.describedBy"
+          formControlName="severidad"
+        >
           @for (severidad of severidades; track severidad) {
-            <mat-option [value]="severidad">{{ severidad }}</mat-option>
+            <option [ngValue]="severidad">{{ severidad }}</option>
           }
-        </mat-select>
-      </mat-form-field>
+        </select>
+      </app-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Componente afectado</mat-label>
-        <mat-select formControlName="componenteId">
+      <app-form-field label="Componente afectado" #campoComponente="appFormField">
+        <select
+          appSelect
+          [id]="campoComponente.id"
+          [attr.aria-describedby]="campoComponente.describedBy"
+          formControlName="componenteId"
+        >
           @for (componente of componentes; track componente.id) {
-            <mat-option [value]="componente.id">{{ componente.nombre }}</mat-option>
+            <option [ngValue]="componente.id">{{ componente.nombre }}</option>
           }
-        </mat-select>
-      </mat-form-field>
+        </select>
+      </app-form-field>
 
       @if (hallazgosSugeridos().length > 0) {
-        <div class="sugerencias">
-          <h2>Hallazgos sugeridos</h2>
+        <div class="my-4 max-w-[480px]">
+          <h2 class="text-lg font-semibold text-slate-900">Hallazgos sugeridos</h2>
           @for (hallazgo of hallazgosSugeridos(); track hallazgo.id) {
-            <mat-card appearance="outlined" class="sugerencia">
-              <mat-card-header>
-                <mat-card-title>{{ hallazgo.titulo }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <p>{{ hallazgo.descripcion }}</p>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-button type="button" (click)="usarHallazgo(hallazgo.id!)">
+            <article appCard class="mb-3">
+              <h3 class="text-base font-semibold text-slate-900">{{ hallazgo.titulo }}</h3>
+              <p class="text-sm text-slate-600">{{ hallazgo.descripcion }}</p>
+              <div class="mt-3 flex gap-2">
+                <button appButton variant="text" type="button" (click)="usarHallazgo(hallazgo.id!)">
                   Usar esta redacción
                 </button>
-                <a mat-button [routerLink]="['/biblioteca', hallazgo.id]">Ver en la biblioteca</a>
-              </mat-card-actions>
-            </mat-card>
+                <a appButton variant="text" [routerLink]="['/biblioteca', hallazgo.id]">Ver en la biblioteca</a>
+              </div>
+            </article>
           }
         </div>
       }
     }
 
-    <mat-form-field appearance="outline">
-      <mat-label>Notas</mat-label>
-      <textarea matInput formControlName="notas" rows="5"></textarea>
-    </mat-form-field>
+    <app-form-field label="Notas" #campoNotas="appFormField">
+      <textarea
+        appInput
+        [id]="campoNotas.id"
+        [attr.aria-describedby]="campoNotas.describedBy"
+        formControlName="notas"
+        rows="5"
+      ></textarea>
+    </app-form-field>
 
     @if (evidencias.length > 0) {
-      <div class="evidencias">
-        <h2>Evidencia</h2>
+      <div class="my-4">
+        <h2 class="text-lg font-semibold text-slate-900">Evidencia</h2>
         @for (evidencia of evidencias; track evidencia.id) {
           <p>{{ evidencia.texto }}</p>
         }
@@ -80,13 +93,13 @@
     }
 
     <p class="nota">
-      <mat-icon aria-hidden="true">info</mat-icon>
-      Adjuntar capturas estará disponible en la rebanada 04-checklist-manual.
+      <app-icon name="info" />
+      Adjuntar capturas estará disponible en la rebanada 06-checklist-manual.
     </p>
 
     <div class="formulario__acciones">
-      <a mat-button [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
-      <button mat-flat-button type="submit">Guardar revisión</button>
+      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
+      <button appButton type="submit">Guardar revisión</button>
     </div>
   </form>
 } @else {

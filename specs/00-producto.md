@@ -92,7 +92,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 ## 7. Stack técnico propuesto
 
 - **Frontend**: Angular + TypeScript, componentes standalone, Reactive Forms para el checklist.
-- **Diseño / UI**: Material Design 3 (https://m3.material.io/foundations) vía Angular Material — tema M3 (color, tipografía, forma) configurado sobre los tokens oficiales. El comportamiento interactivo se apoya en la accesibilidad nativa de Angular Material más Angular CDK `a11y` donde haga falta complementarla. (Independiente del catálogo de componentes Bootstrap de §5.6, que clasifica lo auditado, no la UI propia. Sustituye la decisión previa de GOV.UK Design System, ver `specs/02-maqueta-m3.md`.)
+- **Diseño / UI**: componentes propios, standalone, estilados con Tailwind CSS — sin librería de componentes de terceros. El comportamiento interactivo se apoya en HTML semántico + ARIA correcto, complementado con Angular CDK `a11y` donde haga falta (foco atrapado, anuncios `LiveAnnouncer`, navegación por teclado en patrones tipo *tabs*). (Independiente del catálogo de componentes Bootstrap de §5.6, que clasifica lo auditado, no la UI propia. Sustituye Material Design 3 vía Angular Material tras detectar fallos de accesibilidad en sus componentes, ver `specs/04-rediseno-tailwind.md`.)
 - **Accesibilidad de la propia app**: Angular CDK `a11y` (`LiveAnnouncer`, `FocusTrap`, `FocusMonitor`, `ListKeyManager`).
 - **Persistencia**: IndexedDB vía Dexie.js (MVP local-first); Supabase (Postgres) en fase 2.
 - **Escaneo automático**: axe-core (client-side) + función serverless con Playwright + axe-core para URLs en vivo.

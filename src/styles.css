@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+/* Ver specs/04-rediseno-tailwind.md — sustituye el tema Material Design 3
+   (specs/02-maqueta-m3.md). Sin tailwind.config.js: se usa la paleta por
+   defecto de Tailwind directamente en las plantillas, no había ninguna
+   paleta de marca que preservar de M3 (violeta/naranja eran solo la
+   semilla por defecto). */
+
+:root {
+  /* Paleta de estado fija (crítica/alta/media/baja) — deliberadamente
+     independiente de cualquier color de marca, porque la severidad es un
+     significado universal. Compartida por AppChip, auditoria-progreso y
+     cualquier otra pantalla que muestre severidad. */
+  --severidad-critica: #b91c1c;
+  --severidad-alta: #c2410c;
+  --severidad-media: #a16207;
+  --severidad-baja: #15803d;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  color-scheme: light;
+  @apply bg-white text-slate-900;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+@layer components {
+  /* Utilidades de layout compartidas por las pantallas — ver
+     specs/04-rediseno-tailwind.md. Centralizadas aquí porque los estilos
+     de componente están encapsulados (no se pueden compartir entre
+     ellos). Mismos nombres que en la versión Material 3 para no tocar las
+     12 plantillas al migrar. */
+  .pantalla__cabecera {
+    @apply mb-6 flex flex-wrap items-center justify-between gap-4;
+  }
+
+  .pantalla__intro,
+  .subtitulo {
+    @apply text-slate-600;
+  }
+
+  .pantalla__intro {
+    @apply mb-6;
+  }
+
+  .subtitulo {
+    @apply mt-1 mb-3;
+  }
+
+  .acciones {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .formulario {
+    @apply flex max-w-[480px] flex-col gap-2;
+  }
+
+  .formulario__grupo {
+    @apply m-0 my-2 border-0 p-0;
+  }
+
+  .formulario__grupo legend {
+    @apply mb-2 p-0 text-sm font-medium text-slate-700;
+  }
+
+  .formulario__acciones {
+    @apply mt-4 flex justify-end gap-2;
+  }
+
+  /* Aviso informativo para pantallas cuya acción no ejecuta lógica real
+     todavía (escaneo, exportación) — ver "Qué NO entra" en
+     specs/02-maqueta-m3.md. */
+  .nota {
+    @apply my-4 flex max-w-[640px] items-start gap-2 rounded-xl bg-slate-100 px-4 py-3 text-slate-600;
+  }
+
+  /* Anillo de foco consistente para elementos interactivos que no usan
+     appButton/appInput/appSelect (enlaces sueltos, radios nativos) — ver
+     specs/04-rediseno-tailwind.md. El outline respeta el border-radius
+     propio del elemento, así que no hace falta redefinirlo aquí. */
+  .foco {
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700;
+  }
+}

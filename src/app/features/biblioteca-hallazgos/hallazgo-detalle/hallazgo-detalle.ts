@@ -1,14 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type { Severidad } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppChip } from '../../../shared/ui/chip';
+import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
+import { AppFormField } from '../../../shared/ui/form-field';
 
 const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 
@@ -17,15 +16,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 // cambios" vuelve al listado sin escribir nada (ver "Qué NO entra").
 @Component({
   selector: 'app-hallazgo-detalle',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatButtonModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, AppButton, AppChip, AppFormField, AppInput, AppSelect],
   templateUrl: './hallazgo-detalle.html',
 })
 export class HallazgoDetalle {

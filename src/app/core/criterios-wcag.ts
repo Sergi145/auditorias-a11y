@@ -8,7 +8,7 @@ import type { CriterioWCAG } from './models';
 // en memoria (es un dataset estático que no cambia en tiempo de ejecución)
 // y, en paralelo, se siembra en la tabla `criteriosWCAG` de Dexie para que
 // quede realmente persistido y disponible para rebanadas futuras que sí
-// necesiten consultarlo desde IndexedDB (ej. 09-escaneo-axe).
+// necesiten consultarlo desde IndexedDB (ej. 10-escaneo-axe).
 @Injectable({ providedIn: 'root' })
 export class CriteriosWcagService {
   private readonly database = inject(DatabaseService);

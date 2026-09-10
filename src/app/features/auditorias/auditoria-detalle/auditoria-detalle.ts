@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MockDataService } from '../../../core/mock-data';
 import type { EstadoAuditoria } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppChip } from '../../../shared/ui/chip';
+import { AppIcon } from '../../../shared/ui/icon';
 
 const ETIQUETA_ESTADO: Record<EstadoAuditoria, string> = {
   en_progreso: 'En progreso',
@@ -17,7 +16,7 @@ const ETIQUETA_ESTADO: Record<EstadoAuditoria, string> = {
 // páginas.
 @Component({
   selector: 'app-auditoria-detalle',
-  imports: [RouterLink, MatButtonModule, MatChipsModule, MatIconModule, MatListModule],
+  imports: [RouterLink, AppButton, AppChip, AppIcon],
   templateUrl: './auditoria-detalle.html',
 })
 export class AuditoriaDetalle {

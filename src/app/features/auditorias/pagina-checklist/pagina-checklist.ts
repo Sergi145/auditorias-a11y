@@ -1,10 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule, type MatSelectChange } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type {
@@ -15,6 +10,10 @@ import type {
   Resultado,
   Severidad,
 } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppSelect } from '../../../shared/ui/field-controls';
+import { AppFormField } from '../../../shared/ui/form-field';
+import { AppIcon, type IconName } from '../../../shared/ui/icon';
 
 interface FilaChecklist {
   criterio: CriterioWCAG;
@@ -28,11 +27,11 @@ const ETIQUETA_ESTADO: Record<EstadoResultado, string> = {
   por_revisar: 'Por revisar',
 };
 
-const ICONO_ESTADO: Record<EstadoResultado, string> = {
-  pasa: 'check_circle',
-  falla: 'error',
-  no_aplica: 'remove_circle',
-  por_revisar: 'help',
+const ICONO_ESTADO: Record<EstadoResultado, IconName> = {
+  pasa: 'check-circle',
+  falla: 'x-circle',
+  no_aplica: 'minus-circle',
+  por_revisar: 'help-circle',
 };
 
 const ETIQUETA_CATEGORIA: Record<CategoriaWCAG, string> = {
@@ -47,16 +46,8 @@ const ETIQUETA_CATEGORIA: Record<CategoriaWCAG, string> = {
 // sobre datos de MockDataService — no es persistencia ni lógica de negocio.
 @Component({
   selector: 'app-pagina-checklist',
-  imports: [
-    RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatSelectModule,
-    MatTableModule,
-  ],
+  imports: [RouterLink, AppButton, AppFormField, AppIcon, AppSelect],
   templateUrl: './pagina-checklist.html',
-  styleUrl: './pagina-checklist.scss',
 })
 export class PaginaChecklist {
   private readonly mockData = inject(MockDataService);
@@ -70,15 +61,6 @@ export class PaginaChecklist {
   protected readonly auditoriaId = this.route.snapshot.paramMap.get('auditoriaId')!;
   protected readonly paginaId = this.route.snapshot.paramMap.get('paginaId')!;
   protected readonly pagina = this.mockData.pagina(Number(this.paginaId));
-
-  protected readonly displayedColumns = [
-    'criterio',
-    'nivel',
-    'categoria',
-    'estado',
-    'severidad',
-    'acciones',
-  ];
 
   protected readonly niveles: NivelWCAG[] = ['A', 'AA'];
   protected readonly categorias: CategoriaWCAG[] = [
@@ -118,8 +100,8 @@ export class PaginaChecklist {
   }
 
   // Métodos en vez de indexar los Record directamente en la plantilla:
-  // *matCellDef="let fila" no infiere tipos sin `strictTemplates`, así que
-  // `fila` llega como `any` y el indexado dispara TS7053 en el build.
+  // el control de tipos estricto de la plantilla no infiere el tipo de
+  // `fila` dentro de @for sin ayuda, así que se resuelve en el componente.
   protected categoriaEtiqueta(fila: FilaChecklist): string {
     return ETIQUETA_CATEGORIA[fila.criterio.categoria];
   }
@@ -128,23 +110,23 @@ export class PaginaChecklist {
     return ETIQUETA_ESTADO[this.estadoDe(fila)];
   }
 
-  protected estadoIcono(fila: FilaChecklist): string {
+  protected estadoIcono(fila: FilaChecklist): IconName {
     return ICONO_ESTADO[this.estadoDe(fila)];
   }
 
-  protected onFiltroNivel(evento: MatSelectChange<NivelWCAG | 'todos'>): void {
-    this.filtroNivel.set(evento.value);
+  protected onFiltroNivel(evento: Event): void {
+    this.filtroNivel.set((evento.target as HTMLSelectElement).value as NivelWCAG | 'todos');
   }
 
-  protected onFiltroCategoria(evento: MatSelectChange<CategoriaWCAG | 'todos'>): void {
-    this.filtroCategoria.set(evento.value);
+  protected onFiltroCategoria(evento: Event): void {
+    this.filtroCategoria.set((evento.target as HTMLSelectElement).value as CategoriaWCAG | 'todos');
   }
 
-  protected onFiltroEstado(evento: MatSelectChange<EstadoResultado | 'todos'>): void {
-    this.filtroEstado.set(evento.value);
+  protected onFiltroEstado(evento: Event): void {
+    this.filtroEstado.set((evento.target as HTMLSelectElement).value as EstadoResultado | 'todos');
   }
 
-  protected onFiltroSeveridad(evento: MatSelectChange<Severidad | 'todos'>): void {
-    this.filtroSeveridad.set(evento.value);
+  protected onFiltroSeveridad(evento: Event): void {
+    this.filtroSeveridad.set((evento.target as HTMLSelectElement).value as Severidad | 'todos');
   }
 }

@@ -35,8 +35,8 @@ Ver `specs/README.md` para el índice y el orden de rebanadas.
 ## Stack técnico (resumen — el detalle está en 00-producto.md §7)
 
 - Frontend: Angular + TypeScript, componentes standalone, Reactive Forms.
-- Diseño / UI: adaptación del GOV.UK Design System (Figma + `govuk-frontend` para CSS/tokens); interacción reimplementada con Angular CDK `a11y` en vez de su JS vanilla.
-- Accesibilidad de la propia app: Angular CDK `a11y`.
+- Diseño / UI: componentes propios (`src/app/shared/ui/`), sin librería de terceros, estilados con Tailwind CSS. Ver `specs/04-rediseno-tailwind.md`.
+- Accesibilidad de la propia app: Angular CDK `a11y` (`LiveAnnouncer`, `FocusTrap`, `FocusMonitor`, `ListKeyManager`).
 - Persistencia: IndexedDB vía Dexie.js (MVP local-first).
 - Escaneo automático: axe-core (client-side) + función serverless con
   Playwright para URLs en vivo.

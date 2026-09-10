@@ -2,16 +2,15 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
 import type { EstadoResultado, Severidad } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
+import { AppCard } from '../../../shared/ui/card';
+import { AppChip } from '../../../shared/ui/chip';
+import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
+import { AppFormField } from '../../../shared/ui/form-field';
+import { AppIcon } from '../../../shared/ui/icon';
 
 const ESTADOS: EstadoResultado[] = ['pasa', 'falla', 'no_aplica', 'por_revisar'];
 const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
@@ -25,16 +24,15 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
+    AppButton,
+    AppCard,
+    AppChip,
+    AppFormField,
+    AppIcon,
+    AppInput,
+    AppSelect,
   ],
   templateUrl: './criterio-revision.html',
-  styleUrl: './criterio-revision.scss',
 })
 export class CriterioRevision {
   private readonly mockData = inject(MockDataService);

@@ -1,43 +1,48 @@
 @if (auditoria) {
   <div class="pantalla__cabecera">
     <div>
-      <h1>Progreso</h1>
+      <h1 class="text-2xl font-semibold text-slate-900">Progreso</h1>
       <p class="subtitulo">{{ auditoria.nombre }}</p>
     </div>
-    <a mat-button [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+    <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
   </div>
 
-  <div class="tile-hero">
-    <p class="tile-hero__label">Revisado</p>
-    <p class="tile-hero__valor">{{ porcentajeRevisado }}%</p>
-    <mat-progress-bar
-      mode="determinate"
+  <div class="mb-6 max-w-[320px] rounded-xl bg-slate-100 px-5 py-4">
+    <p class="m-0 text-slate-600">Revisado</p>
+    <p class="my-1 mb-3 text-5xl leading-none font-semibold">{{ porcentajeRevisado }}%</p>
+    <app-progress-bar
       [value]="porcentajeRevisado"
-      [attr.aria-label]="'Progreso revisado: ' + porcentajeRevisado + ' por ciento'"
+      [label]="'Progreso revisado: ' + porcentajeRevisado + ' por ciento'"
     />
   </div>
 
-  <h2>Fallos por severidad</h2>
-  <div class="kpi-fila">
+  <h2 class="text-xl font-semibold text-slate-900">Fallos por severidad</h2>
+  <div class="mb-6 grid max-w-[640px] grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
     @for (stat of statsSeveridad; track stat.severidad) {
-      <div class="kpi-tile" [class]="'kpi-tile--' + stat.severidad">
-        <mat-icon aria-hidden="true">{{ stat.icono }}</mat-icon>
-        <p class="kpi-tile__valor">{{ stat.cantidad }}</p>
-        <p class="kpi-tile__etiqueta">{{ stat.etiqueta }}</p>
+      <div
+        class="rounded-xl bg-slate-100 px-4 py-3"
+        [style.border-inline-start]="'4px solid var(--severidad-' + stat.severidad + ')'"
+      >
+        <app-icon [name]="stat.icono" [style.color]="'var(--severidad-' + stat.severidad + ')'" />
+        <p class="mt-2 mb-0 text-2xl font-semibold">{{ stat.cantidad }}</p>
+        <p class="m-0 text-slate-600">{{ stat.etiqueta }}</p>
       </div>
     }
   </div>
 
-  <h2>Páginas con más incidencias</h2>
+  <h2 class="text-xl font-semibold text-slate-900">Páginas con más incidencias</h2>
   @if (rankingPaginas.length > 0) {
-    <ul class="ranking">
+    <ul class="m-0 flex max-w-[640px] list-none flex-col gap-2 p-0">
       @for (fila of rankingPaginas; track fila.nombre) {
-        <li class="ranking__fila">
-          <span class="ranking__nombre">{{ fila.nombre }}</span>
-          <div class="ranking__barra-pista">
-            <div class="ranking__barra" [style.width.%]="(fila.cantidad / maxIncidencias) * 100"></div>
+        <li class="grid grid-cols-[160px_1fr_32px] items-center gap-3">
+          <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ fila.nombre }}</span>
+          <div class="h-6 overflow-hidden rounded bg-violet-100">
+            <div
+              class="h-full rounded bg-violet-700"
+              [style.width.%]="(fila.cantidad / maxIncidencias) * 100"
+            ></div>
           </div>
-          <span class="ranking__valor">{{ fila.cantidad }}</span>
+          <span class="text-right tabular-nums">{{ fila.cantidad }}</span>
         </li>
       }
     </ul>
