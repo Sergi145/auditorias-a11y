@@ -41,20 +41,31 @@ export interface Resultado {
   id?: number;
   pagina_id: number;
   criterio_codigo: string;
-  componente_id?: number;
   estado: EstadoResultado;
-  severidad?: Severidad;
   origen: OrigenResultado;
   notas: string;
-  hallazgo_plantilla_id?: number;
   fecha_revision?: string;
+}
+
+// Instancia de un error concreto registrado sobre un Resultado — distinto de
+// HallazgoPlantilla, que es la redacción reutilizable de la biblioteca (ver
+// specs/06-checklist-manual.md). Varios hallazgos pueden colgar del mismo
+// Resultado (mismo criterio en la misma página).
+export interface Hallazgo {
+  id?: number;
+  resultado_id: number;
+  severidad: Severidad;
+  componente_id?: number;
+  notas: string;
+  hallazgo_plantilla_id?: number;
+  fecha_creacion: string;
 }
 
 export type TipoEvidencia = 'captura' | 'nota';
 
 export interface Evidencia {
   id?: number;
-  resultado_id: number;
+  hallazgo_id: number;
   tipo: TipoEvidencia;
   archivo?: Blob;
   texto?: string;
