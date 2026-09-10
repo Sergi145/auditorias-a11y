@@ -27,6 +27,10 @@ construyen el resto de rebanadas (ver `specs/README.md`).
     `hallazgosPlantilla`, `componentes`.
 - Angular CDK instalado (`@angular/cdk`), listo para usar `a11y` en
   rebanadas futuras.
+- `govuk-frontend` instalado y el SCSS base importado (tokens de color,
+  tipografía, espaciado), sirviendo un layout mínimo con su cabecera y
+  tipografía aplicadas — sin componentes de negocio todavía, solo para
+  verificar que el sistema de diseño está cableado desde el principio.
 - ESLint + Prettier configurados con reglas de accesibilidad
   (`eslint-plugin-jsx-a11y` no aplica a Angular; usar
   `angular-eslint` + reglas de plantillas accesibles donde existan).

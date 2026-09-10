@@ -66,6 +66,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 - Opcional: al editar una redacción reutilizada, poder "actualizar la plantilla original" además de guardar el cambio solo en esa instancia.
 
 ### 5.6 Catálogo de componentes
+> Nota: este catálogo clasifica los componentes de los **sitios auditados** (lo que se revisa). Es independiente del sistema de diseño de la propia app, ver §7.
 - Desplegable de componentes disponible al redactar un hallazgo, para clasificarlo por el tipo de componente UI afectado (además del criterio WCAG).
 - Precargado con el catálogo por defecto de componentes de Bootstrap (Accordion, Alert, Badge, Breadcrumb, Button, Button group, Card, Carousel, Close button, Collapse, Dropdown, List group, Modal, Navbar, Navs & tabs, Offcanvas, Pagination, Placeholder, Popover, Progress, Scrollspy, Spinner, Toast, Tooltip, campos de formulario — input/select/checkbox/radio/switch —, y Tabla).
 - El usuario puede añadir componentes propios no incluidos en el catálogo base (ej. patrones custom, componentes de otros frameworks de UI), quedando disponibles igual que los precargados para futuras clasificaciones.
@@ -91,6 +92,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 ## 7. Stack técnico propuesto
 
 - **Frontend**: Angular + TypeScript, componentes standalone, Reactive Forms para el checklist.
+- **Diseño / UI**: adaptación del GOV.UK Design System — kit de Figma comunitario para maquetar pantallas, y el paquete `govuk-frontend` para el CSS/SCSS de los componentes (tablas, tags de estado, error summary, notification banner, details/accordion). Reskin de marca vía variables SCSS. El comportamiento interactivo se reimplementa con Angular CDK `a11y` en vez del JS vanilla de `govuk-frontend`. (Independiente del catálogo de componentes Bootstrap de §5.6, que clasifica lo auditado, no la UI propia.)
 - **Accesibilidad de la propia app**: Angular CDK `a11y` (`LiveAnnouncer`, `FocusTrap`, `FocusMonitor`, `ListKeyManager`).
 - **Persistencia**: IndexedDB vía Dexie.js (MVP local-first); Supabase (Postgres) en fase 2.
 - **Escaneo automático**: axe-core (client-side) + función serverless con Playwright + axe-core para URLs en vivo.
