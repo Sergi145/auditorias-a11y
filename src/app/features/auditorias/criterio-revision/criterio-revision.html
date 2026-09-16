@@ -215,6 +215,33 @@
               ></textarea>
             </app-form-field>
 
+            @if (muestraGuardarEnBiblioteca()) {
+              <div class="my-3 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="guardarEnBiblioteca"
+                  class="foco h-4 w-4 rounded border-slate-300 text-violet-700"
+                  formControlName="guardarEnBiblioteca"
+                />
+                <label for="guardarEnBiblioteca" class="text-sm text-slate-700">
+                  Guardar esta redacción en la biblioteca de hallazgos
+                </label>
+              </div>
+
+              @if (muestraTituloPlantilla()) {
+                <app-form-field label="Título" #campoTituloPlantilla="appFormField">
+                  <input
+                    appInput
+                    type="text"
+                    [id]="campoTituloPlantilla.id"
+                    [attr.aria-describedby]="campoTituloPlantilla.describedBy"
+                    formControlName="tituloPlantilla"
+                    required
+                  />
+                </app-form-field>
+              }
+            }
+
             <div class="formulario__acciones">
               <button appButton variant="text" type="button" (click)="cancelarHallazgo()">Cancelar</button>
               <button appButton type="button" (click)="guardarHallazgo()">Guardar hallazgo</button>

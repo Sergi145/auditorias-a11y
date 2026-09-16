@@ -2,8 +2,8 @@
 // y 00-producto.md §5.6. Sembrado una sola vez en la tabla `componentes` de
 // Dexie por ComponentesService. Los ids se conservan tal cual estaban en el
 // mock anterior (MockDataService.componentesData) porque HallazgoPlantilla
-// mock (mock-data.ts, hasta 08-biblioteca-hallazgos) ya referencia algunos
-// de estos ids en su campo componente_id.
+// (real desde 08-biblioteca-hallazgos) puede referenciar algunos de estos
+// ids en su campo componente_id.
 import type { Componente } from './models';
 
 export const CATALOGO_COMPONENTES_BOOTSTRAP: Componente[] = [
