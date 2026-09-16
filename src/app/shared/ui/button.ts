@@ -2,8 +2,13 @@ import { Directive, computed, input } from '@angular/core';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'icon';
 
+// aria-disabled (además de disabled): un botón que se deshabilita
+// mientras conserva el foco (p. ej. el estado "Generando…" de
+// auditoria-exportar) usa aria-disabled en vez del atributo nativo, para
+// que el elemento no salga del árbol de accesibilidad y el foco no se
+// pierda al reactivarse — ver specs/09-exportacion.md.
 const BASE =
-  'inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
 const VARIANTES: Record<ButtonVariant, string> = {
   primary: `${BASE} px-5 py-2.5 bg-violet-700 text-white hover:bg-violet-800`,
