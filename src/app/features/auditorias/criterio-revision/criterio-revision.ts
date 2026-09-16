@@ -99,17 +99,11 @@ export class CriterioRevision {
     initialValue: this.formularioResultado.controls.estado.value,
   });
 
+  // La sección de hallazgos se muestra en cuanto el select pasa a "Falla",
+  // sin esperar a que el resultado esté guardado en Dexie: guardarHallazgo()
+  // crea el resultado sobre la marcha si todavía no existe, así que ya no
+  // hace falta pulsar "Guardar revisión" primero para poder añadir uno.
   protected readonly muestraSeveridad = computed(() => this.estadoFormularioActual() === 'falla');
-
-  // La sección de hallazgos solo se habilita cuando el resultado ya está
-  // guardado en Dexie con estado "Falla" — evita gestionar hallazgos
-  // huérfanos de un resultado que todavía no existe. Ver "Decisiones
-  // tomadas y descartadas" de specs/06-checklist-manual.md.
-  protected readonly muestraSeccionHallazgos = computed(() => this.resultado()?.estado === 'falla');
-
-  protected readonly avisoGuardarParaHallazgos = computed(
-    () => this.muestraSeveridad() && !this.muestraSeccionHallazgos(),
-  );
 
   private resultadoFormularioInicializado = false;
 
@@ -148,6 +142,12 @@ export class CriterioRevision {
     () => this.hallazgoEnEdicion() === 'nuevo' && this.hallazgoPlantillaIdActual() === null,
   );
 
+  // El campo Título siempre está visible junto con el checkbox (ambos
+  // gobernados por muestraGuardarEnBiblioteca en la plantilla, aunque el
+  // checkbox se muestra en otra posición) — esta señal ya no controla
+  // su visibilidad, solo si es obligatorio: únicamente cuando el checkbox
+  // está marcado tiene sentido exigirlo, porque solo entonces se usa para
+  // crear la plantilla.
   protected readonly muestraTituloPlantilla = computed(
     () => this.muestraGuardarEnBiblioteca() && this.guardarEnBibliotecaActual(),
   );
@@ -253,8 +253,18 @@ export class CriterioRevision {
       this.formularioHallazgo.markAllAsTouched();
       return;
     }
-    const resultadoId = this.resultadoId();
-    if (resultadoId === undefined) return;
+    // El resultado puede no existir todavía en Dexie (p. ej. se acaba de
+    // seleccionar "Falla" sin pulsar "Guardar revisión"): se crea aquí sobre
+    // la marcha en vez de bloquear el guardado del hallazgo. `guardar()` es
+    // un upsert por pagina/criterio, así que es seguro llamarlo aunque
+    // guardarResultado() ya lo haya hecho justo antes.
+    const resultadoId =
+      this.resultadoId() ??
+      (await this.resultadosService.guardar(
+        Number(this.paginaId),
+        this.codigo,
+        this.formularioResultado.getRawValue(),
+      ));
 
     const valores = this.formularioHallazgo.getRawValue();
     const enEdicion = this.hallazgoEnEdicion();
@@ -320,6 +330,14 @@ export class CriterioRevision {
     const valores = this.formularioResultado.getRawValue();
     await this.resultadosService.guardar(Number(this.paginaId), this.codigo, valores);
     this.toast.mostrar('Revisión guardada.');
+
+    // El hallazgo nuevo no tiene botón propio de guardado: "Guardar
+    // revisión" es también el único disparador para persistirlo. Si está
+    // incompleto, guardarHallazgo() marca los campos como touched y no
+    // guarda nada, pero tampoco bloquea el guardado de la revisión.
+    if (this.hallazgoEnEdicion() === 'nuevo') {
+      await this.guardarHallazgo();
+    }
 
     // "Falla" se queda en la pantalla para poder añadir hallazgos justo
     // después de guardar; el resto de estados vuelve al checklist, igual
