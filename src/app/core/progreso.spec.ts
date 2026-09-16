@@ -42,10 +42,10 @@ describe('ProgresoService', () => {
   });
 
   it('calcula % revisado y fallosPorSeveridad contando cada hallazgo por separado', async () => {
-    const resultadoA = await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoA = await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla' });
     await hallazgos.crear({ resultado_id: resultadoA, severidad: 'alta', notas: 'Error 1' });
     await hallazgos.crear({ resultado_id: resultadoA, severidad: 'alta', notas: 'Error 2' });
-    await resultados.guardar(PAGINA_A.id!, '2.1.1', { estado: 'pasa', notas: '' });
+    await resultados.guardar(PAGINA_A.id!, '2.1.1', { estado: 'pasa' });
 
     const progreso = await firstValueFrom(service.deAuditoria$([PAGINA_A]));
 
@@ -56,8 +56,8 @@ describe('ProgresoService', () => {
   });
 
   it('agrega el progreso de varias páginas de la misma auditoría', async () => {
-    await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'pasa', notas: '' });
-    await resultados.guardar(PAGINA_B.id!, '1.1.1', { estado: 'pasa', notas: '' });
+    await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'pasa' });
+    await resultados.guardar(PAGINA_B.id!, '1.1.1', { estado: 'pasa' });
 
     const progreso = await firstValueFrom(service.deAuditoria$([PAGINA_A, PAGINA_B]));
 
@@ -66,9 +66,9 @@ describe('ProgresoService', () => {
   });
 
   it('rankingPaginas$ ordena de más a menos criterios en Falla', async () => {
-    await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla', notas: '' });
-    await resultados.guardar(PAGINA_B.id!, '1.1.1', { estado: 'falla', notas: '' });
-    await resultados.guardar(PAGINA_B.id!, '1.4.3', { estado: 'falla', notas: '' });
+    await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla' });
+    await resultados.guardar(PAGINA_B.id!, '1.1.1', { estado: 'falla' });
+    await resultados.guardar(PAGINA_B.id!, '1.4.3', { estado: 'falla' });
 
     const ranking = await firstValueFrom(service.rankingPaginas$([PAGINA_A, PAGINA_B]));
 

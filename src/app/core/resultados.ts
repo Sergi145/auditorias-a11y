@@ -33,7 +33,7 @@ export class ResultadosService {
   async guardar(
     paginaId: number,
     criterioCodigo: string,
-    cambios: { estado: EstadoResultado; notas: string },
+    cambios: { estado: EstadoResultado },
   ): Promise<number> {
     const existente = await this.database.db.resultados
       .where({ pagina_id: paginaId, criterio_codigo: criterioCodigo })
@@ -43,7 +43,6 @@ export class ResultadosService {
     if (existente) {
       await this.database.db.resultados.update(existente.id!, {
         estado: cambios.estado,
-        notas: cambios.notas,
         origen: 'manual',
         fecha_revision,
       });
@@ -54,7 +53,6 @@ export class ResultadosService {
       pagina_id: paginaId,
       criterio_codigo: criterioCodigo,
       estado: cambios.estado,
-      notas: cambios.notas,
       origen: 'manual',
       fecha_revision,
     });

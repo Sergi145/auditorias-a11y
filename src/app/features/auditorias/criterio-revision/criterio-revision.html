@@ -40,16 +40,6 @@
           }
         </select>
       </app-form-field>
-
-      <app-form-field label="Notas" #campoNotas="appFormField">
-        <textarea
-          appInput
-          [id]="campoNotas.id"
-          [attr.aria-describedby]="campoNotas.describedBy"
-          formControlName="notas"
-          rows="4"
-        ></textarea>
-      </app-form-field>
     </fieldset>
 
     @if (muestraSeveridad()) {
@@ -118,6 +108,16 @@
                       ></textarea>
                     </app-form-field>
 
+                    <app-form-field label="Solución" #campoSolucionEditar="appFormField">
+                      <textarea
+                        appInput
+                        [id]="campoSolucionEditar.id"
+                        [attr.aria-describedby]="campoSolucionEditar.describedBy"
+                        formControlName="solucion"
+                        rows="4"
+                      ></textarea>
+                    </app-form-field>
+
                     <div class="formulario__acciones">
                       <button appButton variant="text" type="button" (click)="cancelarHallazgo()">
                         Cancelar
@@ -135,6 +135,9 @@
                         }
                       </p>
                       <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
+                      @if (hallazgo.solucion) {
+                        <p class="m-0 text-sm text-slate-600"><strong>Solución:</strong> {{ hallazgo.solucion }}</p>
+                      }
                     </div>
                     <div class="flex shrink-0 gap-2">
                       <button
@@ -228,6 +231,16 @@
                 [id]="campoNotasNuevo.id"
                 [attr.aria-describedby]="campoNotasNuevo.describedBy"
                 formControlName="notas"
+                rows="4"
+              ></textarea>
+            </app-form-field>
+
+            <app-form-field label="Solución" #campoSolucionNuevo="appFormField">
+              <textarea
+                appInput
+                [id]="campoSolucionNuevo.id"
+                [attr.aria-describedby]="campoSolucionNuevo.describedBy"
+                formControlName="solucion"
                 rows="4"
               ></textarea>
             </app-form-field>

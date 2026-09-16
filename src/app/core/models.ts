@@ -43,7 +43,6 @@ export interface Resultado {
   criterio_codigo: string;
   estado: EstadoResultado;
   origen: OrigenResultado;
-  notas: string;
   fecha_revision?: string;
 }
 
@@ -57,6 +56,7 @@ export interface Hallazgo {
   severidad: Severidad;
   componente_id?: number;
   notas: string;
+  solucion?: string;
   hallazgo_plantilla_id?: number;
   fecha_creacion: string;
 }

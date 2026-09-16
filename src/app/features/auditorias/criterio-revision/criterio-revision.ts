@@ -92,7 +92,6 @@ export class CriterioRevision {
 
   protected readonly formularioResultado = this.fb.nonNullable.group({
     estado: ['por_revisar' as EstadoResultado, Validators.required],
-    notas: [''],
   });
 
   private readonly estadoFormularioActual = toSignal(this.formularioResultado.controls.estado.valueChanges, {
@@ -113,6 +112,7 @@ export class CriterioRevision {
     severidad: [null as Severidad | null, Validators.required],
     componenteId: [null as number | null],
     notas: ['', Validators.required],
+    solucion: [''],
     hallazgoPlantillaId: [null as number | null],
     guardarEnBiblioteca: [false],
     tituloPlantilla: [''],
@@ -176,7 +176,7 @@ export class CriterioRevision {
     effect(() => {
       const resultado = this.resultado();
       if (resultado && !this.resultadoFormularioInicializado) {
-        this.formularioResultado.patchValue({ estado: resultado.estado, notas: resultado.notas });
+        this.formularioResultado.patchValue({ estado: resultado.estado });
         this.resultadoFormularioInicializado = true;
       }
     });
@@ -216,6 +216,7 @@ export class CriterioRevision {
       severidad: null,
       componenteId: null,
       notas: '',
+      solucion: '',
       hallazgoPlantillaId: null,
       guardarEnBiblioteca: false,
       tituloPlantilla: '',
@@ -228,6 +229,7 @@ export class CriterioRevision {
       severidad: hallazgo.severidad,
       componenteId: hallazgo.componente_id ?? null,
       notas: hallazgo.notas,
+      solucion: hallazgo.solucion ?? '',
       hallazgoPlantillaId: hallazgo.hallazgo_plantilla_id ?? null,
       guardarEnBiblioteca: false,
       tituloPlantilla: '',
@@ -241,7 +243,8 @@ export class CriterioRevision {
   protected usarPlantilla(plantilla: HallazgoPlantilla): void {
     this.formularioHallazgo.patchValue({
       severidad: plantilla.severidad_tipica,
-      notas: `${plantilla.descripcion}\n\n${plantilla.recomendacion_fix}`,
+      notas: plantilla.descripcion,
+      solucion: plantilla.recomendacion_fix,
       hallazgoPlantillaId: plantilla.id ?? null,
       guardarEnBiblioteca: false,
       tituloPlantilla: '',
@@ -280,7 +283,7 @@ export class CriterioRevision {
         componente_id: valores.componenteId ?? undefined,
         titulo: valores.tituloPlantilla,
         descripcion: valores.notas,
-        recomendacion_fix: '',
+        recomendacion_fix: valores.solucion,
         severidad_tipica: valores.severidad!,
         etiquetas: [],
       });
@@ -290,6 +293,7 @@ export class CriterioRevision {
       severidad: valores.severidad!,
       componente_id: valores.componenteId ?? undefined,
       notas: valores.notas,
+      solucion: valores.solucion || undefined,
       hallazgo_plantilla_id: hallazgoPlantillaId,
     };
 

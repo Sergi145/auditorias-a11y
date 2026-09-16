@@ -21,7 +21,7 @@ describe('ResultadosService', () => {
   });
 
   it('crea un resultado nuevo si no existía para ese criterio/página', async () => {
-    const id = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'falla', notas: 'Sin alt' });
+    const id = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'falla' });
     const resultado = await firstValueFrom(service.porPaginaYCriterio$(PAGINA_ID, CRITERIO));
 
     expect(resultado).toEqual({
@@ -29,7 +29,6 @@ describe('ResultadosService', () => {
       pagina_id: PAGINA_ID,
       criterio_codigo: CRITERIO,
       estado: 'falla',
-      notas: 'Sin alt',
       origen: 'manual',
       fecha_revision: resultado?.fecha_revision,
     });
@@ -37,20 +36,19 @@ describe('ResultadosService', () => {
   });
 
   it('actualiza el resultado existente en vez de duplicarlo', async () => {
-    const primerId = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'por_revisar', notas: '' });
-    const segundoId = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'pasa', notas: 'Verificado' });
+    const primerId = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'por_revisar' });
+    const segundoId = await service.guardar(PAGINA_ID, CRITERIO, { estado: 'pasa' });
 
     expect(segundoId).toBe(primerId);
 
     const resultados = await firstValueFrom(service.dePagina$(PAGINA_ID));
     expect(resultados).toHaveLength(1);
     expect(resultados[0].estado).toBe('pasa');
-    expect(resultados[0].notas).toBe('Verificado');
   });
 
   it('dePagina$() no devuelve resultados de otra página', async () => {
-    await service.guardar(PAGINA_ID, CRITERIO, { estado: 'falla', notas: '' });
-    await service.guardar(PAGINA_ID + 1, CRITERIO, { estado: 'falla', notas: 'Otra página' });
+    await service.guardar(PAGINA_ID, CRITERIO, { estado: 'falla' });
+    await service.guardar(PAGINA_ID + 1, CRITERIO, { estado: 'falla' });
 
     const resultados = await firstValueFrom(service.dePagina$(PAGINA_ID));
 
