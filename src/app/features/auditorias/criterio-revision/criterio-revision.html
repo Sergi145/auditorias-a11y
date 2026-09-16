@@ -81,7 +81,7 @@
                         formControlName="componenteId"
                       >
                         <option [ngValue]="null">Selecciona un componente…</option>
-                        @for (componente of componentes; track componente.id) {
+                        @for (componente of componentesVisibles(); track componente.id) {
                           <option [ngValue]="componente.id">{{ componente.nombre }}</option>
                         }
                       </select>
@@ -181,7 +181,7 @@
                 formControlName="componenteId"
               >
                 <option [ngValue]="null">Selecciona un componente…</option>
-                @for (componente of componentes; track componente.id) {
+                @for (componente of componentesVisibles(); track componente.id) {
                   <option [ngValue]="componente.id">{{ componente.nombre }}</option>
                 }
               </select>

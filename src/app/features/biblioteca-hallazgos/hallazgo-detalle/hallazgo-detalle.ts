@@ -1,9 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { MockDataService } from '../../../core/mock-data';
-import type { Severidad } from '../../../core/models';
+import type { Componente, Severidad } from '../../../core/models';
 import { AppButton } from '../../../shared/ui/button';
 import { AppChip } from '../../../shared/ui/chip';
 import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
@@ -22,6 +24,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 export class HallazgoDetalle {
   private readonly mockData = inject(MockDataService);
   private readonly criteriosWcag = inject(CriteriosWcagService);
+  private readonly componentesService = inject(ComponentesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -32,10 +35,15 @@ export class HallazgoDetalle {
   protected readonly criterio = this.hallazgo
     ? this.criteriosWcag.porCodigo(this.hallazgo.criterio_codigo)
     : undefined;
-  protected readonly componente =
-    this.hallazgo?.componente_id !== undefined
-      ? this.mockData.componente(this.hallazgo.componente_id)
-      : undefined;
+
+  private readonly componentes = toSignal(this.componentesService.todos$(), {
+    initialValue: [] as Componente[],
+  });
+  protected readonly componente = computed(() =>
+    this.hallazgo?.componente_id === undefined
+      ? undefined
+      : this.componentes().find((componente) => componente.id === this.hallazgo!.componente_id),
+  );
 
   protected readonly formulario = this.fb.nonNullable.group({
     titulo: [this.hallazgo?.titulo ?? '', Validators.required],

@@ -24,7 +24,9 @@ export type IconName =
   | 'help-circle'
   | 'edit'
   | 'delete'
-  | 'chevron-down';
+  | 'chevron-down'
+  | 'eye'
+  | 'eye-off';
 
 @Component({
   selector: 'app-icon',
@@ -130,6 +132,17 @@ export type IconName =
         }
         @case ('chevron-down') {
           <path d="M6 9l6 6 6-6" />
+        }
+        @case ('eye') {
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        }
+        @case ('eye-off') {
+          <path d="M3 3l18 18" />
+          <path
+            d="M10.6 5.2A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-3.4 4.3M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.4-1"
+          />
+          <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
         }
       }
     </svg>

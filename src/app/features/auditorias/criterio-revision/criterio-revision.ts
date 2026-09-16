@@ -3,10 +3,11 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
+import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosService } from '../../../core/hallazgos';
 import { MockDataService } from '../../../core/mock-data';
-import type { EstadoResultado, Hallazgo, HallazgoPlantilla, Severidad } from '../../../core/models';
+import type { Componente, EstadoResultado, Hallazgo, HallazgoPlantilla, Severidad } from '../../../core/models';
 import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
@@ -47,6 +48,7 @@ export class CriterioRevision {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly resultadosService = inject(ResultadosService);
   private readonly hallazgosService = inject(HallazgosService);
+  private readonly componentesService = inject(ComponentesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -54,7 +56,17 @@ export class CriterioRevision {
 
   protected readonly estados = ESTADOS;
   protected readonly severidades = SEVERIDADES;
-  protected readonly componentes = this.mockData.componentes();
+
+  // El desplegable solo ofrece componentes visibles; el nombre ya asignado
+  // a un hallazgo existente se resuelve contra todos() para seguir
+  // mostrándolo aunque el componente se haya ocultado después — ver
+  // specs/07-catalogo-componentes.md.
+  protected readonly componentesVisibles = toSignal(this.componentesService.visibles$(), {
+    initialValue: [] as Componente[],
+  });
+  private readonly todosLosComponentes = toSignal(this.componentesService.todos$(), {
+    initialValue: [] as Componente[],
+  });
 
   protected readonly auditoriaId = this.route.snapshot.paramMap.get('auditoriaId')!;
   protected readonly paginaId = this.route.snapshot.paramMap.get('paginaId')!;
@@ -152,7 +164,7 @@ export class CriterioRevision {
   protected componenteNombre(hallazgo: Hallazgo): string | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.mockData.componente(hallazgo.componente_id)?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)?.nombre;
   }
 
   protected empezarNuevoHallazgo(): void {

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import type { Componente, HallazgoPlantilla } from './models';
+import type { HallazgoPlantilla } from './models';
 
 // Datos de ejemplo para la maqueta navegable — ver specs/02-maqueta-m3.md.
-// Auditoria, Pagina, Resultado y Hallazgo ya son reales (Dexie, ver
-// specs/05-auditorias-paginas.md y specs/06-checklist-manual.md); lo que
-// queda aquí (HallazgoPlantilla, Componente) sigue siendo mock hasta sus
-// propias rebanadas (07-catalogo-componentes, 08-biblioteca-hallazgos).
+// Auditoria, Pagina, Resultado, Hallazgo y Componente ya son reales (Dexie,
+// ver specs/05-auditorias-paginas.md, specs/06-checklist-manual.md y
+// specs/07-catalogo-componentes.md); lo que queda aquí (HallazgoPlantilla)
+// sigue siendo mock hasta su propia rebanada (08-biblioteca-hallazgos).
 @Injectable({ providedIn: 'root' })
 export class MockDataService {
   private readonly hallazgosPlantillaData: HallazgoPlantilla[] = [
@@ -63,41 +63,6 @@ export class MockDataService {
     },
   ];
 
-  private readonly componentesData: Componente[] = [
-    { id: 1, nombre: 'Accordion', origen: 'bootstrap', visible: true },
-    { id: 2, nombre: 'Alert', origen: 'bootstrap', visible: true },
-    { id: 3, nombre: 'Badge', origen: 'bootstrap', visible: true },
-    { id: 4, nombre: 'Breadcrumb', origen: 'bootstrap', visible: true },
-    { id: 5, nombre: 'Button', origen: 'bootstrap', visible: true },
-    { id: 6, nombre: 'Button group', origen: 'bootstrap', visible: true },
-    { id: 7, nombre: 'Card', origen: 'bootstrap', visible: true },
-    { id: 8, nombre: 'Carousel', origen: 'bootstrap', visible: true },
-    { id: 9, nombre: 'Close button', origen: 'bootstrap', visible: true },
-    { id: 10, nombre: 'Collapse', origen: 'bootstrap', visible: true },
-    { id: 11, nombre: 'Dropdown', origen: 'bootstrap', visible: true },
-    { id: 12, nombre: 'List group', origen: 'bootstrap', visible: true },
-    { id: 13, nombre: 'Modal', origen: 'bootstrap', visible: true },
-    { id: 14, nombre: 'Navbar', origen: 'bootstrap', visible: true },
-    { id: 15, nombre: 'Navs & tabs', origen: 'bootstrap', visible: true },
-    { id: 16, nombre: 'Offcanvas', origen: 'bootstrap', visible: true },
-    { id: 17, nombre: 'Pagination', origen: 'bootstrap', visible: true },
-    { id: 18, nombre: 'Placeholder', origen: 'bootstrap', visible: true },
-    { id: 19, nombre: 'Popover', origen: 'bootstrap', visible: true },
-    { id: 20, nombre: 'Progress', origen: 'bootstrap', visible: true },
-    { id: 21, nombre: 'Scrollspy', origen: 'bootstrap', visible: true },
-    { id: 22, nombre: 'Spinner', origen: 'bootstrap', visible: true },
-    { id: 23, nombre: 'Toast', origen: 'bootstrap', visible: true },
-    { id: 24, nombre: 'Tooltip', origen: 'bootstrap', visible: true },
-    { id: 25, nombre: 'Input', origen: 'bootstrap', visible: true },
-    { id: 26, nombre: 'Select', origen: 'bootstrap', visible: true },
-    { id: 27, nombre: 'Checkbox', origen: 'bootstrap', visible: true },
-    { id: 28, nombre: 'Radio', origen: 'bootstrap', visible: true },
-    { id: 29, nombre: 'Switch', origen: 'bootstrap', visible: true },
-    { id: 30, nombre: 'Tabla', origen: 'bootstrap', visible: true },
-    { id: 31, nombre: 'Selector de fecha custom', origen: 'personalizado', visible: true },
-    { id: 32, nombre: 'Chip de filtro', origen: 'personalizado', visible: true },
-  ];
-
   hallazgosPlantilla(): HallazgoPlantilla[] {
     return this.hallazgosPlantillaData;
   }
@@ -112,13 +77,5 @@ export class MockDataService {
         hallazgo.criterio_codigo === criterioCodigo &&
         (componenteId === undefined || hallazgo.componente_id === componenteId),
     );
-  }
-
-  componentes(): Componente[] {
-    return this.componentesData;
-  }
-
-  componente(id: number): Componente | undefined {
-    return this.componentesData.find((componente) => componente.id === id);
   }
 }

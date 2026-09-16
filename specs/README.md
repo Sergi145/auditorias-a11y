@@ -12,7 +12,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 04 | [04-rediseno-tailwind.md](./04-rediseno-tailwind.md) | Implemented | Sustituye Angular Material por componentes propios + Tailwind en shell y las 12 pantallas |
 | 05 | [05-auditorias-paginas.md](./05-auditorias-paginas.md) | Implemented | CRUD completo de auditorías y páginas sobre Dexie (antes mock) |
 | 06 | [06-checklist-manual.md](./06-checklist-manual.md) | Implemented | Estado/severidad/notas reales por criterio (Resultado + Hallazgo en Dexie), con varios hallazgos por criterio en un collapse por fila del checklist cuando está en "Falla" |
-| 07 | 07-catalogo-componentes.md | Pendiente | Desplegable de componentes: seed Bootstrap + añadir propios |
+| 07 | [07-catalogo-componentes.md](./07-catalogo-componentes.md) | Implemented | Desplegable de componentes: seed Bootstrap + añadir propios |
 | 08 | 08-biblioteca-hallazgos.md | Pendiente | Guardar y sugerir hallazgos reutilizables (depende de 06 y 07) |
 | 09 | 09-exportacion.md | Pendiente | Export a Excel primero, PDF después |
 | 10 | 10-escaneo-axe.md | Pendiente | axe-core client-side, luego función serverless para URLs |
