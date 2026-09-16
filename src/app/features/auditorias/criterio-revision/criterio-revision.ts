@@ -6,7 +6,7 @@ import { of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosService } from '../../../core/hallazgos';
-import { MockDataService } from '../../../core/mock-data';
+import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
 import type { Componente, EstadoResultado, Hallazgo, HallazgoPlantilla, Severidad } from '../../../core/models';
 import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
@@ -44,10 +44,10 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
   templateUrl: './criterio-revision.html',
 })
 export class CriterioRevision {
-  private readonly mockData = inject(MockDataService);
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly resultadosService = inject(ResultadosService);
   private readonly hallazgosService = inject(HallazgosService);
+  private readonly hallazgosPlantillaService = inject(HallazgosPlantillaService);
   private readonly componentesService = inject(ComponentesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -120,6 +120,8 @@ export class CriterioRevision {
     componenteId: [null as number | null],
     notas: ['', Validators.required],
     hallazgoPlantillaId: [null as number | null],
+    guardarEnBiblioteca: [false],
+    tituloPlantilla: [''],
   });
 
   private readonly componenteIdHallazgoActual = toSignal(
@@ -127,11 +129,42 @@ export class CriterioRevision {
     { initialValue: this.formularioHallazgo.controls.componenteId.value },
   );
 
-  protected readonly hallazgosSugeridos = computed(() => {
-    const componenteId = this.componenteIdHallazgoActual();
-    if (componenteId === null) return [];
-    return this.mockData.hallazgosSugeridosPara(this.codigo, componenteId);
-  });
+  private readonly hallazgoPlantillaIdActual = toSignal(
+    this.formularioHallazgo.controls.hallazgoPlantillaId.valueChanges,
+    { initialValue: this.formularioHallazgo.controls.hallazgoPlantillaId.value },
+  );
+
+  private readonly guardarEnBibliotecaActual = toSignal(
+    this.formularioHallazgo.controls.guardarEnBiblioteca.valueChanges,
+    { initialValue: this.formularioHallazgo.controls.guardarEnBiblioteca.value },
+  );
+
+  // El checkbox "guardar en biblioteca" solo tiene sentido al redactar un
+  // hallazgo nuevo desde cero: ni al editar uno existente ni cuando ya se
+  // partió de una plantilla sugerida (hallazgoPlantillaId ya presente) —
+  // decisión explícita de specs/08-biblioteca-hallazgos.md para evitar
+  // plantillas duplicadas sin querer.
+  protected readonly muestraGuardarEnBiblioteca = computed(
+    () => this.hallazgoEnEdicion() === 'nuevo' && this.hallazgoPlantillaIdActual() === null,
+  );
+
+  protected readonly muestraTituloPlantilla = computed(
+    () => this.muestraGuardarEnBiblioteca() && this.guardarEnBibliotecaActual(),
+  );
+
+  // Fuente real desde specs/08-biblioteca-hallazgos.md: mismo comportamiento
+  // que antes (sin componente elegido no hay sugerencias), pero la consulta
+  // a Dexie es asíncrona, así que se deriva con el mismo patrón
+  // toObservable + switchMap + toSignal que ya usa la señal `hallazgos` de
+  // este componente para datos dependientes de otra señal.
+  protected readonly hallazgosSugeridos = toSignal(
+    toObservable(this.componenteIdHallazgoActual).pipe(
+      switchMap((componenteId) =>
+        componenteId === null ? of([]) : this.hallazgosPlantillaService.sugeridos$(this.codigo, componenteId),
+      ),
+    ),
+    { initialValue: [] as HallazgoPlantilla[] },
+  );
 
   private hallazgoDesdeQueryAbierto = false;
 
@@ -159,6 +192,16 @@ export class CriterioRevision {
         this.hallazgoDesdeQueryAbierto = true;
       }
     });
+
+    // "Título" solo es obligatorio mientras el checkbox "guardar en
+    // biblioteca" esté marcado y visible; se limpia la validación en cuanto
+    // deja de aplicar (se desmarca, se cancela el hallazgo nuevo o se pasa
+    // a usar una plantilla sugerida).
+    effect(() => {
+      const control = this.formularioHallazgo.controls.tituloPlantilla;
+      control.setValidators(this.muestraTituloPlantilla() ? Validators.required : null);
+      control.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   protected componenteNombre(hallazgo: Hallazgo): string | undefined {
@@ -174,6 +217,8 @@ export class CriterioRevision {
       componenteId: null,
       notas: '',
       hallazgoPlantillaId: null,
+      guardarEnBiblioteca: false,
+      tituloPlantilla: '',
     });
   }
 
@@ -184,6 +229,8 @@ export class CriterioRevision {
       componenteId: hallazgo.componente_id ?? null,
       notas: hallazgo.notas,
       hallazgoPlantillaId: hallazgo.hallazgo_plantilla_id ?? null,
+      guardarEnBiblioteca: false,
+      tituloPlantilla: '',
     });
   }
 
@@ -196,6 +243,8 @@ export class CriterioRevision {
       severidad: plantilla.severidad_tipica,
       notas: `${plantilla.descripcion}\n\n${plantilla.recomendacion_fix}`,
       hallazgoPlantillaId: plantilla.id ?? null,
+      guardarEnBiblioteca: false,
+      tituloPlantilla: '',
     });
   }
 
@@ -208,17 +257,42 @@ export class CriterioRevision {
     if (resultadoId === undefined) return;
 
     const valores = this.formularioHallazgo.getRawValue();
+    const enEdicion = this.hallazgoEnEdicion();
+    const esNuevo = enEdicion === 'nuevo';
+
+    // Al crear un hallazgo nuevo con el checkbox marcado, la plantilla se
+    // guarda primero para poder enlazar su id como hallazgo_plantilla_id del
+    // hallazgo recién creado — ver specs/08-biblioteca-hallazgos.md.
+    let hallazgoPlantillaId = valores.hallazgoPlantillaId ?? undefined;
+    if (esNuevo && valores.guardarEnBiblioteca) {
+      hallazgoPlantillaId = await this.hallazgosPlantillaService.crear({
+        criterio_codigo: this.codigo,
+        componente_id: valores.componenteId ?? undefined,
+        titulo: valores.tituloPlantilla,
+        descripcion: valores.notas,
+        recomendacion_fix: '',
+        severidad_tipica: valores.severidad!,
+        etiquetas: [],
+      });
+    }
+
     const datos = {
       severidad: valores.severidad!,
       componente_id: valores.componenteId ?? undefined,
       notas: valores.notas,
-      hallazgo_plantilla_id: valores.hallazgoPlantillaId ?? undefined,
+      hallazgo_plantilla_id: hallazgoPlantillaId,
     };
 
-    const enEdicion = this.hallazgoEnEdicion();
-    if (enEdicion === 'nuevo') {
+    if (esNuevo) {
       await this.hallazgosService.crear({ resultado_id: resultadoId, ...datos });
       this.toast.mostrar('Hallazgo añadido.');
+
+      // Se cuenta como un uso solo cuando el hallazgo reutiliza una
+      // plantilla ya existente (sugerencia usada), no cuando la plantilla
+      // se acaba de crear a partir de este mismo hallazgo.
+      if (!valores.guardarEnBiblioteca && hallazgoPlantillaId !== undefined) {
+        await this.hallazgosPlantillaService.incrementarUso(hallazgoPlantillaId);
+      }
     } else if (enEdicion !== null) {
       await this.hallazgosService.actualizar(enEdicion, datos);
       this.toast.mostrar('Hallazgo actualizado.');

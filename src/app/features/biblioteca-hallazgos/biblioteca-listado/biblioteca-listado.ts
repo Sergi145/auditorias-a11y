@@ -1,30 +1,79 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ComponentesService } from '../../../core/componentes';
-import { MockDataService } from '../../../core/mock-data';
-import type { Componente } from '../../../core/models';
+import { CriteriosWcagService } from '../../../core/criterios-wcag';
+import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
+import type { Componente, CriterioWCAG, HallazgoPlantilla } from '../../../core/models';
+import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
 import { AppChip } from '../../../shared/ui/chip';
+import { AppSelect } from '../../../shared/ui/field-controls';
+import { AppFormField } from '../../../shared/ui/form-field';
+import { AppIcon } from '../../../shared/ui/icon';
+import { ToastService } from '../../../shared/ui/toast';
 
 // Pantalla 8 de specs/02-maqueta-m3.md: listado de hallazgos reutilizables
-// de la biblioteca — solo lectura, sin sugerencias ni guardado reales.
+// de la biblioteca. Datos y gestión reales desde
+// specs/08-biblioteca-hallazgos.md: filtros por criterio/componente y
+// eliminar (mismo patrón window.confirm() que auditorías/páginas/
+// hallazgos/componentes).
 @Component({
   selector: 'app-biblioteca-listado',
-  imports: [RouterLink, AppCard, AppChip],
+  imports: [RouterLink, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppSelect],
   templateUrl: './biblioteca-listado.html',
 })
 export class BibliotecaListado {
-  private readonly mockData = inject(MockDataService);
+  private readonly hallazgosPlantillaService = inject(HallazgosPlantillaService);
   private readonly componentesService = inject(ComponentesService);
+  private readonly criteriosWcag = inject(CriteriosWcagService);
+  private readonly toast = inject(ToastService);
 
-  protected readonly hallazgos = this.mockData.hallazgosPlantilla();
+  protected readonly criterios: CriterioWCAG[] = this.criteriosWcag.todos();
 
-  private readonly componentes = toSignal(this.componentesService.todos$(), {
+  protected readonly componentes = toSignal(this.componentesService.todos$(), {
     initialValue: [] as Componente[],
   });
 
+  protected readonly hallazgos = toSignal(this.hallazgosPlantillaService.todos$(), {
+    initialValue: [] as HallazgoPlantilla[],
+  });
+
+  protected readonly filtroCriterio = signal<string | 'todos'>('todos');
+  protected readonly filtroComponente = signal<number | 'todos'>('todos');
+
+  protected readonly hallazgosFiltrados = computed(() =>
+    this.hallazgos().filter((hallazgo) => {
+      if (this.filtroCriterio() !== 'todos' && hallazgo.criterio_codigo !== this.filtroCriterio()) {
+        return false;
+      }
+      if (this.filtroComponente() !== 'todos' && hallazgo.componente_id !== this.filtroComponente()) {
+        return false;
+      }
+      return true;
+    }),
+  );
+
   protected componenteDe(id: number | undefined): Componente | undefined {
     return id === undefined ? undefined : this.componentes().find((componente) => componente.id === id);
+  }
+
+  protected onFiltroCriterio(evento: Event): void {
+    this.filtroCriterio.set((evento.target as HTMLSelectElement).value);
+  }
+
+  protected onFiltroComponente(evento: Event): void {
+    const valor = (evento.target as HTMLSelectElement).value;
+    this.filtroComponente.set(valor === 'todos' ? 'todos' : Number(valor));
+  }
+
+  protected async eliminar(hallazgo: HallazgoPlantilla): Promise<void> {
+    const confirmado = window.confirm(
+      `¿Eliminar "${hallazgo.titulo}" de la biblioteca? Esta acción no se puede deshacer.`,
+    );
+    if (!confirmado) return;
+
+    await this.hallazgosPlantillaService.eliminar(hallazgo.id!);
+    this.toast.mostrar('Hallazgo eliminado de la biblioteca.');
   }
 }
