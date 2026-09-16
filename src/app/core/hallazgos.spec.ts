@@ -39,6 +39,19 @@ describe('HallazgosService', () => {
     expect(hallazgos[0].fecha_creacion).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
+  it('guarda la solución opcional de un hallazgo', async () => {
+    const resultadoId = await resultados.guardar(1, '4.1.2', { estado: 'falla', notas: '' });
+    const id = await service.crear({
+      resultado_id: resultadoId,
+      severidad: 'media',
+      notas: 'Falta name accesible',
+      solucion: 'Añadir aria-label al botón',
+    });
+
+    const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
+    expect(hallazgos.find((h) => h.id === id)?.solucion).toBe('Añadir aria-label al botón');
+  });
+
   it('permite varios hallazgos para el mismo resultado', async () => {
     const resultadoId = await resultados.guardar(1, '1.4.3', { estado: 'falla', notas: '' });
     await service.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'Primer error' });

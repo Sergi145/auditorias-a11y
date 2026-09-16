@@ -40,6 +40,16 @@
           }
         </select>
       </app-form-field>
+
+      <app-form-field label="Notas" #campoNotas="appFormField">
+        <textarea
+          appInput
+          [id]="campoNotas.id"
+          [attr.aria-describedby]="campoNotas.describedBy"
+          formControlName="notas"
+          rows="4"
+        ></textarea>
+      </app-form-field>
     </fieldset>
 
     @if (muestraSeveridad()) {
@@ -108,6 +118,16 @@
                       ></textarea>
                     </app-form-field>
 
+                    <app-form-field label="Solución" #campoSolucionEditar="appFormField">
+                      <textarea
+                        appInput
+                        [id]="campoSolucionEditar.id"
+                        [attr.aria-describedby]="campoSolucionEditar.describedBy"
+                        formControlName="solucion"
+                        rows="4"
+                      ></textarea>
+                    </app-form-field>
+
                     <div class="formulario__acciones">
                       <button appButton variant="text" type="button" (click)="cancelarHallazgo()">
                         Cancelar
@@ -125,6 +145,9 @@
                         }
                       </p>
                       <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
+                      @if (hallazgo.solucion) {
+                        <p class="m-0 text-sm text-slate-600"><strong>Solución:</strong> {{ hallazgo.solucion }}</p>
+                      }
                     </div>
                     <div class="flex shrink-0 gap-2">
                       <button
@@ -222,6 +245,16 @@
               ></textarea>
             </app-form-field>
 
+            <app-form-field label="Solución" #campoSolucionNuevo="appFormField">
+              <textarea
+                appInput
+                [id]="campoSolucionNuevo.id"
+                [attr.aria-describedby]="campoSolucionNuevo.describedBy"
+                formControlName="solucion"
+                rows="4"
+              ></textarea>
+            </app-form-field>
+
             @if (muestraGuardarEnBiblioteca()) {
               <div class="my-3 flex items-center gap-2">
                 <input
@@ -244,16 +277,6 @@
         }
       </fieldset>
     }
-
-    <app-form-field label="Solución" #campoSolucion="appFormField">
-      <textarea
-        appInput
-        [id]="campoSolucion.id"
-        [attr.aria-describedby]="campoSolucion.describedBy"
-        formControlName="notas"
-        rows="4"
-      ></textarea>
-    </app-form-field>
 
     <div class="formulario__acciones">
       <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>

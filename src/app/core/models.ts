@@ -57,6 +57,7 @@ export interface Hallazgo {
   severidad: Severidad;
   componente_id?: number;
   notas: string;
+  solucion?: string;
   hallazgo_plantilla_id?: number;
   fecha_creacion: string;
 }
