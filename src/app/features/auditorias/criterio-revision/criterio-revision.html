@@ -13,46 +13,49 @@
     }
   </ul>
 
-  <form class="formulario" [formGroup]="formularioResultado" (ngSubmit)="guardarResultado()">
-    <app-form-field label="Estado" #campoEstado="appFormField">
-      <select
-        appSelect
-        [id]="campoEstado.id"
-        [attr.aria-describedby]="campoEstado.describedBy"
-        formControlName="estado"
-      >
-        @for (estado of estados; track estado) {
-          <option [ngValue]="estado">{{ estado }}</option>
-        }
-      </select>
-    </app-form-field>
+  <!-- novalidate: el formulario de hallazgo (con su propio input "required" de
+       Título) vive anidado dentro de este <form>; sin novalidate, el navegador
+       bloquea el submit nativo de "Guardar revisión" contra ese campo aunque
+       pertenezca a formularioHallazgo, no a formularioResultado. Cada
+       formulario ya valida el suyo por su cuenta (ver guardarResultado() y
+       guardarHallazgo()). -->
+  <form
+    class="formulario max-w-[560px]"
+    [formGroup]="formularioResultado"
+    (ngSubmit)="guardarResultado()"
+    novalidate
+  >
+    <fieldset class="formulario__grupo">
+      <legend>Revisión del criterio</legend>
 
-    <app-form-field label="Notas" #campoNotas="appFormField">
-      <textarea
-        appInput
-        [id]="campoNotas.id"
-        [attr.aria-describedby]="campoNotas.describedBy"
-        formControlName="notas"
-        rows="4"
-      ></textarea>
-    </app-form-field>
+      <app-form-field label="Estado" #campoEstado="appFormField">
+        <select
+          appSelect
+          [id]="campoEstado.id"
+          [attr.aria-describedby]="campoEstado.describedBy"
+          formControlName="estado"
+        >
+          @for (estado of estados; track estado) {
+            <option [ngValue]="estado">{{ estado }}</option>
+          }
+        </select>
+      </app-form-field>
 
-    <div class="formulario__acciones">
-      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
-      <button appButton type="submit">Guardar revisión</button>
-    </div>
-  </form>
+      <app-form-field label="Notas" #campoNotas="appFormField">
+        <textarea
+          appInput
+          [id]="campoNotas.id"
+          [attr.aria-describedby]="campoNotas.describedBy"
+          formControlName="notas"
+          rows="4"
+        ></textarea>
+      </app-form-field>
+    </fieldset>
 
-  @if (muestraSeveridad()) {
-    <div class="my-4 max-w-[560px]">
-      <h2 class="text-lg font-semibold text-slate-900">Hallazgos</h2>
+    @if (muestraSeveridad()) {
+      <fieldset class="formulario__grupo">
+        <legend>Hallazgos</legend>
 
-      @if (avisoGuardarParaHallazgos()) {
-        <p class="nota">
-          <app-icon name="info" />
-          Guarda el estado como "Falla" para poder añadir hallazgos.
-        </p>
-      } @else {
         @if (hallazgos().length > 0) {
           <ul class="m-0 mb-3 flex list-none flex-col gap-3 p-0">
             @for (hallazgo of hallazgos(); track hallazgo.id) {
@@ -205,6 +208,20 @@
               }
             }
 
+            @if (muestraGuardarEnBiblioteca()) {
+              <app-form-field label="Título" #campoTituloPlantilla="appFormField">
+                <input
+                  appInput
+                  type="text"
+                  [id]="campoTituloPlantilla.id"
+                  [attr.aria-describedby]="campoTituloPlantilla.describedBy"
+                  formControlName="tituloPlantilla"
+                  (keydown.enter)="$event.preventDefault()"
+                  [required]="muestraTituloPlantilla()"
+                />
+              </app-form-field>
+            }
+
             <app-form-field label="Descripción del hallazgo" #campoNotasNuevo="appFormField">
               <textarea
                 appInput
@@ -227,25 +244,7 @@
                   Guardar esta redacción en la biblioteca de hallazgos
                 </label>
               </div>
-
-              @if (muestraTituloPlantilla()) {
-                <app-form-field label="Título" #campoTituloPlantilla="appFormField">
-                  <input
-                    appInput
-                    type="text"
-                    [id]="campoTituloPlantilla.id"
-                    [attr.aria-describedby]="campoTituloPlantilla.describedBy"
-                    formControlName="tituloPlantilla"
-                    required
-                  />
-                </app-form-field>
-              }
             }
-
-            <div class="formulario__acciones">
-              <button appButton variant="text" type="button" (click)="cancelarHallazgo()">Cancelar</button>
-              <button appButton type="button" (click)="guardarHallazgo()">Guardar hallazgo</button>
-            </div>
           </article>
         } @else {
           <button appButton variant="text" type="button" (click)="empezarNuevoHallazgo()">
@@ -253,9 +252,14 @@
             Añadir hallazgo
           </button>
         }
-      }
+      </fieldset>
+    }
+
+    <div class="formulario__acciones">
+      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
+      <button appButton type="submit">Guardar revisión</button>
     </div>
-  }
+  </form>
 
   <p class="nota">
     <app-icon name="info" />
