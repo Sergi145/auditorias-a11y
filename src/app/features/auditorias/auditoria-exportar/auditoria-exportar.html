@@ -5,21 +5,35 @@
   <p class="pantalla__intro">Genera el informe de esta auditoría en el formato que necesites.</p>
 
   <div class="acciones">
-    <button appButton type="button" (click)="exportar('Excel')">
+    <button
+      appButton
+      type="button"
+      [attr.aria-disabled]="generando() === 'Excel' || sinDatosExportables() ? 'true' : null"
+      [attr.aria-describedby]="sinDatosExportables() ? 'aviso-sin-datos' : null"
+      (click)="exportar('Excel')"
+    >
       <app-icon name="table" />
-      Exportar a Excel
+      {{ generando() === 'Excel' ? 'Generando…' : 'Exportar a Excel' }}
     </button>
-    <button appButton variant="secondary" type="button" (click)="exportar('PDF')">
+    <button
+      appButton
+      variant="secondary"
+      type="button"
+      [attr.aria-disabled]="generando() === 'PDF' || sinDatosExportables() ? 'true' : null"
+      [attr.aria-describedby]="sinDatosExportables() ? 'aviso-sin-datos' : null"
+      (click)="exportar('PDF')"
+    >
       <app-icon name="document" />
-      Exportar a PDF
+      {{ generando() === 'PDF' ? 'Generando…' : 'Exportar a PDF' }}
     </button>
   </div>
 
-  <p class="nota">
-    <app-icon name="info" />
-    Esta maqueta solo muestra el flujo de exportación; la generación real de los archivos llega en
-    la rebanada 09-exportacion.
-  </p>
+  @if (sinDatosExportables()) {
+    <p class="nota" id="aviso-sin-datos">
+      <app-icon name="info" />
+      {{ mensajeSinDatos() }}
+    </p>
+  }
 
   <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
 } @else {
