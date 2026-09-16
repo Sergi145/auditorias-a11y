@@ -1,22 +1,101 @@
 <h1 class="mb-2 text-2xl font-semibold text-slate-900">Componentes</h1>
 <p class="pantalla__intro">
-  Catálogo usado para clasificar el tipo de componente afectado al redactar un hallazgo.
+  Catálogo usado para clasificar el tipo de componente afectado al redactar un hallazgo. Los componentes
+  ocultos no aparecen en el desplegable de la revisión de un criterio, pero se conservan aquí y en los
+  hallazgos que ya los tenían asignados.
 </p>
 
+<form
+  class="formulario mt-4 flex max-w-[420px] items-end gap-3"
+  [formGroup]="formularioNuevo"
+  (ngSubmit)="anadirComponente()"
+>
+  <app-form-field label="Nuevo componente" class="flex-1" #campoNuevo="appFormField">
+    <input
+      appInput
+      type="text"
+      [id]="campoNuevo.id"
+      [attr.aria-describedby]="campoNuevo.describedBy"
+      formControlName="nombre"
+    />
+  </app-form-field>
+  <button appButton type="submit">
+    <app-icon name="add" />
+    Añadir
+  </button>
+</form>
+
 <h2 class="mt-6 text-xl font-semibold text-slate-900">Predefinidos (Bootstrap)</h2>
-<ul aria-label="Componentes predefinidos de Bootstrap" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
-  @for (componente of bootstrap; track componente.id) {
-    <li><app-chip>{{ componente.nombre }}</app-chip></li>
+<ul aria-label="Componentes predefinidos de Bootstrap" class="m-0 mt-3 flex list-none flex-col gap-2 p-0">
+  @for (componente of bootstrap(); track componente.id) {
+    <li>
+      <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
+        <div class="flex items-center gap-2">
+          <app-chip>{{ componente.nombre }}</app-chip>
+          @if (!componente.visible) {
+            <app-chip>Oculto</app-chip>
+          }
+        </div>
+        <button appButton variant="text" type="button" (click)="alternarVisible(componente)">
+          <app-icon [name]="componente.visible ? 'eye-off' : 'eye'" />
+          {{ componente.visible ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </article>
+    </li>
   }
 </ul>
 
 <h2 class="mt-6 text-xl font-semibold text-slate-900">Personalizados</h2>
-@if (personalizados.length > 0) {
-  <ul aria-label="Componentes personalizados" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
-    @for (componente of personalizados; track componente.id) {
-      <li><app-chip>{{ componente.nombre }}</app-chip></li>
+@if (personalizados().length > 0) {
+  <ul aria-label="Componentes personalizados" class="m-0 mt-3 flex list-none flex-col gap-2 p-0">
+    @for (componente of personalizados(); track componente.id) {
+      <li>
+        @if (componenteEnEdicion() === componente.id) {
+          <article appCard class="py-3" [formGroup]="formularioRenombrar">
+            <app-form-field label="Nombre del componente" #campoRenombrar="appFormField">
+              <input
+                appInput
+                type="text"
+                [id]="campoRenombrar.id"
+                [attr.aria-describedby]="campoRenombrar.describedBy"
+                formControlName="nombre"
+              />
+            </app-form-field>
+            <div class="formulario__acciones mt-3">
+              <button appButton variant="text" type="button" (click)="cancelarRenombrar()">Cancelar</button>
+              <button appButton type="button" (click)="guardarRenombrar(componente.id!)">Guardar</button>
+            </div>
+          </article>
+        } @else {
+          <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div class="flex items-center gap-2">
+              <app-chip>{{ componente.nombre }}</app-chip>
+              @if (!componente.visible) {
+                <app-chip>Oculto</app-chip>
+              }
+            </div>
+            <div class="flex shrink-0 flex-wrap gap-2">
+              <button appButton variant="text" type="button" (click)="empezarRenombrar(componente)">
+                <app-icon name="edit" />
+                Renombrar
+              </button>
+              <button appButton variant="text" type="button" (click)="alternarVisible(componente)">
+                <app-icon [name]="componente.visible ? 'eye-off' : 'eye'" />
+                {{ componente.visible ? 'Ocultar' : 'Mostrar' }}
+              </button>
+              <button appButton variant="text" type="button" (click)="eliminar(componente)">
+                <app-icon name="delete" />
+                Eliminar
+              </button>
+            </div>
+          </article>
+        }
+      </li>
     }
   </ul>
 } @else {
-  <p>No se ha añadido ningún componente personalizado todavía.</p>
+  <p class="nota">
+    <app-icon name="info" />
+    No se ha añadido ningún componente personalizado todavía.
+  </p>
 }

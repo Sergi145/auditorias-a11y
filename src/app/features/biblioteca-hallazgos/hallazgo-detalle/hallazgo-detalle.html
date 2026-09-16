@@ -5,7 +5,7 @@
     @if (criterio) {
       · {{ criterio.nombre }}
     }
-    @if (componente) {
+    @if (componente(); as componente) {
       · {{ componente.nombre }}
     }
     · Usado {{ hallazgo.veces_usado }} veces

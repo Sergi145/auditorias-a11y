@@ -2,11 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { combineLatest, map } from 'rxjs';
+import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosService } from '../../../core/hallazgos';
-import { MockDataService } from '../../../core/mock-data';
 import type {
   CategoriaWCAG,
+  Componente,
   CriterioWCAG,
   EstadoResultado,
   Hallazgo,
@@ -71,7 +72,7 @@ export class PaginaChecklist {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly resultadosService = inject(ResultadosService);
   private readonly hallazgosService = inject(HallazgosService);
-  private readonly mockData = inject(MockDataService);
+  private readonly componentesService = inject(ComponentesService);
   private readonly paginasService = inject(PaginasService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -162,10 +163,14 @@ export class PaginaChecklist {
     return `hallazgos-${codigoCriterio.replace(/\./g, '-')}`;
   }
 
+  private readonly todosLosComponentes = toSignal(this.componentesService.todos$(), {
+    initialValue: [] as Componente[],
+  });
+
   protected componenteNombre(hallazgo: Hallazgo): string | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.mockData.componente(hallazgo.componente_id)?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)?.nombre;
   }
 
   private readonly expandidas = signal<ReadonlySet<string>>(new Set());
