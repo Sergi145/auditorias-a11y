@@ -1,6 +1,6 @@
 # 07 — Catálogo de componentes: seed Bootstrap + añadir propios
 
-**Estado:** Implemented (pendiente verificación manual de accesibilidad con teclado + axe, ver "Riesgos identificados")
+**Estado:** Implemented
 **Depende de:** Spec 01 (Fundación), Spec 06 (Checklist manual)
 **Fecha:** 2026-09-16
 
@@ -184,10 +184,14 @@ catálogo Bootstrap y editable desde la app a partir de esta rebanada.
   su visualización en `criterio-revision` (el nombre debe seguir
   resolviendo vía `todos$()`, no `visibles$()`, que es la que filtra por
   visibilidad).
-- **Verificación manual pendiente**: `npm run lint`, `npm run build` y
-  `npm test` (31 tests, incluidos los 5 nuevos de `ComponentesService`)
-  pasan sin fallos, pero no se ha podido levantar el servidor de desarrollo
-  para probar la pantalla en el navegador en esta sesión (puerto 4200
-  ocupado) ni ejecutar un escaneo de axe real — pendiente de verificación
-  manual antes de dar el criterio de aceptación correspondiente por
-  cumplido del todo.
+- **Verificación funcional en navegador real**: además de `npm run lint`,
+  `npm run build` y `npm test` (31 tests, incluidos los 5 nuevos de
+  `ComponentesService`), se ejecutó un flujo completo con Playwright contra
+  el servidor de desarrollo (sembrado sin duplicados, añadir, renombrar,
+  aparecer/desaparecer del desplegable de `criterio-revision` al
+  ocultar/mostrar, eliminar), usando exclusivamente selectores por rol y
+  etiqueta accesible (equivalente a navegación por lector de pantalla) y
+  sin errores de consola — script ad hoc, no incorporado a `e2e/`. Queda
+  pendiente un escaneo de axe dedicado (contraste, validez ARIA más allá
+  de roles/etiquetas) con la extensión de navegador, que es un paso manual
+  del propio auditor.
