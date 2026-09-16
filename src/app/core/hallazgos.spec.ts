@@ -22,7 +22,7 @@ describe('HallazgosService', () => {
   });
 
   it('crea un hallazgo y aparece en deResultado$()', async () => {
-    const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
     const id = await service.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'Sin alt' });
 
     const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
@@ -40,7 +40,7 @@ describe('HallazgosService', () => {
   });
 
   it('guarda la solución opcional de un hallazgo', async () => {
-    const resultadoId = await resultados.guardar(1, '4.1.2', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(1, '4.1.2', { estado: 'falla' });
     const id = await service.crear({
       resultado_id: resultadoId,
       severidad: 'media',
@@ -53,7 +53,7 @@ describe('HallazgosService', () => {
   });
 
   it('permite varios hallazgos para el mismo resultado', async () => {
-    const resultadoId = await resultados.guardar(1, '1.4.3', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(1, '1.4.3', { estado: 'falla' });
     await service.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'Primer error' });
     await service.crear({ resultado_id: resultadoId, severidad: 'baja', notas: 'Segundo error' });
 
@@ -64,7 +64,7 @@ describe('HallazgosService', () => {
   });
 
   it('actualiza un hallazgo existente sin duplicarlo', async () => {
-    const resultadoId = await resultados.guardar(1, '2.4.7', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(1, '2.4.7', { estado: 'falla' });
     const id = await service.crear({ resultado_id: resultadoId, severidad: 'media', notas: 'Borrador' });
 
     await service.actualizar(id, { severidad: 'critica', notas: 'Definitivo' });
@@ -76,7 +76,7 @@ describe('HallazgosService', () => {
   });
 
   it('elimina un hallazgo sin afectar a los demás del mismo resultado', async () => {
-    const resultadoId = await resultados.guardar(1, '3.3.2', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(1, '3.3.2', { estado: 'falla' });
     const idBorrar = await service.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'A' });
     const idQueda = await service.crear({ resultado_id: resultadoId, severidad: 'baja', notas: 'B' });
 
@@ -87,9 +87,9 @@ describe('HallazgosService', () => {
   });
 
   it('dePagina$() agrupa los hallazgos de todos los resultados de esa página', async () => {
-    const resultadoA = await resultados.guardar(1, '1.1.1', { estado: 'falla', notas: '' });
-    const resultadoB = await resultados.guardar(1, '1.4.3', { estado: 'falla', notas: '' });
-    await resultados.guardar(2, '1.1.1', { estado: 'falla', notas: 'Otra página' });
+    const resultadoA = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+    const resultadoB = await resultados.guardar(1, '1.4.3', { estado: 'falla' });
+    await resultados.guardar(2, '1.1.1', { estado: 'falla' });
     await service.crear({ resultado_id: resultadoA, severidad: 'alta', notas: 'A' });
     await service.crear({ resultado_id: resultadoB, severidad: 'baja', notas: 'B' });
 

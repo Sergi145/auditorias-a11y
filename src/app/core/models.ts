@@ -43,7 +43,6 @@ export interface Resultado {
   criterio_codigo: string;
   estado: EstadoResultado;
   origen: OrigenResultado;
-  notas: string;
   fecha_revision?: string;
 }
 

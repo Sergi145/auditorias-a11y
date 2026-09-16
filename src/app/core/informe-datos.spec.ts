@@ -80,7 +80,7 @@ describe('InformeDatosService', () => {
 
   it('un criterio sin Resultado guardado se mapea a "por_revisar" en el checklist', async () => {
     const { auditoriaId, paginaId } = await crearAuditoriaConPagina();
-    await resultados.guardar(paginaId, '1.1.1', { estado: 'pasa', notas: '' });
+    await resultados.guardar(paginaId, '1.1.1', { estado: 'pasa' });
 
     const informe = await service.ensamblar(auditoriaId);
 
@@ -100,11 +100,11 @@ describe('InformeDatosService', () => {
       notas_generales: '',
     });
 
-    const resultadoA = await resultados.guardar(paginaAId, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoA = await resultados.guardar(paginaAId, '1.1.1', { estado: 'falla' });
     await hallazgos.crear({ resultado_id: resultadoA, severidad: 'alta', notas: 'Falta alt' });
     await hallazgos.crear({ resultado_id: resultadoA, severidad: 'critica', notas: 'Contraste insuficiente' });
 
-    const resultadoB = await resultados.guardar(paginaBId, '2.4.7', { estado: 'falla', notas: '' });
+    const resultadoB = await resultados.guardar(paginaBId, '2.4.7', { estado: 'falla' });
     await hallazgos.crear({ resultado_id: resultadoB, severidad: 'baja', notas: 'Foco poco visible' });
 
     const informe = await service.ensamblar(auditoriaId);
@@ -120,10 +120,10 @@ describe('InformeDatosService', () => {
 
   it('no incluye hallazgos cuyo resultado ya no está en "falla"', async () => {
     const { auditoriaId, paginaId } = await crearAuditoriaConPagina();
-    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla' });
     await hallazgos.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'Falta alt' });
 
-    await resultados.guardar(paginaId, '1.1.1', { estado: 'pasa', notas: 'Se corrigió' });
+    await resultados.guardar(paginaId, '1.1.1', { estado: 'pasa' });
 
     const informe = await service.ensamblar(auditoriaId);
 
@@ -135,7 +135,7 @@ describe('InformeDatosService', () => {
     const componenteId = await componentes.crear('Modal de prueba');
     await componentes.alternarVisible(componenteId, false);
 
-    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla' });
     await hallazgos.crear({
       resultado_id: resultadoId,
       severidad: 'media',
@@ -152,7 +152,7 @@ describe('InformeDatosService', () => {
 
   it('deja componenteNombre indefinido cuando el hallazgo no tiene componente asignado', async () => {
     const { auditoriaId, paginaId } = await crearAuditoriaConPagina();
-    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla', notas: '' });
+    const resultadoId = await resultados.guardar(paginaId, '1.1.1', { estado: 'falla' });
     await hallazgos.crear({ resultado_id: resultadoId, severidad: 'media', notas: 'Sin componente' });
 
     const informe = await service.ensamblar(auditoriaId);

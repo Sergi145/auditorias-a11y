@@ -40,16 +40,6 @@
           }
         </select>
       </app-form-field>
-
-      <app-form-field label="Notas" #campoNotas="appFormField">
-        <textarea
-          appInput
-          [id]="campoNotas.id"
-          [attr.aria-describedby]="campoNotas.describedBy"
-          formControlName="notas"
-          rows="4"
-        ></textarea>
-      </app-form-field>
     </fieldset>
 
     @if (muestraSeveridad()) {

@@ -92,7 +92,6 @@ export class CriterioRevision {
 
   protected readonly formularioResultado = this.fb.nonNullable.group({
     estado: ['por_revisar' as EstadoResultado, Validators.required],
-    notas: [''],
   });
 
   private readonly estadoFormularioActual = toSignal(this.formularioResultado.controls.estado.valueChanges, {
@@ -177,7 +176,7 @@ export class CriterioRevision {
     effect(() => {
       const resultado = this.resultado();
       if (resultado && !this.resultadoFormularioInicializado) {
-        this.formularioResultado.patchValue({ estado: resultado.estado, notas: resultado.notas });
+        this.formularioResultado.patchValue({ estado: resultado.estado });
         this.resultadoFormularioInicializado = true;
       }
     });
