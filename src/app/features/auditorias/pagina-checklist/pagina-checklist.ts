@@ -44,6 +44,17 @@ const ICONO_ESTADO: Record<EstadoResultado, IconName> = {
   por_revisar: 'help-circle',
 };
 
+// Mismos colores de severidad de :root (styles.css) que ya usan la landing
+// y el panel de progreso — "Pasa"/"Falla"/"Por revisar" son, en esencia,
+// una severidad (baja/crítica/media) aplicada al estado de revisión.
+// "No aplica" queda neutro porque no encaja en esa escala.
+const COLOR_ESTADO: Record<EstadoResultado, string | null> = {
+  pasa: 'var(--severidad-baja)',
+  falla: 'var(--severidad-critica)',
+  por_revisar: 'var(--severidad-media)',
+  no_aplica: null,
+};
+
 const ETIQUETA_CATEGORIA: Record<CategoriaWCAG, string> = {
   perceptible: 'Perceptible',
   operable: 'Operable',
@@ -157,6 +168,10 @@ export class PaginaChecklist {
 
   protected estadoIcono(fila: FilaChecklist): IconName {
     return ICONO_ESTADO[this.estadoDe(fila)];
+  }
+
+  protected estadoColor(fila: FilaChecklist): string | null {
+    return COLOR_ESTADO[this.estadoDe(fila)];
   }
 
   protected collapseId(codigoCriterio: string): string {

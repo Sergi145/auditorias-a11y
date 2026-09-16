@@ -26,7 +26,9 @@ export type IconName =
   | 'delete'
   | 'chevron-down'
   | 'eye'
-  | 'eye-off';
+  | 'eye-off'
+  | 'shield'
+  | 'lock';
 
 @Component({
   selector: 'app-icon',
@@ -143,6 +145,14 @@ export type IconName =
             d="M10.6 5.2A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a15.6 15.6 0 0 1-3.4 4.3M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.4-1"
           />
           <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+        }
+        @case ('shield') {
+          <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3Z" />
+          <path d="M9 12.2l2 2 4-4.4" />
+        }
+        @case ('lock') {
+          <rect x="5" y="11" width="14" height="9" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         }
       }
     </svg>

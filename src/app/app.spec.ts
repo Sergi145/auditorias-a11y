@@ -1,12 +1,17 @@
-import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { App } from './app';
+import { routes } from './app.routes';
+import { Landing } from './features/landing/landing';
+import { Shell } from './shared/shell/shell';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [provideRouter(routes)],
+      teardown: { destroyAfterEach: true },
     }).compileComponents();
   });
 
@@ -16,10 +21,19 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the header with the app name', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.shell__title')?.textContent).toContain('Auditorías A11y');
+  it('la raíz redirige a la landing pública', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/', Landing);
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
+      'Auditorías de accesibilidad',
+    );
+  });
+
+  it('el shell se muestra en las rutas internas de la app', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/auditorias', Shell);
+    expect(harness.routeNativeElement?.querySelector('.shell__title')?.textContent).toContain(
+      'Auditorías A11y',
+    );
   });
 });
