@@ -7,7 +7,10 @@ test('la app arranca y muestra el shell principal', async ({ page }) => {
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  await page.goto('/');
+  // '/' redirige a la landing pública (/bienvenida) — se navega directamente
+  // a una ruta interna del shell, igual que el test unitario equivalente en
+  // app.spec.ts ("el shell se muestra en las rutas internas de la app").
+  await page.goto('/auditorias');
 
   await expect(page.getByRole('banner')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Auditorías', exact: true })).toBeVisible();

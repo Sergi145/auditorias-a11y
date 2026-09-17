@@ -61,8 +61,15 @@ export class HallazgosService {
     await this.database.db.hallazgos.update(id, { ...cambios, origen: 'manual' });
   }
 
+  // Cascada sobre Evidencia — ver specs/16-evidencia-imagen-hallazgo.md.
+  // Evita Blobs huérfanos en IndexedDB ocupando cuota sin que ninguna
+  // pantalla los pueda ya mostrar.
   async eliminar(id: number): Promise<void> {
-    await this.database.db.hallazgos.delete(id);
+    const { db } = this.database;
+    await db.transaction('rw', db.hallazgos, db.evidencias, async () => {
+      await db.evidencias.where('hallazgo_id').equals(id).delete();
+      await db.hallazgos.delete(id);
+    });
   }
 
   // Upsert del hallazgo automático de un Resultado (specs/11-escaneo-axe.md):

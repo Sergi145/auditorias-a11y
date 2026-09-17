@@ -76,6 +76,9 @@ export interface Evidencia {
   tipo: TipoEvidencia;
   archivo?: Blob;
   texto?: string;
+  // Texto alternativo de una evidencia de tipo 'captura' — obligatorio en el
+  // formulario, ver specs/16-evidencia-imagen-hallazgo.md.
+  descripcion?: string;
 }
 
 export interface HallazgoPlantilla {

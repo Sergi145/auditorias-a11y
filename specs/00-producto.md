@@ -86,7 +86,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 - **CriterioWCAG** (catálogo estático): codigo, nombre, nivel, categoria, descripcion, tecnicas.
 - **Resultado**: id, pagina_id, criterio_codigo, estado, origen (manual/automático), fecha_revision. Un criterio en estado "Falla" puede tener varios **Hallazgo** asociados (ver abajo); severidad, componente afectado, notas y solución viven en cada hallazgo, no en el resultado.
 - **Hallazgo** (instancia de un error concreto registrado sobre un resultado; distinto de `HallazgoPlantilla`, que es la redacción reutilizable de la biblioteca): id, resultado_id, severidad, componente_id (opcional), notas (descripción del problema), solucion (opcional, recomendación de arreglo para este hallazgo concreto), hallazgo_plantilla_id (opcional, referencia a la biblioteca si se reutilizó una redacción), fecha_creacion. Varios hallazgos pueden colgar del mismo resultado (mismo criterio en la misma página).
-- **Evidencia**: id, hallazgo_id, tipo (captura/nota), archivo o texto. Cada captura documenta un hallazgo concreto, no todo el criterio.
+- **Evidencia**: id, hallazgo_id, tipo (captura/nota), archivo o texto, descripcion (opcional, texto alternativo de una captura). Cada captura documenta un hallazgo concreto, no todo el criterio.
 - **HallazgoPlantilla** (biblioteca reutilizable): id, criterio_codigo, componente_id (opcional), titulo, descripcion, recomendacion_fix, severidad_tipica, etiquetas, veces_usado, fecha_creacion.
 - **Componente** (catálogo, precargado con Bootstrap + ampliable): id, nombre, origen (bootstrap/personalizado), visible.
 

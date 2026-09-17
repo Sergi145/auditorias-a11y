@@ -108,6 +108,8 @@
                       ></textarea>
                     </app-form-field>
 
+                    <app-evidencias-editor [evidencias]="formularioHallazgo.controls.evidencias" />
+
                     <app-form-field label="Solución" #campoSolucionEditar="appFormField">
                       <textarea
                         appInput
@@ -137,6 +139,28 @@
                       <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
                       @if (hallazgo.solucion) {
                         <p class="m-0 text-sm text-slate-600"><strong>Solución:</strong> {{ hallazgo.solucion }}</p>
+                      }
+                      @if (evidenciasDeHallazgo(hallazgo.id!).length > 0) {
+                        <ul aria-label="Evidencias del hallazgo" class="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+                          @for (evidencia of evidenciasDeHallazgo(hallazgo.id!); track evidencia.id) {
+                            <li>
+                              <a
+                                [href]="urlDeEvidencia(evidencia)"
+                                target="_blank"
+                                rel="noopener"
+                                class="foco flex items-center gap-1 rounded-md"
+                              >
+                                <img
+                                  [src]="urlDeEvidencia(evidencia)"
+                                  [alt]="evidencia.descripcion ?? ''"
+                                  class="h-16 w-16 rounded-md border border-slate-200 object-contain"
+                                />
+                                <app-icon name="external-link" />
+                                <span class="sr-only">(se abre en una pestaña nueva)</span>
+                              </a>
+                            </li>
+                          }
+                        </ul>
                       }
                     </div>
                     <div class="flex shrink-0 gap-2">
@@ -235,6 +259,8 @@
               ></textarea>
             </app-form-field>
 
+            <app-evidencias-editor [evidencias]="formularioHallazgo.controls.evidencias" />
+
             <app-form-field label="Solución" #campoSolucionNuevo="appFormField">
               <textarea
                 appInput
@@ -273,11 +299,6 @@
       <button appButton type="submit">Guardar revisión</button>
     </div>
   </form>
-
-  <p class="nota">
-    <app-icon name="info" />
-    Adjuntar capturas llegará en una rebanada futura.
-  </p>
 } @else {
   <p>No se ha encontrado el criterio.</p>
 }
