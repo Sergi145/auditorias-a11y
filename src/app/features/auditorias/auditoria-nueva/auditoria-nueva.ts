@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -41,6 +41,14 @@ export class AuditoriaNueva {
     estandar_objetivo: ['AA' as 'A' | 'AA', Validators.required],
   });
 
+  // Refs a los controles nativos en el mismo orden que el formulario, para
+  // poder mover el foco al primero inválido al enviar (ver enviar()).
+  private readonly inputNombre = viewChild<ElementRef<HTMLInputElement>>('inputNombre');
+  private readonly inputCliente = viewChild<ElementRef<HTMLInputElement>>('inputCliente');
+  private readonly inputUrl = viewChild<ElementRef<HTMLInputElement>>('inputUrl');
+  private readonly inputFecha = viewChild<ElementRef<HTMLInputElement>>('inputFecha');
+  private readonly inputEstandarObjetivo = viewChild<ElementRef<HTMLInputElement>>('inputEstandarObjetivo');
+
   constructor() {
     if (this.auditoriaId !== null) {
       void this.cargarAuditoria(Number(this.auditoriaId));
@@ -57,6 +65,7 @@ export class AuditoriaNueva {
   protected async enviar(): Promise<void> {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.enfocarPrimerCampoInvalido();
       return;
     }
     if (this.auditoriaId !== null) {
@@ -71,5 +80,23 @@ export class AuditoriaNueva {
       estado: 'en_progreso',
     });
     void this.router.navigate(['/auditorias', id]);
+  }
+
+  private enfocarPrimerCampoInvalido(): void {
+    const controles = this.formulario.controls;
+    const campos = [
+      [controles.nombre, this.inputNombre],
+      [controles.cliente, this.inputCliente],
+      [controles.url_base, this.inputUrl],
+      [controles.fecha_inicio, this.inputFecha],
+      [controles.estandar_objetivo, this.inputEstandarObjetivo],
+    ] as const;
+
+    for (const [control, ref] of campos) {
+      if (control.invalid) {
+        ref()?.nativeElement.focus();
+        return;
+      }
+    }
   }
 }
