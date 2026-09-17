@@ -33,6 +33,7 @@ describe('HallazgosService', () => {
         resultado_id: resultadoId,
         severidad: 'alta',
         notas: 'Sin alt',
+        origen: 'manual',
         fecha_creacion: hallazgos[0].fecha_creacion,
       },
     ]);
@@ -101,5 +102,77 @@ describe('HallazgosService', () => {
   it('dePagina$() devuelve vacío si la página no tiene resultados todavía', async () => {
     const hallazgos = await firstValueFrom(service.dePagina$(999));
     expect(hallazgos).toEqual([]);
+  });
+
+  it('actualizar() promociona un hallazgo automático a manual', async () => {
+    const resultadoId = await resultados.guardar(1, '1.4.3', { estado: 'falla' });
+    await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Contraste insuficiente' });
+    const [automatico] = await firstValueFrom(service.deResultado$(resultadoId));
+
+    await service.actualizar(automatico.id!, { notas: 'Contraste corregido a mano' });
+
+    const [actualizado] = await firstValueFrom(service.deResultado$(resultadoId));
+    expect(actualizado.origen).toBe('manual');
+    expect(actualizado.notas).toBe('Contraste corregido a mano');
+  });
+
+  describe('guardarAutomatico()', () => {
+    it('crea un hallazgo automático si no existía ninguno para ese resultado', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Falta alt (axe)' });
+
+      const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
+      expect(hallazgos).toEqual([
+        expect.objectContaining({ severidad: 'alta', notas: 'Falta alt (axe)', origen: 'automatico' }),
+      ]);
+    });
+
+    it('actualiza el hallazgo automático existente en vez de duplicarlo', async () => {
+      const resultadoId = await resultados.guardar(1, '1.4.3', { estado: 'falla' });
+      await service.guardarAutomatico(resultadoId, { severidad: 'media', notas: 'Primer escaneo' });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'critica', notas: 'Segundo escaneo' });
+
+      const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
+      expect(hallazgos).toHaveLength(1);
+      expect(hallazgos[0]).toEqual(
+        expect.objectContaining({ severidad: 'critica', notas: 'Segundo escaneo', origen: 'automatico' }),
+      );
+    });
+
+    it('crea uno nuevo si el hallazgo automático previo fue promocionado a manual', async () => {
+      const resultadoId = await resultados.guardar(1, '2.4.7', { estado: 'falla' });
+      await service.guardarAutomatico(resultadoId, { severidad: 'media', notas: 'Escaneo inicial' });
+      const [automatico] = await firstValueFrom(service.deResultado$(resultadoId));
+      await service.actualizar(automatico.id!, { notas: 'Revisado a mano' });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Re-escaneo' });
+
+      const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
+      expect(hallazgos).toHaveLength(2);
+      expect(hallazgos).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ origen: 'manual', notas: 'Revisado a mano' }),
+          expect.objectContaining({ origen: 'automatico', notas: 'Re-escaneo' }),
+        ]),
+      );
+    });
+
+    it('no toca un hallazgo manual sin relación con el escaneo', async () => {
+      const resultadoId = await resultados.guardar(1, '3.3.2', { estado: 'falla' });
+      await service.crear({ resultado_id: resultadoId, severidad: 'baja', notas: 'Nota manual' });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Hallazgo de axe' });
+
+      const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
+      expect(hallazgos).toHaveLength(2);
+      expect(hallazgos).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ origen: 'manual', notas: 'Nota manual' }),
+          expect.objectContaining({ origen: 'automatico', notas: 'Hallazgo de axe' }),
+        ]),
+      );
+    });
   });
 });

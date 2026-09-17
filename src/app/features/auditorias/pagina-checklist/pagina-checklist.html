@@ -139,10 +139,13 @@
               <span class="sr-only">Categoría </span>{{ categoriaEtiqueta(fila) }}
             </td>
             <td [id]="estadoId(fila.criterio.codigo)" class="py-2 pr-3">
-              <span class="inline-flex items-center gap-1.5 font-medium" [style.color]="estadoColor(fila)">
+              <span class="inline-flex flex-wrap items-center gap-1.5 font-medium" [style.color]="estadoColor(fila)">
                 <span class="sr-only">Estado </span>
                 <app-icon [name]="estadoIcono(fila)" [style.color]="estadoColor(fila)" />
                 {{ estadoEtiqueta(fila) }}
+                @if (esAutomatico(fila)) {
+                  <app-chip>Automático</app-chip>
+                }
               </span>
             </td>
             <td [id]="hallazgosId(fila.criterio.codigo)" class="py-2 pr-3">

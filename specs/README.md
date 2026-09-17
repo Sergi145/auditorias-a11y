@@ -16,7 +16,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 08 | [08-biblioteca-hallazgos.md](./08-biblioteca-hallazgos.md) | Implemented | Guardar y sugerir hallazgos reutilizables (depende de 06 y 07) |
 | 09 | [09-exportacion.md](./09-exportacion.md) | Implemented | Exportación de la auditoría completa a Excel (.xlsx, dos hojas) y PDF (resumen ejecutivo + hallazgos + detalle por criterio), generados en el navegador desde los datos de Dexie |
 | 10 | [10-cierre-menu-movil.md](./10-cierre-menu-movil.md) | Implemented | Botón de cierre visible, foco inicial, focus trap, Esc y devolución de foco en el menú de navegación móvil (`AppDrawer`) |
-| 11 | 11-escaneo-axe.md | Pendiente | axe-core client-side, luego función serverless para URLs |
+| 11 | [11-escaneo-axe.md](./11-escaneo-axe.md) | Implemented | Escaneo automático con axe-core sobre HTML pegado (client-side, iframe aislado), pre-rellena el checklist como "Falla (automático)"; URL en vivo (función serverless) queda para una rebanada futura |
 | 12 | 12-panel-progreso.md | Pendiente | Dashboard de % completado y distribución de fallos |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /

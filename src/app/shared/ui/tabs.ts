@@ -3,6 +3,10 @@ import { Component, ElementRef, model, input, viewChildren } from '@angular/core
 export interface TabItem {
   id: string;
   label: string;
+  // Sigue siendo seleccionable (para poder mostrar por qué está
+  // deshabilitada, ver specs/11-escaneo-axe.md) — solo cambia su semántica
+  // y estilo, no el foco/selección por teclado.
+  disabled?: boolean;
 }
 
 // Patrón ARIA "tabs" (roving tabindex, flechas/Home/End) — sustituye
@@ -21,13 +25,15 @@ export interface TabItem {
           [id]="tab.id + '-tab'"
           [attr.aria-selected]="i === selectedIndex()"
           [attr.aria-controls]="tab.id + '-panel'"
+          [attr.aria-disabled]="tab.disabled ? 'true' : null"
           [tabIndex]="i === selectedIndex() ? 0 : -1"
           class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700"
           [class.border-violet-700]="i === selectedIndex()"
-          [class.text-violet-700]="i === selectedIndex()"
+          [class.text-violet-700]="i === selectedIndex() && !tab.disabled"
           [class.border-transparent]="i !== selectedIndex()"
-          [class.text-slate-600]="i !== selectedIndex()"
-          [class.hover:text-slate-900]="i !== selectedIndex()"
+          [class.text-slate-400]="tab.disabled && i !== selectedIndex()"
+          [class.text-slate-600]="!tab.disabled && i !== selectedIndex()"
+          [class.hover:text-slate-900]="!tab.disabled && i !== selectedIndex()"
           (click)="select(i)"
           (keydown)="onKeydown($event, i)"
         >

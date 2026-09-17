@@ -20,6 +20,7 @@
     "@angular/forms": "^22.1.0",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "axe-core": "^4.13.0",
     "dexie": "^4.4.5",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",

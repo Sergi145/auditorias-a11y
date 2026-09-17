@@ -19,6 +19,7 @@ import { PaginasService } from '../../../core/paginas';
 import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
+import { AppChip } from '../../../shared/ui/chip';
 import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon, type IconName } from '../../../shared/ui/icon';
@@ -76,7 +77,7 @@ const ETIQUETA_SEVERIDAD: Record<Severidad, string> = {
 // eliminar sus hallazgos sin salir del checklist.
 @Component({
   selector: 'app-pagina-checklist',
-  imports: [RouterLink, AppButton, AppCard, AppFormField, AppIcon, AppSelect],
+  imports: [RouterLink, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppSelect],
   templateUrl: './pagina-checklist.html',
 })
 export class PaginaChecklist {
@@ -172,6 +173,12 @@ export class PaginaChecklist {
 
   protected estadoColor(fila: FilaChecklist): string | null {
     return COLOR_ESTADO[this.estadoDe(fila)];
+  }
+
+  // "Los resultados automáticos quedan marcados como tal" —
+  // 00-producto.md §5.3 / specs/11-escaneo-axe.md.
+  protected esAutomatico(fila: FilaChecklist): boolean {
+    return fila.resultado?.origen === 'automatico';
   }
 
   protected collapseId(codigoCriterio: string): string {

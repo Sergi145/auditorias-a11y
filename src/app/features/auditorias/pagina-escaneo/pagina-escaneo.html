@@ -6,7 +6,15 @@
 
   <div id="html-panel" role="tabpanel" aria-labelledby="html-tab" [hidden]="tabIndex() !== 0">
     <form class="formulario pt-4" [formGroup]="formularioHtml" (ngSubmit)="ejecutarEscaneo()">
-      <app-form-field label="HTML de la página" #campoHtml="appFormField">
+      <app-form-field
+        label="HTML de la página"
+        #campoHtml="appFormField"
+        [error]="
+          formularioHtml.controls.html.invalid && formularioHtml.controls.html.touched
+            ? 'Pega el HTML que quieres analizar.'
+            : null
+        "
+      >
         <textarea
           appInput
           [id]="campoHtml.id"
@@ -17,16 +25,16 @@
         ></textarea>
       </app-form-field>
       <div class="formulario__acciones">
-        <button appButton type="submit">
+        <button appButton type="submit" [attr.aria-disabled]="escaneando() ? 'true' : null">
           <app-icon name="search" />
-          Ejecutar escaneo
+          {{ escaneando() ? 'Escaneando…' : 'Ejecutar escaneo' }}
         </button>
       </div>
     </form>
   </div>
 
   <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" [hidden]="tabIndex() !== 1">
-    <form class="formulario pt-4" [formGroup]="formularioUrl" (ngSubmit)="ejecutarEscaneo()">
+    <div class="formulario pt-4" [formGroup]="formularioUrl">
       <app-form-field label="URL a escanear" #campoUrl="appFormField">
         <input
           appInput
@@ -36,20 +44,13 @@
           formControlName="url"
         />
       </app-form-field>
-      <div class="formulario__acciones">
-        <button appButton type="submit">
-          <app-icon name="search" />
-          Ejecutar escaneo
-        </button>
-      </div>
-    </form>
+      <p class="nota">
+        <app-icon name="info" />
+        El escaneo de una URL en vivo (función serverless con Playwright) llega en una rebanada
+        futura.
+      </p>
+    </div>
   </div>
-
-  <p class="nota">
-    <app-icon name="info" />
-    Esta maqueta solo muestra el flujo de escaneo; el análisis real con axe-core llega en la
-    rebanada 10-escaneo-axe.
-  </p>
 
   <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">
     Volver al checklist
