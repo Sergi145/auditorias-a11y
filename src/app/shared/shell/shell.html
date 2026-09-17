@@ -73,6 +73,7 @@
             appButton
             variant="icon"
             aria-label="Abrir menú de navegación"
+            [attr.aria-expanded]="abierto()"
             (click)="alternar()"
           >
             <app-icon name="menu" />

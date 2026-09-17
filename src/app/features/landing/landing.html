@@ -41,6 +41,7 @@
       variant="icon"
       class="md:hidden"
       aria-label="Abrir menú de navegación"
+      [attr.aria-expanded]="menuAbierto()"
       (click)="alternarMenu()"
     >
       <app-icon name="menu" />
