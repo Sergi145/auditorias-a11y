@@ -1,13 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import * as axe from 'axe-core';
+import { TAGS_WCAG_2_2_A_AA } from './axe-tags';
 import { codigosCriterioParaTags, severidadDesdeImpacto } from './axe-wcag-mapping';
 import { HallazgosService } from './hallazgos';
 import type { Severidad } from './models';
 import { ResultadosService } from './resultados';
-
-// Etiquetas WCAG 2.2 A/AA de axe-core — excluye reglas "best-practice" que
-// no mapean a ningún criterio del catálogo (specs/11-escaneo-axe.md).
-const TAGS_WCAG_2_2_A_AA = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 // axe-core debe ejecutarse dentro del mismo realm de JS que el documento que
 // analiza: axe.run() valida internamente `contextList instanceof window.Node`
@@ -64,7 +61,8 @@ export function agruparViolacionesPorCriterio(
 
 // Ejecuta axe-core sobre HTML pegado (modo cliente) y pre-rellena el
 // checklist de la página — ver specs/11-escaneo-axe.md. El modo "URL en
-// vivo" (función serverless con Playwright) queda fuera de esta rebanada.
+// vivo" (función serverless con Playwright) reutiliza aplicarViolaciones()
+// con las violaciones que devuelve la función — ver specs/12-escaneo-url.md.
 @Injectable({ providedIn: 'root' })
 export class EscaneoAxeService {
   private readonly resultadosService = inject(ResultadosService);
@@ -75,7 +73,9 @@ export class EscaneoAxeService {
     return this.aplicarViolaciones(paginaId, resultado.violations);
   }
 
-  private async aplicarViolaciones(paginaId: number, violaciones: ViolacionAxe[]): Promise<ResumenEscaneo> {
+  // Público: es el punto de entrada común a los dos modos de escaneo (HTML
+  // pegado y URL en vivo) — ver specs/12-escaneo-url.md.
+  async aplicarViolaciones(paginaId: number, violaciones: ViolacionAxe[]): Promise<ResumenEscaneo> {
     const porCriterio = agruparViolacionesPorCriterio(violaciones);
 
     let criteriosMarcados = 0;

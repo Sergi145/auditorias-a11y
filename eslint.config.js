@@ -6,7 +6,7 @@ const angular = require('angular-eslint');
 
 module.exports = defineConfig([
   {
-    files: ['**/*.ts'],
+    files: ['src/**/*.ts'],
     extends: [
       eslint.configs.recommended,
       tseslint.configs.recommended,
@@ -32,6 +32,12 @@ module.exports = defineConfig([
         },
       ],
     },
+  },
+  {
+    // api/: función serverless en Node, sin Angular — reglas de plantillas y
+    // selectores de componente no aplican — ver specs/12-escaneo-url.md.
+    files: ['api/**/*.ts'],
+    extends: [eslint.configs.recommended, tseslint.configs.recommended, tseslint.configs.stylistic],
   },
   {
     files: ['**/*.html'],

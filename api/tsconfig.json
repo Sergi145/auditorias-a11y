@@ -1,0 +1,24 @@
+/* tsconfig de api/: entorno Node de la función serverless, independiente del
+   tsconfig del frontend (Angular, "module": "preserve") — ver
+   specs/12-escaneo-url.md. */
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    // "DOM" no es para el propio código Node: es para tipar el callback que
+    // page.evaluate() ejecuta dentro del navegador (window/document), donde
+    // TypeScript comprueba el cuerpo del callback contra el contexto global
+    // del archivo que lo escribe.
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["**/*.ts"]
+}

@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:api": "vitest run --config vitest.api.config.ts",
     "lint": "ng lint",
     "e2e": "playwright test"
   },
@@ -20,10 +21,12 @@
     "@angular/forms": "^22.1.0",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "@sparticuz/chromium": "153.0.0",
     "axe-core": "^4.13.0",
     "dexie": "^4.4.5",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
+    "playwright-core": "1.63.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5"
@@ -35,6 +38,7 @@
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.3",
     "angular-eslint": "22.5.0",
     "eslint": "^10.9.1",
     "fake-indexeddb": "^6.2.5",

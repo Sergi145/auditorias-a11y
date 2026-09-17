@@ -34,21 +34,35 @@
   </div>
 
   <div id="url-panel" role="tabpanel" aria-labelledby="url-tab" [hidden]="tabIndex() !== 1">
-    <div class="formulario pt-4" [formGroup]="formularioUrl">
-      <app-form-field label="URL a escanear" #campoUrl="appFormField">
+    <!-- Sin <form>/[formGroup]: no hay ningún valor de formulario que leer al
+         escanear (la URL es fija, se lee de pagina().url), así que el botón
+         solo dispara la acción — ver specs/12-escaneo-url.md. -->
+    <div class="formulario pt-4">
+      <app-form-field
+        label="URL a escanear"
+        hint="La URL se toma de esta página; para cambiarla, edita la página. El escaneo puede tardar hasta un minuto."
+        #campoUrl="appFormField"
+      >
         <input
           appInput
           [id]="campoUrl.id"
           [attr.aria-describedby]="campoUrl.describedBy"
           type="url"
-          formControlName="url"
+          [value]="pagina.url"
+          readonly
         />
       </app-form-field>
-      <p class="nota">
-        <app-icon name="info" />
-        El escaneo de una URL en vivo (función serverless con Playwright) llega en una rebanada
-        futura.
-      </p>
+      <div class="formulario__acciones">
+        <button
+          appButton
+          type="button"
+          [attr.aria-disabled]="escaneando() ? 'true' : null"
+          (click)="ejecutarEscaneoUrl()"
+        >
+          <app-icon name="search" />
+          {{ escaneando() ? 'Escaneando…' : 'Ejecutar escaneo' }}
+        </button>
+      </div>
     </div>
   </div>
 
