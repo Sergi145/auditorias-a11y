@@ -41,7 +41,7 @@ Ver `specs/README.md` para el índice y el orden de rebanadas.
 - Escaneo automático: axe-core (client-side) + función serverless con
   Playwright para URLs en vivo.
 - Exportación: SheetJS (xlsx), jsPDF (PDF).
-- Hosting: Vercel o Netlify.
+- Hosting: Vercel.
 - Testing: Jasmine/Karma o Jest (unitario), Playwright (e2e).
 
 ## Principio guía

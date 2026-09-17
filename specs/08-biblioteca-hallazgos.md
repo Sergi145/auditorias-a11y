@@ -96,7 +96,7 @@ real — última pieza mock que queda en la app tras `05`/`06`/`07`.
   `00-producto.md §6`), no un conteo de auditorías distintas.
 - Exportación, escaneo automático con axe-core y panel de progreso — siguen
   en sus propias rebanadas (`09-exportacion`, `10-escaneo-axe`,
-  `11-panel-progreso`).
+  `14-panel-progreso`).
 
 ## Modelo de datos que toca
 

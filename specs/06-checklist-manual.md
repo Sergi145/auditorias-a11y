@@ -78,7 +78,7 @@ manual.
   panel de progreso más allá de `% revisado` y `fallosPorSeveridad` (ranking
   de páginas con más incidencias, ya real, es lo único que toca esta
   rebanada en esa pantalla) — llegan en `09-exportacion`, `10-escaneo-axe`,
-  `11-panel-progreso`.
+  `14-panel-progreso`.
 - Filtros nuevos en el checklist: los que ya existen (nivel/categoría/
   estado/severidad) siguen igual, solo que ahora leen datos reales.
 - Rutas o pantallas nuevas por hallazgo: el CRUD de hallazgos vive dentro de

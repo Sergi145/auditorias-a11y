@@ -98,7 +98,7 @@ Sustituir el flujo actual en Excel por una aplicación web que agilice las audit
 - **Persistencia**: IndexedDB vía Dexie.js (MVP local-first); Supabase (Postgres) en fase 2.
 - **Escaneo automático**: axe-core (client-side) + función serverless con Playwright + axe-core para URLs en vivo.
 - **Exportación**: SheetJS (xlsx), jsPDF o similar (PDF).
-- **Hosting**: Vercel o Netlify (estático + función serverless).
+- **Hosting**: Vercel (estático + función serverless).
 - **Testing**: Jasmine/Karma o Jest (unitario), Playwright (end-to-end) — también como señal de competencia QA en el propio portfolio.
 
 ## 8. Requisitos no funcionales

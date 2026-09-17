@@ -90,7 +90,7 @@ archivos reales generados a partir de los datos de Dexie.
   notas), no el título ni el `veces_usado` de la plantilla reutilizable de
   la que pudo partir.
 - Escaneo automático con axe-core — sigue en `10-escaneo-axe`.
-- Panel de progreso como pantalla propia — sigue en `11-panel-progreso`;
+- Panel de progreso como pantalla propia — sigue en `14-panel-progreso`;
   esta spec solo reutiliza `ProgresoService`, ya existente, para las cifras
   del resumen ejecutivo del informe.
 

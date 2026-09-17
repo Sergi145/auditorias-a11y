@@ -109,7 +109,7 @@ dejando el resto en "Por revisar" para su confirmación manual.
   adjunta ninguna `Evidencia` (esa entidad sigue sin `EvidenciasService`, ver
   `specs/09-exportacion.md` "Qué NO entra").
 - **Panel de progreso o estadísticas del propio escaneo** (cuántos escaneos
-  se han corrido, histórico) — sigue en `12-panel-progreso`.
+  se han corrido, histórico) — sigue en `14-panel-progreso`.
 
 ## Modelo de datos que toca
 
