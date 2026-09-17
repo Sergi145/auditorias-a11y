@@ -76,30 +76,50 @@ export class HallazgosService {
   // actualiza el Hallazgo con origen 'automatico' ya existente para ese
   // resultado en vez de duplicarlo; si el único hallazgo previo fue
   // promocionado a 'manual' (editado a mano), crea uno nuevo en su lugar.
+  // `capturas` (specs/13-captura-evidencia-escaneo.md, solo modo "URL en
+  // vivo") sustituye por completo las Evidencia del hallazgo automático: al
+  // ser siempre generadas por el propio escaneo, reemplazarlas en cada
+  // re-escaneo evita acumular capturas de violaciones ya corregidas.
   async guardarAutomatico(
     resultadoId: number,
-    datos: { severidad: Severidad; notas: string },
-  ): Promise<void> {
-    const existente = await this.database.db.hallazgos
-      .where('resultado_id')
-      .equals(resultadoId)
-      .filter((hallazgo) => hallazgo.origen === 'automatico')
-      .first();
+    datos: { severidad: Severidad; notas: string; capturas?: { archivo: Blob; descripcion: string }[] },
+  ): Promise<number> {
+    const { db } = this.database;
+    return db.transaction('rw', db.hallazgos, db.evidencias, async () => {
+      const existente = await db.hallazgos
+        .where('resultado_id')
+        .equals(resultadoId)
+        .filter((hallazgo) => hallazgo.origen === 'automatico')
+        .first();
 
-    if (existente) {
-      await this.database.db.hallazgos.update(existente.id!, {
-        severidad: datos.severidad,
-        notas: datos.notas,
-      });
-      return;
-    }
+      let hallazgoId: number;
+      if (existente) {
+        await db.hallazgos.update(existente.id!, {
+          severidad: datos.severidad,
+          notas: datos.notas,
+        });
+        hallazgoId = existente.id!;
+        await db.evidencias.where('hallazgo_id').equals(hallazgoId).delete();
+      } else {
+        hallazgoId = (await db.hallazgos.add({
+          resultado_id: resultadoId,
+          severidad: datos.severidad,
+          notas: datos.notas,
+          origen: 'automatico',
+          fecha_creacion: new Date().toISOString().slice(0, 10),
+        }))!;
+      }
 
-    await this.database.db.hallazgos.add({
-      resultado_id: resultadoId,
-      severidad: datos.severidad,
-      notas: datos.notas,
-      origen: 'automatico',
-      fecha_creacion: new Date().toISOString().slice(0, 10),
+      for (const captura of datos.capturas ?? []) {
+        await db.evidencias.add({
+          hallazgo_id: hallazgoId,
+          tipo: 'captura',
+          archivo: captura.archivo,
+          descripcion: captura.descripcion,
+        });
+      }
+
+      return hallazgoId;
     });
   }
 }

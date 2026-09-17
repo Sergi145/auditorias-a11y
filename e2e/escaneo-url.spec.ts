@@ -1,4 +1,8 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+
+const IMAGEN_VALIDA = path.join(__dirname, 'fixtures', 'evidencia.png');
 
 // Crea una auditoría y una página desde la UI (sin acceso directo a Dexie:
 // mismo camino que seguiría quien audita) y deja la pantalla de escaneo
@@ -95,4 +99,39 @@ test('un fallo de red al escanear la URL se comunica como servicio no disponible
     ),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/escaneo$/);
+});
+
+test('una violación con captura de pantalla la guarda como evidencia del hallazgo automático', async ({
+  page,
+}) => {
+  await crearPaginaYAbrirEscaneoUrl(page, 'https://pagina-a-escanear.test/');
+
+  const capturaPng = `data:image/png;base64,${readFileSync(IMAGEN_VALIDA).toString('base64')}`;
+  await page.route('**/api/escanear-url', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        violaciones: [
+          { tags: ['wcag111'], impact: 'critical', help: 'Falta texto alternativo', capturaPng },
+        ],
+      }),
+    });
+  });
+
+  await botonEjecutarEscaneo(page).click();
+  await expect(
+    page.getByText('Escaneo completado: 1 criterio(s) marcado(s) como Falla automática.'),
+  ).toBeVisible();
+
+  const filaCriterio111 = page
+    .locator('tr')
+    .filter({ has: page.locator('strong', { hasText: '1.1.1' }) });
+  await filaCriterio111.getByRole('link', { name: 'Revisar' }).click();
+  await expect(page.getByRole('heading', { name: /1\.1\.1/ })).toBeVisible();
+
+  const imagen = page.getByRole('img', { name: 'Falta texto alternativo' });
+  await expect(imagen).toBeVisible();
+  const enlace = page.locator('a').filter({ has: imagen });
+  await expect(enlace).toContainText('(se abre en una pestaña nueva)');
 });
