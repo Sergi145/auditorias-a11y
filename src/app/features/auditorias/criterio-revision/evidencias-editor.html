@@ -1,0 +1,84 @@
+<fieldset class="formulario__grupo">
+  <legend>Imágenes de evidencia</legend>
+
+  <p [id]="ayudaId" class="m-0 mb-2 text-sm text-slate-600">PNG, JPEG o WebP. Máximo 5 MB por imagen.</p>
+
+  <button
+    appButton
+    variant="text"
+    type="button"
+    #botonAdjuntar
+    [attr.aria-describedby]="describedBy()"
+    (click)="abrirSelector()"
+  >
+    <app-icon name="add" />
+    Adjuntar imagen
+  </button>
+  <input
+    #inputArchivo
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+    multiple
+    class="sr-only"
+    tabindex="-1"
+    aria-hidden="true"
+    (change)="onArchivosSeleccionados($event)"
+  />
+
+  @if (errores().length > 0) {
+    <ul [id]="erroresId" class="m-0 mt-2 flex list-none flex-col gap-1 p-0">
+      @for (error of errores(); track error.nombre + error.motivo) {
+        <li class="text-xs text-red-700">{{ error.nombre }}: {{ mensajeMotivo(error.motivo) }}</li>
+      }
+    </ul>
+  }
+
+  @if (evidencias().controls.length > 0) {
+    <ul class="m-0 mt-3 flex list-none flex-col gap-3 p-0">
+      @for (control of evidencias().controls; track control; let i = $index) {
+        <li>
+          <article appCard [formGroup]="control" class="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <img
+              [src]="urlDe(control.controls.archivo.value)"
+              [alt]="control.controls.descripcion.value"
+              class="h-32 w-32 shrink-0 rounded-md border border-slate-200 object-contain"
+            />
+            <div class="flex-1">
+              <p class="m-0 mb-1 text-sm text-slate-600">{{ nombreArchivo(control) }}</p>
+              <app-form-field
+                label="Descripción de la imagen (texto alternativo)"
+                #campoDescripcion="appFormField"
+                [error]="
+                  control.controls.descripcion.invalid && control.controls.descripcion.touched
+                    ? 'Describe el contenido de la imagen.'
+                    : null
+                "
+              >
+                <input
+                  appInput
+                  type="text"
+                  #descripcionInput
+                  [id]="campoDescripcion.id"
+                  [attr.aria-describedby]="campoDescripcion.describedBy"
+                  formControlName="descripcion"
+                  required
+                />
+              </app-form-field>
+            </div>
+            <button
+              appButton
+              variant="text"
+              type="button"
+              #botonQuitar
+              [attr.aria-label]="'Quitar imagen ' + (i + 1)"
+              (click)="quitar(i)"
+            >
+              <app-icon name="delete" />
+              Quitar imagen
+            </button>
+          </article>
+        </li>
+      }
+    </ul>
+  }
+</fieldset>

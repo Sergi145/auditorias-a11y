@@ -1,13 +1,21 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
+import { EvidenciasService } from '../../../core/evidencias';
 import { HallazgosService } from '../../../core/hallazgos';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
-import type { Componente, EstadoResultado, Hallazgo, HallazgoPlantilla, Severidad } from '../../../core/models';
+import type {
+  Componente,
+  EstadoResultado,
+  Evidencia,
+  Hallazgo,
+  HallazgoPlantilla,
+  Severidad,
+} from '../../../core/models';
 import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
@@ -16,6 +24,7 @@ import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
 import { ToastService } from '../../../shared/ui/toast';
+import { crearControlEvidencia, EvidenciasEditor, type FormularioEvidencia } from './evidencias-editor';
 
 const ESTADOS: EstadoResultado[] = ['pasa', 'falla', 'no_aplica', 'por_revisar'];
 const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
@@ -40,6 +49,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
     AppIcon,
     AppInput,
     AppSelect,
+    EvidenciasEditor,
   ],
   templateUrl: './criterio-revision.html',
 })
@@ -49,6 +59,7 @@ export class CriterioRevision {
   private readonly hallazgosService = inject(HallazgosService);
   private readonly hallazgosPlantillaService = inject(HallazgosPlantillaService);
   private readonly componentesService = inject(ComponentesService);
+  private readonly evidenciasService = inject(EvidenciasService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -90,6 +101,20 @@ export class CriterioRevision {
     { initialValue: [] as Hallazgo[] },
   );
 
+  // Todas las evidencias de todos los hallazgos de este resultado, para la
+  // tarjeta de lectura de cada hallazgo y para precargar el editor al abrir
+  // uno en modo edición — ver specs/16-evidencia-imagen-hallazgo.md. Mismo
+  // patrón toObservable + switchMap + toSignal que `hallazgos` (arriba) y
+  // `hallazgosSugeridos` (abajo), para datos derivados de otra señal.
+  private readonly hallazgoIds = computed(() => this.hallazgos().map((hallazgo) => hallazgo.id!));
+
+  private readonly evidenciasDelResultado = toSignal(
+    toObservable(this.hallazgoIds).pipe(
+      switchMap((ids) => (ids.length === 0 ? of([]) : this.evidenciasService.deHallazgos$(ids))),
+    ),
+    { initialValue: [] as Evidencia[] },
+  );
+
   protected readonly formularioResultado = this.fb.nonNullable.group({
     estado: ['por_revisar' as EstadoResultado, Validators.required],
   });
@@ -116,6 +141,12 @@ export class CriterioRevision {
     hallazgoPlantillaId: [null as number | null],
     guardarEnBiblioteca: [false],
     tituloPlantilla: [''],
+    // Imágenes de evidencia pendientes de guardar junto con el hallazgo —
+    // ver specs/16-evidencia-imagen-hallazgo.md. markAllAsTouched() en
+    // guardarHallazgo() ya recorre este FormArray (Angular lo hace de forma
+    // recursiva), así que una imagen sin descripción bloquea el guardado
+    // igual que cualquier otro campo obligatorio.
+    evidencias: this.fb.array<FormularioEvidencia>([]),
   });
 
   private readonly componenteIdHallazgoActual = toSignal(
@@ -168,7 +199,19 @@ export class CriterioRevision {
 
   private hallazgoDesdeQueryAbierto = false;
 
+  // Una URL de objeto por Evidencia ya guardada, para las miniaturas de la
+  // tarjeta de lectura de cada hallazgo — ver
+  // specs/16-evidencia-imagen-hallazgo.md. Se revocan al destruir el
+  // componente (EvidenciasEditor hace lo mismo con las suyas, propias de
+  // cada formulario de hallazgo en edición).
+  private readonly urlPorEvidencia = new Map<number, string>();
+
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      for (const url of this.urlPorEvidencia.values()) URL.revokeObjectURL(url);
+      this.urlPorEvidencia.clear();
+    });
+
     // Rellena el formulario superior en cuanto llega el primer valor real
     // del resultado (liveQuery es asíncrono): solo la primera vez, para no
     // pisar lo que el usuario esté escribiendo si el resultado se
@@ -210,8 +253,24 @@ export class CriterioRevision {
       : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)?.nombre;
   }
 
+  protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {
+    return this.evidenciasDelResultado().filter((evidencia) => evidencia.hallazgo_id === hallazgoId);
+  }
+
+  protected urlDeEvidencia(evidencia: Evidencia): string {
+    let url = this.urlPorEvidencia.get(evidencia.id!);
+    if (!url) {
+      url = URL.createObjectURL(evidencia.archivo ?? new Blob());
+      this.urlPorEvidencia.set(evidencia.id!, url);
+    }
+    return url;
+  }
+
   protected empezarNuevoHallazgo(): void {
     this.hallazgoEnEdicion.set('nuevo');
+    // .clear() no lo hace reset(): un hallazgo nuevo siempre empieza sin
+    // imágenes, aunque el formulario anterior tuviera alguna pendiente.
+    this.formularioHallazgo.controls.evidencias.clear();
     this.formularioHallazgo.reset({
       severidad: null,
       componenteId: null,
@@ -225,7 +284,10 @@ export class CriterioRevision {
 
   protected empezarEditarHallazgo(hallazgo: Hallazgo): void {
     this.hallazgoEnEdicion.set(hallazgo.id!);
-    this.formularioHallazgo.setValue({
+    // patchValue() en vez de setValue(): con evidencias como FormArray no
+    // tiene sentido "asignar" su valor con setValue() (longitud fija) —
+    // se repuebla aparte con clear() + push() con los controles reales.
+    this.formularioHallazgo.patchValue({
       severidad: hallazgo.severidad,
       componenteId: hallazgo.componente_id ?? null,
       notas: hallazgo.notas,
@@ -234,6 +296,18 @@ export class CriterioRevision {
       guardarEnBiblioteca: false,
       tituloPlantilla: '',
     });
+
+    const evidenciasArray = this.formularioHallazgo.controls.evidencias;
+    evidenciasArray.clear();
+    for (const evidencia of this.evidenciasDeHallazgo(hallazgo.id!)) {
+      evidenciasArray.push(
+        crearControlEvidencia({
+          id: evidencia.id!,
+          archivo: evidencia.archivo ?? new Blob(),
+          descripcion: evidencia.descripcion ?? '',
+        }),
+      );
+    }
   }
 
   protected cancelarHallazgo(): void {
@@ -297,8 +371,13 @@ export class CriterioRevision {
       hallazgo_plantilla_id: hallazgoPlantillaId,
     };
 
+    let hallazgoId: number;
+    // Ids de las evidencias ya guardadas de este hallazgo antes de este
+    // guardado — un hallazgo nuevo nunca tiene ninguna.
+    let idsGuardados: number[] = [];
+
     if (esNuevo) {
-      await this.hallazgosService.crear({ resultado_id: resultadoId, ...datos });
+      hallazgoId = await this.hallazgosService.crear({ resultado_id: resultadoId, ...datos });
       this.toast.mostrar('Hallazgo añadido.');
 
       // Se cuenta como un uso solo cuando el hallazgo reutiliza una
@@ -308,15 +387,61 @@ export class CriterioRevision {
         await this.hallazgosPlantillaService.incrementarUso(hallazgoPlantillaId);
       }
     } else if (enEdicion !== null) {
-      await this.hallazgosService.actualizar(enEdicion, datos);
+      hallazgoId = enEdicion;
+      idsGuardados = this.evidenciasDeHallazgo(hallazgoId).map((evidencia) => evidencia.id!);
+      await this.hallazgosService.actualizar(hallazgoId, datos);
       this.toast.mostrar('Hallazgo actualizado.');
+    } else {
+      // No debería ocurrir: guardarHallazgo() siempre se llama con
+      // hallazgoEnEdicion() en 'nuevo' o con el id de un hallazgo existente.
+      this.hallazgoEnEdicion.set(null);
+      return;
     }
+
+    await this.guardarEvidencias(hallazgoId, idsGuardados);
     this.hallazgoEnEdicion.set(null);
+  }
+
+  // Compara las imágenes actuales del formulario (nuevas sin id, existentes
+  // con su id) contra las que ya estaban guardadas antes de este guardado
+  // para calcular qué añadir, describir de nuevo o quitar — ver
+  // specs/16-evidencia-imagen-hallazgo.md.
+  private async guardarEvidencias(hallazgoId: number, idsGuardados: number[]): Promise<void> {
+    const controles = this.formularioHallazgo.controls.evidencias.controls;
+    const nuevas = controles
+      .filter((control) => control.controls.id.value === null)
+      .map((control) => ({
+        archivo: control.controls.archivo.value,
+        descripcion: control.controls.descripcion.value,
+      }));
+    const actualizadas = controles
+      .filter((control) => control.controls.id.value !== null)
+      .map((control) => ({
+        id: control.controls.id.value!,
+        descripcion: control.controls.descripcion.value,
+      }));
+    const idsActuales = new Set(actualizadas.map((evidencia) => evidencia.id));
+    const eliminadas = idsGuardados.filter((id) => !idsActuales.has(id));
+
+    if (nuevas.length === 0 && actualizadas.length === 0 && eliminadas.length === 0) return;
+    await this.evidenciasService.aplicarCambios(hallazgoId, { nuevas, actualizadas, eliminadas });
   }
 
   protected async eliminarHallazgo(hallazgo: Hallazgo): Promise<void> {
     const confirmado = window.confirm('¿Eliminar este hallazgo? Esta acción no se puede deshacer.');
     if (!confirmado) return;
+
+    // Elimina también las URL de objeto cacheadas de sus evidencias — el
+    // borrado en cascada de HallazgosService.eliminar() se lleva los Blobs
+    // de Dexie, pero una URL ya creada seguiría viva en memoria hasta
+    // revocarla explícitamente.
+    for (const evidencia of this.evidenciasDeHallazgo(hallazgo.id!)) {
+      const url = this.urlPorEvidencia.get(evidencia.id!);
+      if (url) {
+        URL.revokeObjectURL(url);
+        this.urlPorEvidencia.delete(evidencia.id!);
+      }
+    }
 
     await this.hallazgosService.eliminar(hallazgo.id!);
     this.toast.mostrar('Hallazgo eliminado.');

@@ -15,7 +15,10 @@ import type {
 // constantes en cada rebanada siguiente — ver specs/01-fundacion.md. La v2
 // (specs/06-checklist-manual.md) añade la tabla `hallazgos` y recorta los
 // índices de `resultados`: severidad/componente_id/hallazgo_plantilla_id se
-// mudan de Resultado a Hallazgo (varios hallazgos por resultado).
+// mudan de Resultado a Hallazgo (varios hallazgos por resultado). La v3
+// (specs/16-evidencia-imagen-hallazgo.md) reindexa `evidencias` por
+// `hallazgo_id` en vez de `resultado_id` (nunca usado: la tabla estaba vacía
+// en todas las instalaciones hasta esta rebanada).
 class AuditoriasA11yDatabase extends Dexie {
   auditorias!: EntityTable<Auditoria, 'id'>;
   paginas!: EntityTable<Pagina, 'id'>;
@@ -40,6 +43,9 @@ class AuditoriasA11yDatabase extends Dexie {
     this.version(2).stores({
       resultados: '++id, pagina_id, criterio_codigo, estado',
       hallazgos: '++id, resultado_id, severidad, componente_id, hallazgo_plantilla_id',
+    });
+    this.version(3).stores({
+      evidencias: '++id, hallazgo_id',
     });
   }
 }
