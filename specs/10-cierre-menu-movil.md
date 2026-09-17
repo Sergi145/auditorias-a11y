@@ -38,6 +38,13 @@ una forma obvia y descubrible de cerrar el menú.
   - Tap en el fondo oscurecido sigue cerrando el menú, pero queda como
     conveniencia adicional, nunca como único método (ahora coexiste con el
     botón de cierre y con Esc).
+- Al elegir una opción de navegación dentro del menú abierto en móvil (shell
+  y landing), el menú se cierra: cada enlace lleva
+  `(click)="onAbiertoChange(false)"` / `(click)="onMenuAbiertoChange(false)"`.
+  Sin esto, tras navegar el menú se queda abierto tapando el contenido nuevo
+  hasta que se cierra a mano — landing ya lo hacía para sus enlaces de
+  anclaje, pero faltaba en el shell para `/auditorias`, `/biblioteca` y
+  `/componentes`.
 
 ## Qué NO entra todavía
 
@@ -68,6 +75,9 @@ Ninguno. Cambio puramente de presentación/interacción en el shell
   fondo) el foco vuelve al botón hamburguesa que lo abrió.
 - El tap en el fondo oscurecido sigue cerrando el menú, pero no es el único
   método disponible.
+- En móvil, al pulsar cualquier opción de navegación del menú abierto (shell:
+  Auditorías/Biblioteca/Componentes; landing: enlaces de ancla) el menú se
+  cierra.
 - `npm run lint` y `npm test` pasan sin fallos.
 - `e2e/shell.spec.ts` sigue pasando sin modificar sus aserciones.
 - Un escaneo de axe (extensión de navegador) sobre el menú abierto en móvil

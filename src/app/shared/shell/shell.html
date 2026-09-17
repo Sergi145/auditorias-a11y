@@ -24,6 +24,7 @@
             [class.text-violet-700]="auditoriasLink.isActive"
             [class.text-slate-700]="!auditoriasLink.isActive"
             [class.hover:bg-slate-100]="!auditoriasLink.isActive"
+            (click)="onAbiertoChange(false)"
           >
             <app-icon name="clipboard-check" />
             Auditorías
@@ -39,6 +40,7 @@
             [class.text-violet-700]="bibliotecaLink.isActive"
             [class.text-slate-700]="!bibliotecaLink.isActive"
             [class.hover:bg-slate-100]="!bibliotecaLink.isActive"
+            (click)="onAbiertoChange(false)"
           >
             <app-icon name="book" />
             Biblioteca de hallazgos
@@ -54,6 +56,7 @@
             [class.text-violet-700]="componentesLink.isActive"
             [class.text-slate-700]="!componentesLink.isActive"
             [class.hover:bg-slate-100]="!componentesLink.isActive"
+            (click)="onAbiertoChange(false)"
           >
             <app-icon name="grid" />
             Componentes
