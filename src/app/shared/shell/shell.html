@@ -79,16 +79,22 @@
             <app-icon name="menu" />
           </button>
         }
-        <a routerLink="/auditorias" class="foco flex items-center gap-2 rounded-lg text-slate-900 no-underline">
+        <span class="flex items-center gap-2 rounded-lg text-slate-900">
           <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-700 text-white">
             <app-icon name="clipboard-check" />
           </span>
           <span class="shell__title text-lg font-semibold">Auditorías A11y</span>
-        </a>
+        </span>
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-[960px] flex-1 p-6" id="contenido">
+    <!--
+      tabindex="-1" solo para poder enfocarlo por script (ver Shell,
+      gestión de foco al navegar) — nunca se llega aquí con Tab, así que no
+      necesita su propio anillo de foco visible; los controles reales de
+      cada sección sí lo mantienen.
+    -->
+    <main #contenido class="mx-auto w-full max-w-[960px] flex-1 p-6 outline-none" id="contenido" tabindex="-1">
       <router-outlet />
     </main>
   </div>

@@ -31,12 +31,21 @@
     <li>
       <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
         <div class="flex items-center gap-2">
-          <app-chip>{{ componente.nombre }}</app-chip>
+          <app-chip [id]="chipId(componente)">{{ componente.nombre }}</app-chip>
           @if (!componente.visible) {
             <app-chip>Oculto</app-chip>
           }
         </div>
-        <button appButton variant="text" type="button" (click)="alternarVisible(componente)">
+        <button
+          appButton
+          variant="text"
+          type="button"
+          role="switch"
+          [id]="botonVisibleId(componente)"
+          [attr.aria-checked]="componente.visible"
+          [attr.aria-labelledby]="botonVisibleId(componente) + ' ' + chipId(componente)"
+          (click)="alternarVisible(componente)"
+        >
           <app-icon [name]="componente.visible ? 'eye-off' : 'eye'" />
           {{ componente.visible ? 'Ocultar' : 'Mostrar' }}
         </button>
@@ -69,7 +78,7 @@
         } @else {
           <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
             <div class="flex items-center gap-2">
-              <app-chip>{{ componente.nombre }}</app-chip>
+              <app-chip [id]="chipId(componente)">{{ componente.nombre }}</app-chip>
               @if (!componente.visible) {
                 <app-chip>Oculto</app-chip>
               }
@@ -79,7 +88,16 @@
                 <app-icon name="edit" />
                 Renombrar
               </button>
-              <button appButton variant="text" type="button" (click)="alternarVisible(componente)">
+              <button
+                appButton
+                variant="text"
+                type="button"
+                role="switch"
+                [id]="botonVisibleId(componente)"
+                [attr.aria-checked]="componente.visible"
+                [attr.aria-labelledby]="botonVisibleId(componente) + ' ' + chipId(componente)"
+                (click)="alternarVisible(componente)"
+              >
                 <app-icon [name]="componente.visible ? 'eye-off' : 'eye'" />
                 {{ componente.visible ? 'Ocultar' : 'Mostrar' }}
               </button>

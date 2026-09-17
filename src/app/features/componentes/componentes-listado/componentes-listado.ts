@@ -77,6 +77,14 @@ export class ComponentesListado {
     this.toast.mostrar(componente.visible ? 'Componente ocultado.' : 'Componente mostrado.');
   }
 
+  protected chipId(componente: Componente): string {
+    return `chip-nombre-${componente.id}`;
+  }
+
+  protected botonVisibleId(componente: Componente): string {
+    return `boton-visible-${componente.id}`;
+  }
+
   protected async eliminar(componente: Componente): Promise<void> {
     const confirmado = window.confirm(
       `¿Eliminar "${componente.nombre}"? Esta acción no se puede deshacer.`,
