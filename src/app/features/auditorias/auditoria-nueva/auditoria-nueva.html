@@ -1,86 +1,104 @@
 <h1 class="mb-6 text-2xl font-semibold text-slate-900">{{ titulo }}</h1>
 
 <form class="formulario" [formGroup]="formulario" (ngSubmit)="enviar()">
-  <app-form-field
-    label="Nombre de la auditoría"
-    #campoNombre="appFormField"
-    [error]="
-      formulario.controls.nombre.invalid && formulario.controls.nombre.touched
-        ? 'Introduce un nombre.'
-        : null
-    "
-  >
-    <input
-      appInput
-      [id]="campoNombre.id"
-      [attr.aria-describedby]="campoNombre.describedBy"
-      formControlName="nombre"
-      required
-    />
-  </app-form-field>
+  <fieldset class="formulario__grupo">
+    <legend>Datos de la auditoría</legend>
 
-  <app-form-field
-    label="Cliente"
-    #campoCliente="appFormField"
-    [error]="
-      formulario.controls.cliente.invalid && formulario.controls.cliente.touched
-        ? 'Introduce el cliente.'
-        : null
-    "
-  >
-    <input
-      appInput
-      [id]="campoCliente.id"
-      [attr.aria-describedby]="campoCliente.describedBy"
-      formControlName="cliente"
-      required
-    />
-  </app-form-field>
+    <app-form-field
+      label="Nombre de la auditoría"
+      #campoNombre="appFormField"
+      [error]="
+        formulario.controls.nombre.invalid && formulario.controls.nombre.touched
+          ? 'Introduce un nombre.'
+          : null
+      "
+    >
+      <input
+        appInput
+        #inputNombre
+        [id]="campoNombre.id"
+        [attr.aria-describedby]="campoNombre.describedBy"
+        [attr.aria-invalid]="formulario.controls.nombre.invalid && formulario.controls.nombre.touched"
+        formControlName="nombre"
+        required
+      />
+    </app-form-field>
 
-  <app-form-field
-    label="URL base"
-    #campoUrl="appFormField"
-    [error]="
-      formulario.controls.url_base.invalid && formulario.controls.url_base.touched
-        ? 'Introduce una URL válida (empieza por http:// o https://).'
-        : null
-    "
-  >
-    <input
-      appInput
-      [id]="campoUrl.id"
-      [attr.aria-describedby]="campoUrl.describedBy"
-      type="url"
-      formControlName="url_base"
-      placeholder="https://ejemplo.org"
-      required
-    />
-  </app-form-field>
+    <app-form-field
+      label="Cliente"
+      #campoCliente="appFormField"
+      [error]="
+        formulario.controls.cliente.invalid && formulario.controls.cliente.touched
+          ? 'Introduce el cliente.'
+          : null
+      "
+    >
+      <input
+        appInput
+        #inputCliente
+        [id]="campoCliente.id"
+        [attr.aria-describedby]="campoCliente.describedBy"
+        [attr.aria-invalid]="formulario.controls.cliente.invalid && formulario.controls.cliente.touched"
+        formControlName="cliente"
+        required
+      />
+    </app-form-field>
 
-  <app-form-field
-    label="Fecha de inicio"
-    #campoFecha="appFormField"
-    [error]="
-      formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched
-        ? 'Selecciona una fecha.'
-        : null
-    "
-  >
-    <input
-      appInput
-      [id]="campoFecha.id"
-      [attr.aria-describedby]="campoFecha.describedBy"
-      type="date"
-      formControlName="fecha_inicio"
-      required
-    />
-  </app-form-field>
+    <app-form-field
+      label="URL base"
+      #campoUrl="appFormField"
+      [error]="
+        formulario.controls.url_base.invalid && formulario.controls.url_base.touched
+          ? 'Introduce una URL válida (empieza por http:// o https://).'
+          : null
+      "
+    >
+      <input
+        appInput
+        #inputUrl
+        [id]="campoUrl.id"
+        [attr.aria-describedby]="campoUrl.describedBy"
+        [attr.aria-invalid]="formulario.controls.url_base.invalid && formulario.controls.url_base.touched"
+        type="url"
+        formControlName="url_base"
+        placeholder="https://ejemplo.org"
+        required
+      />
+    </app-form-field>
+
+    <app-form-field
+      label="Fecha de inicio"
+      #campoFecha="appFormField"
+      [error]="
+        formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched
+          ? 'Selecciona una fecha.'
+          : null
+      "
+    >
+      <input
+        appInput
+        #inputFecha
+        [id]="campoFecha.id"
+        [attr.aria-describedby]="campoFecha.describedBy"
+        [attr.aria-invalid]="formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched"
+        type="date"
+        formControlName="fecha_inicio"
+        required
+      />
+    </app-form-field>
+  </fieldset>
 
   <fieldset class="formulario__grupo">
     <legend>Nivel objetivo</legend>
     <div class="flex gap-4">
       <label class="flex items-center gap-2 text-sm text-slate-800">
-        <input type="radio" formControlName="estandar_objetivo" value="A" class="foco h-4 w-4 accent-violet-700" />
+        <input
+          type="radio"
+          #inputEstandarObjetivo
+          formControlName="estandar_objetivo"
+          value="A"
+          class="foco h-4 w-4 accent-violet-700"
+        />
         A
       </label>
       <label class="flex items-center gap-2 text-sm text-slate-800">

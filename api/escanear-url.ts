@@ -8,8 +8,14 @@ import {
 } from 'playwright-core';
 import { TAGS_WCAG_2_2_A_AA } from '../src/app/core/axe-tags';
 import type { ViolacionAxe } from '../src/app/core/escaneo-axe';
+import { PresupuestoCapturas, selectorSimple } from './_lib/captura-evidencia';
 import { lanzarNavegador } from './_lib/navegador';
 import { hostPermitido, validarFormatoUrl } from './_lib/validar-url';
+
+// Presupuesto de capturas en base64 por ejecución — deja margen bajo el
+// límite de 4,5 MB de respuesta de Vercel — ver specs/13-captura-evidencia-
+// escaneo.md "Decisiones tomadas y descartadas".
+const PRESUPUESTO_CAPTURAS_BASE64 = 3 * 1024 * 1024;
 
 // POST /api/escanear-url: escanea con axe-core la URL en vivo de una página
 // y devuelve sus violaciones en crudo, para que el cliente las aplique con
@@ -185,11 +191,46 @@ async function escanearEnContexto(
     TAGS_WCAG_2_2_A_AA,
   );
 
-  return resultado.violations.map((violacion) => ({
-    tags: violacion.tags,
-    impact: violacion.impact,
-    help: violacion.help,
-  }));
+  const presupuesto = new PresupuestoCapturas(PRESUPUESTO_CAPTURAS_BASE64);
+  const violaciones: ViolacionAxe[] = [];
+  for (const violacion of resultado.violations) {
+    violaciones.push({
+      tags: violacion.tags,
+      impact: violacion.impact,
+      help: violacion.help,
+      capturaPng: await capturarPrimerNodo(page, violacion.nodes[0]?.target, presupuesto),
+    });
+  }
+  return violaciones;
+}
+
+// Captura el primer nodo afectado por una violación como evidencia — ver
+// specs/13-captura-evidencia-escaneo.md. undefined (sin lanzar) si el target
+// no es un selector simple, si no resuelve a un único elemento visible de
+// tamaño no nulo, o si la captura no cabe en el presupuesto de la ejecución:
+// la violación se sigue aplicando igual, solo queda sin imagen.
+async function capturarPrimerNodo(
+  page: Page,
+  target: unknown,
+  presupuesto: PresupuestoCapturas,
+): Promise<string | undefined> {
+  const selector = selectorSimple(target);
+  if (!selector) return undefined;
+
+  try {
+    const locator = page.locator(selector);
+    if ((await locator.count()) !== 1) return undefined;
+
+    const buffer = await locator.screenshot({ type: 'png', timeout: 5000 });
+    const base64 = buffer.toString('base64');
+    if (!presupuesto.admitir(base64.length)) return undefined;
+
+    return `data:image/png;base64,${base64}`;
+  } catch {
+    // Elemento no encontrado, oculto, de tamaño cero o cualquier otro fallo
+    // de Playwright al capturarlo: se descarta sin afectar al resto.
+    return undefined;
+  }
 }
 
 async function peticionPermitida(

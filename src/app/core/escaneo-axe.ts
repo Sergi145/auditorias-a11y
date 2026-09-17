@@ -24,27 +24,40 @@ export interface ResumenEscaneo {
 
 // Violación de axe-core mínima que necesita el agrupador — evita acoplar
 // los tests a la forma completa de axe.Result (description/helpUrl/id/nodes).
-export type ViolacionAxe = Pick<axe.Result, 'tags' | 'impact' | 'help'>;
+// capturaPng (data URL) solo lo rellena el modo "URL en vivo" — ver
+// specs/13-captura-evidencia-escaneo.md.
+export type ViolacionAxe = Pick<axe.Result, 'tags' | 'impact' | 'help'> & { capturaPng?: string };
 
 type MensajeEscaneoAxe =
   | { tipo: 'resultado-escaneo-axe'; resultados: axe.AxeResults }
   | { tipo: 'error-escaneo-axe'; mensaje: string };
 
+export interface CapturaViolacion {
+  dataUrl: string;
+  descripcion: string;
+}
+
 // Varias violaciones de una misma ejecución que mapean al mismo criterio se
 // agregan en un único Hallazgo automático por criterio (no uno por
 // violación): la severidad es la más alta de las agrupadas y las notas se
-// concatenan — ver specs/11-escaneo-axe.md "Riesgos identificados".
+// concatenan — ver specs/11-escaneo-axe.md "Riesgos identificados". Las
+// capturas (solo presentes en modo "URL en vivo", ver specs/13-captura-
+// evidencia-escaneo.md) se agregan igual, una entrada por violación con
+// capturaPng.
 export function agruparViolacionesPorCriterio(
   violaciones: ViolacionAxe[],
-): Map<string, { severidad: Severidad; notas: string }> {
-  const agrupado = new Map<string, { severidad: Severidad; notas: string[] }>();
+): Map<string, { severidad: Severidad; notas: string; capturas: CapturaViolacion[] }> {
+  const agrupado = new Map<
+    string,
+    { severidad: Severidad; notas: string[]; capturas: CapturaViolacion[] }
+  >();
 
   for (const violacion of violaciones) {
     const severidad = severidadDesdeImpacto(violacion.impact);
     for (const codigo of codigosCriterioParaTags(violacion.tags)) {
       const actual = agrupado.get(codigo);
       if (!actual) {
-        agrupado.set(codigo, { severidad, notas: [violacion.help] });
+        agrupado.set(codigo, { severidad, notas: [violacion.help], capturas: [] });
         continue;
       }
       actual.notas.push(violacion.help);
@@ -54,8 +67,21 @@ export function agruparViolacionesPorCriterio(
     }
   }
 
+  // Segunda pasada: las capturas se añaden después de crear todas las
+  // entradas, para que una violación con capturaPng pero sin ningún tag
+  // reconocido (ignorada arriba) no cree una entrada vacía.
+  for (const violacion of violaciones) {
+    if (!violacion.capturaPng) continue;
+    for (const codigo of codigosCriterioParaTags(violacion.tags)) {
+      agrupado.get(codigo)?.capturas.push({ dataUrl: violacion.capturaPng, descripcion: violacion.help });
+    }
+  }
+
   return new Map(
-    [...agrupado].map(([codigo, { severidad, notas }]) => [codigo, { severidad, notas: notas.join('\n') }]),
+    [...agrupado].map(([codigo, { severidad, notas, capturas }]) => [
+      codigo,
+      { severidad, notas: notas.join('\n'), capturas },
+    ]),
   );
 }
 
@@ -79,13 +105,19 @@ export class EscaneoAxeService {
     const porCriterio = agruparViolacionesPorCriterio(violaciones);
 
     let criteriosMarcados = 0;
-    for (const [codigo, { severidad, notas }] of porCriterio) {
+    for (const [codigo, { severidad, notas, capturas }] of porCriterio) {
       const { id: resultadoId, aplicado } = await this.resultadosService.guardarAutomatico(paginaId, codigo, {
         estado: 'falla',
       });
       if (!aplicado) continue;
 
-      await this.hallazgosService.guardarAutomatico(resultadoId, { severidad, notas });
+      const capturasBlob = await Promise.all(
+        capturas.map(async (captura) => ({
+          archivo: await dataUrlABlob(captura.dataUrl),
+          descripcion: captura.descripcion,
+        })),
+      );
+      await this.hallazgosService.guardarAutomatico(resultadoId, { severidad, notas, capturas: capturasBlob });
       criteriosMarcados++;
     }
 
@@ -168,4 +200,12 @@ export class EscaneoAxeService {
     `;
     return `<script>${runner}</script>${html}`;
   }
+}
+
+// fetch() de una data: URL no hace ninguna petición de red — el navegador la
+// resuelve internamente —, así que es la forma más simple de convertirla a
+// Blob sin decodificar base64 a mano.
+async function dataUrlABlob(dataUrl: string): Promise<Blob> {
+  const respuesta = await fetch(dataUrl);
+  return respuesta.blob();
 }

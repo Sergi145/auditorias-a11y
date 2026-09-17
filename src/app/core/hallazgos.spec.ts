@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { vi } from 'vitest';
 import { DatabaseService } from './database';
 import { HallazgosService } from './hallazgos';
 import { ResultadosService } from './resultados';
@@ -189,6 +190,97 @@ describe('HallazgosService', () => {
           expect.objectContaining({ origen: 'automatico', notas: 'Hallazgo de axe' }),
         ]),
       );
+    });
+
+    it('devuelve el id del hallazgo automático creado', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+
+      const id = await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Falta alt' });
+
+      const [hallazgo] = await firstValueFrom(service.deResultado$(resultadoId));
+      expect(hallazgo.id).toBe(id);
+    });
+
+    it('guarda una Evidencia por cada captura recibida (specs/13-captura-evidencia-escaneo.md)', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+      const archivo = new Blob(['captura'], { type: 'image/png' });
+      const addSpy = vi.spyOn(database.db.evidencias, 'add');
+
+      const id = await service.guardarAutomatico(resultadoId, {
+        severidad: 'alta',
+        notas: 'Falta alt',
+        capturas: [{ archivo, descripcion: 'Images must have alternate text' }],
+      });
+
+      // El Blob se verifica por referencia en la llamada a Dexie, no al
+      // releerlo: mismo motivo que evidencias.spec.ts "aplicarCambios()".
+      expect(addSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          hallazgo_id: id,
+          tipo: 'captura',
+          archivo,
+          descripcion: 'Images must have alternate text',
+        }),
+      );
+
+      const evidencias = await database.db.evidencias.where('hallazgo_id').equals(id).toArray();
+      expect(evidencias).toEqual([
+        expect.objectContaining({ hallazgo_id: id, tipo: 'captura', descripcion: 'Images must have alternate text' }),
+      ]);
+    });
+
+    it('reemplaza (no acumula) las evidencias del hallazgo automático en un re-escaneo', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+      const primeraCaptura = new Blob(['primera'], { type: 'image/png' });
+      const id = await service.guardarAutomatico(resultadoId, {
+        severidad: 'alta',
+        notas: 'Primer escaneo',
+        capturas: [{ archivo: primeraCaptura, descripcion: 'Primera' }],
+      });
+
+      const segundaCaptura = new Blob(['segunda'], { type: 'image/png' });
+      await service.guardarAutomatico(resultadoId, {
+        severidad: 'alta',
+        notas: 'Segundo escaneo',
+        capturas: [{ archivo: segundaCaptura, descripcion: 'Segunda' }],
+      });
+
+      const evidencias = await database.db.evidencias.where('hallazgo_id').equals(id).toArray();
+      expect(evidencias).toEqual([expect.objectContaining({ descripcion: 'Segunda' })]);
+    });
+
+    it('sin capturas, un re-escaneo deja el hallazgo sin evidencias', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+      const archivo = new Blob(['captura'], { type: 'image/png' });
+      const id = await service.guardarAutomatico(resultadoId, {
+        severidad: 'alta',
+        notas: 'Primer escaneo',
+        capturas: [{ archivo, descripcion: 'Primera' }],
+      });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Segundo escaneo' });
+
+      const evidencias = await database.db.evidencias.where('hallazgo_id').equals(id).toArray();
+      expect(evidencias).toEqual([]);
+    });
+
+    it('no toca las evidencias de un hallazgo promocionado a manual', async () => {
+      const resultadoId = await resultados.guardar(1, '1.1.1', { estado: 'falla' });
+      const archivo = new Blob(['captura'], { type: 'image/png' });
+      const idPromocionado = await service.guardarAutomatico(resultadoId, {
+        severidad: 'alta',
+        notas: 'Escaneo inicial',
+        capturas: [{ archivo, descripcion: 'Original' }],
+      });
+      await service.actualizar(idPromocionado, { notas: 'Revisado a mano' });
+
+      await service.guardarAutomatico(resultadoId, { severidad: 'alta', notas: 'Re-escaneo' });
+
+      const evidenciasPromocionado = await database.db.evidencias
+        .where('hallazgo_id')
+        .equals(idPromocionado)
+        .toArray();
+      expect(evidenciasPromocionado).toEqual([expect.objectContaining({ descripcion: 'Original' })]);
     });
   });
 });

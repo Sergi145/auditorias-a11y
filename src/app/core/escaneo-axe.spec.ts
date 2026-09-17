@@ -18,7 +18,11 @@ describe('agruparViolacionesPorCriterio', () => {
       violacion({ tags: ['wcag2aa', 'wcag143'], impact: 'serious', help: 'Contraste insuficiente' }),
     ]);
 
-    expect(agrupado.get('1.4.3')).toEqual({ severidad: 'alta', notas: 'Contraste insuficiente' });
+    expect(agrupado.get('1.4.3')).toEqual({
+      severidad: 'alta',
+      notas: 'Contraste insuficiente',
+      capturas: [],
+    });
   });
 
   it('ignora violaciones sin ningún tag reconocido del catálogo', () => {
@@ -36,6 +40,7 @@ describe('agruparViolacionesPorCriterio', () => {
     expect(agrupado.get('1.1.1')).toEqual({
       severidad: 'critica',
       notas: 'Primer problema\nSegundo problema',
+      capturas: [],
     });
   });
 
@@ -46,5 +51,33 @@ describe('agruparViolacionesPorCriterio', () => {
     ]);
 
     expect([...agrupado.keys()].sort()).toEqual(['1.1.1', '1.4.3']);
+  });
+
+  it('agrega la captura de una violación con capturaPng (modo URL en vivo)', () => {
+    const agrupado = agruparViolacionesPorCriterio([
+      violacion({ tags: ['wcag111'], help: 'Falta alt', capturaPng: 'data:image/png;base64,AAA' }),
+    ]);
+
+    expect(agrupado.get('1.1.1')?.capturas).toEqual([
+      { dataUrl: 'data:image/png;base64,AAA', descripcion: 'Falta alt' },
+    ]);
+  });
+
+  it('agrega varias capturas de distintas violaciones del mismo criterio', () => {
+    const agrupado = agruparViolacionesPorCriterio([
+      violacion({ tags: ['wcag111'], help: 'Falta alt en logo', capturaPng: 'data:image/png;base64,AAA' }),
+      violacion({ tags: ['wcag111'], help: 'Falta alt en icono', capturaPng: 'data:image/png;base64,BBB' }),
+    ]);
+
+    expect(agrupado.get('1.1.1')?.capturas).toEqual([
+      { dataUrl: 'data:image/png;base64,AAA', descripcion: 'Falta alt en logo' },
+      { dataUrl: 'data:image/png;base64,BBB', descripcion: 'Falta alt en icono' },
+    ]);
+  });
+
+  it('deja capturas vacías cuando ninguna violación trae capturaPng (modo Pegar HTML)', () => {
+    const agrupado = agruparViolacionesPorCriterio([violacion({ tags: ['wcag111'], help: 'Falta alt' })]);
+
+    expect(agrupado.get('1.1.1')?.capturas).toEqual([]);
   });
 });
