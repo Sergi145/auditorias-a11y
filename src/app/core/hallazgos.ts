@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { liveQuery } from 'dexie';
 import { from, type Observable } from 'rxjs';
 import { DatabaseService } from './database';
-import type { Hallazgo } from './models';
+import type { Hallazgo, Severidad } from './models';
 
 // Persistencia real de Hallazgo sobre Dexie — ver specs/06-checklist-manual.md.
 // Varios hallazgos pueden colgar del mismo Resultado (mismo criterio en la
@@ -40,22 +40,59 @@ export class HallazgosService {
     );
   }
 
-  async crear(datos: Omit<Hallazgo, 'id' | 'fecha_creacion'>): Promise<number> {
+  // Hallazgo redactado a mano — siempre origen 'manual', ver
+  // specs/11-escaneo-axe.md.
+  async crear(datos: Omit<Hallazgo, 'id' | 'fecha_creacion' | 'origen'>): Promise<number> {
     const id = await this.database.db.hallazgos.add({
       ...datos,
+      origen: 'manual',
       fecha_creacion: new Date().toISOString().slice(0, 10),
     });
     return id!;
   }
 
+  // Editar un hallazgo (incluido uno automático) desde criterio-revision lo
+  // "promociona" a origen 'manual' — a partir de ahí, un re-escaneo ya no lo
+  // sobrescribe y crea uno nuevo en su lugar si la violación sigue presente.
   async actualizar(
     id: number,
-    cambios: Partial<Omit<Hallazgo, 'id' | 'resultado_id' | 'fecha_creacion'>>,
+    cambios: Partial<Omit<Hallazgo, 'id' | 'resultado_id' | 'fecha_creacion' | 'origen'>>,
   ): Promise<void> {
-    await this.database.db.hallazgos.update(id, cambios);
+    await this.database.db.hallazgos.update(id, { ...cambios, origen: 'manual' });
   }
 
   async eliminar(id: number): Promise<void> {
     await this.database.db.hallazgos.delete(id);
+  }
+
+  // Upsert del hallazgo automático de un Resultado (specs/11-escaneo-axe.md):
+  // actualiza el Hallazgo con origen 'automatico' ya existente para ese
+  // resultado en vez de duplicarlo; si el único hallazgo previo fue
+  // promocionado a 'manual' (editado a mano), crea uno nuevo en su lugar.
+  async guardarAutomatico(
+    resultadoId: number,
+    datos: { severidad: Severidad; notas: string },
+  ): Promise<void> {
+    const existente = await this.database.db.hallazgos
+      .where('resultado_id')
+      .equals(resultadoId)
+      .filter((hallazgo) => hallazgo.origen === 'automatico')
+      .first();
+
+    if (existente) {
+      await this.database.db.hallazgos.update(existente.id!, {
+        severidad: datos.severidad,
+        notas: datos.notas,
+      });
+      return;
+    }
+
+    await this.database.db.hallazgos.add({
+      resultado_id: resultadoId,
+      severidad: datos.severidad,
+      notas: datos.notas,
+      origen: 'automatico',
+      fecha_creacion: new Date().toISOString().slice(0, 10),
+    });
   }
 }

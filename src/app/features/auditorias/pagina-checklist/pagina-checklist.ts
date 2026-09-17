@@ -19,6 +19,7 @@ import { PaginasService } from '../../../core/paginas';
 import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
+import { AppChip } from '../../../shared/ui/chip';
 import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon, type IconName } from '../../../shared/ui/icon';
@@ -76,7 +77,7 @@ const ETIQUETA_SEVERIDAD: Record<Severidad, string> = {
 // eliminar sus hallazgos sin salir del checklist.
 @Component({
   selector: 'app-pagina-checklist',
-  imports: [RouterLink, AppButton, AppCard, AppFormField, AppIcon, AppSelect],
+  imports: [RouterLink, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppSelect],
   templateUrl: './pagina-checklist.html',
 })
 export class PaginaChecklist {
@@ -174,8 +175,38 @@ export class PaginaChecklist {
     return COLOR_ESTADO[this.estadoDe(fila)];
   }
 
+  // "Los resultados automáticos quedan marcados como tal" —
+  // 00-producto.md §5.3 / specs/11-escaneo-axe.md.
+  protected esAutomatico(fila: FilaChecklist): boolean {
+    return fila.resultado?.origen === 'automatico';
+  }
+
   protected collapseId(codigoCriterio: string): string {
     return `hallazgos-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected criterioId(codigoCriterio: string): string {
+    return `criterio-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected revisarId(codigoCriterio: string): string {
+    return `revisar-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected nivelId(codigoCriterio: string): string {
+    return `nivel-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected categoriaId(codigoCriterio: string): string {
+    return `categoria-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected estadoId(codigoCriterio: string): string {
+    return `estado-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected hallazgosId(codigoCriterio: string): string {
+    return `hallazgos-count-${codigoCriterio.replace(/\./g, '-')}`;
   }
 
   private readonly todosLosComponentes = toSignal(this.componentesService.todos$(), {

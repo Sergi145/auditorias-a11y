@@ -1,25 +1,36 @@
 @if (pagina(); as pagina) {
   <div class="pantalla__cabecera">
     <div>
-      <h1 class="text-2xl font-semibold text-slate-900">{{ pagina.nombre }}</h1>
+      <h1 id="titulo-pagina-checklist" class="text-2xl font-semibold text-slate-900">{{ pagina.nombre }}</h1>
       <p class="subtitulo">{{ pagina.url }}</p>
     </div>
     <div class="acciones">
       <a
         appButton
         variant="secondary"
+        id="editar-pagina"
+        aria-labelledby="editar-pagina titulo-pagina-checklist"
         [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'editar']"
       >
         <app-icon name="edit" />
         Editar página
       </a>
-      <button appButton variant="secondary" type="button" (click)="eliminarPagina()">
+      <button
+        appButton
+        variant="secondary"
+        type="button"
+        id="eliminar-pagina"
+        aria-labelledby="eliminar-pagina titulo-pagina-checklist"
+        (click)="eliminarPagina()"
+      >
         <app-icon name="delete" />
         Eliminar página
       </button>
       <a
         appButton
         variant="secondary"
+        id="escanear-pagina"
+        aria-labelledby="escanear-pagina titulo-pagina-checklist"
         [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId, 'escaneo']"
       >
         <app-icon name="search" />
@@ -118,22 +129,43 @@
                 </button>
               }
             </td>
-            <td class="py-2 pr-3">
+            <td [id]="criterioId(fila.criterio.codigo)" class="py-2 pr-3">
               <strong>{{ fila.criterio.codigo }}</strong> {{ fila.criterio.nombre }}
             </td>
-            <td class="py-2 pr-3">{{ fila.criterio.nivel }}</td>
-            <td class="py-2 pr-3">{{ categoriaEtiqueta(fila) }}</td>
-            <td class="py-2 pr-3">
-              <span class="inline-flex items-center gap-1.5 font-medium" [style.color]="estadoColor(fila)">
+            <td [id]="nivelId(fila.criterio.codigo)" class="py-2 pr-3">
+              <span class="sr-only">Nivel </span>{{ fila.criterio.nivel }}
+            </td>
+            <td [id]="categoriaId(fila.criterio.codigo)" class="py-2 pr-3">
+              <span class="sr-only">Categoría </span>{{ categoriaEtiqueta(fila) }}
+            </td>
+            <td [id]="estadoId(fila.criterio.codigo)" class="py-2 pr-3">
+              <span class="inline-flex flex-wrap items-center gap-1.5 font-medium" [style.color]="estadoColor(fila)">
+                <span class="sr-only">Estado </span>
                 <app-icon [name]="estadoIcono(fila)" [style.color]="estadoColor(fila)" />
                 {{ estadoEtiqueta(fila) }}
+                @if (esAutomatico(fila)) {
+                  <app-chip>Automático</app-chip>
+                }
               </span>
             </td>
-            <td class="py-2 pr-3">{{ fila.hallazgos.length || '—' }}</td>
+            <td [id]="hallazgosId(fila.criterio.codigo)" class="py-2 pr-3">
+              <span class="sr-only">Hallazgos </span>{{ fila.hallazgos.length }}
+            </td>
             <td class="py-2 pr-3">
               <a
                 appButton
                 variant="text"
+                [id]="revisarId(fila.criterio.codigo)"
+                [attr.aria-labelledby]="revisarId(fila.criterio.codigo) + ' ' + criterioId(fila.criterio.codigo)"
+                [attr.aria-describedby]="
+                  nivelId(fila.criterio.codigo) +
+                  ' ' +
+                  categoriaId(fila.criterio.codigo) +
+                  ' ' +
+                  estadoId(fila.criterio.codigo) +
+                  ' ' +
+                  hallazgosId(fila.criterio.codigo)
+                "
                 [routerLink]="[
                   '/auditorias',
                   auditoriaId,

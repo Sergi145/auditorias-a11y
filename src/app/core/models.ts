@@ -46,6 +46,8 @@ export interface Resultado {
   fecha_revision?: string;
 }
 
+export type OrigenHallazgo = 'manual' | 'automatico';
+
 // Instancia de un error concreto registrado sobre un Resultado — distinto de
 // HallazgoPlantilla, que es la redacción reutilizable de la biblioteca (ver
 // specs/06-checklist-manual.md). Varios hallazgos pueden colgar del mismo
@@ -58,6 +60,11 @@ export interface Hallazgo {
   notas: string;
   solucion?: string;
   hallazgo_plantilla_id?: number;
+  // Opcional por retrocompatibilidad: los Hallazgo creados antes de
+  // specs/11-escaneo-axe.md no tienen este campo en Dexie (undefined se trata
+  // como no automático, sin necesitar migración) — ver specs/11-escaneo-axe.md
+  // "Modelo de datos que toca".
+  origen?: OrigenHallazgo;
   fecha_creacion: string;
 }
 

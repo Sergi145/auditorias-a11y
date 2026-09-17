@@ -1,79 +1,91 @@
-<h1 class="mb-2 text-2xl font-semibold text-slate-900">Biblioteca de hallazgos</h1>
+<h1 id="titulo-biblioteca" class="mb-2 text-2xl font-semibold text-slate-900">Biblioteca de hallazgos</h1>
 <p class="pantalla__intro">
   Redacciones de hallazgos ya usadas en auditorías anteriores, listas para reutilizar.
 </p>
 
 @if (hallazgos().length > 0) {
-  <div class="mb-4 flex flex-wrap gap-4">
-    <app-form-field label="Criterio" class="w-[260px]" #campoFiltroCriterio="appFormField">
-      <select
-        appSelect
-        [id]="campoFiltroCriterio.id"
-        [value]="filtroCriterio()"
-        (change)="onFiltroCriterio($event)"
-      >
-        <option value="todos">Todos</option>
-        @for (criterio of criterios; track criterio.codigo) {
-          <option [value]="criterio.codigo">{{ criterio.codigo }} · {{ criterio.nombre }}</option>
-        }
-      </select>
-    </app-form-field>
+  <form class="mb-4">
+    <fieldset class="formulario__grupo">
+      <legend class="sr-only">Filtrador de criterios</legend>
+      <div class="flex flex-wrap gap-4">
+        <app-form-field label="Criterio" class="w-[260px]" #campoFiltroCriterio="appFormField">
+          <select
+            appSelect
+            [id]="campoFiltroCriterio.id"
+            [value]="filtroCriterio()"
+            (change)="onFiltroCriterio($event)"
+          >
+            <option value="todos">Todos</option>
+            @for (criterio of criterios; track criterio.codigo) {
+              <option [value]="criterio.codigo">{{ criterio.codigo }} · {{ criterio.nombre }}</option>
+            }
+          </select>
+        </app-form-field>
 
-    <app-form-field label="Componente" class="w-[220px]" #campoFiltroComponente="appFormField">
-      <select
-        appSelect
-        [id]="campoFiltroComponente.id"
-        [value]="filtroComponente()"
-        (change)="onFiltroComponente($event)"
+        <app-form-field label="Componente" class="w-[220px]" #campoFiltroComponente="appFormField">
+          <select
+            appSelect
+            [id]="campoFiltroComponente.id"
+            [value]="filtroComponente()"
+            (change)="onFiltroComponente($event)"
+          >
+            <option value="todos">Todos</option>
+            @for (componente of componentes(); track componente.id) {
+              <option [value]="componente.id">{{ componente.nombre }}</option>
+            }
+          </select>
+        </app-form-field>
+      </div>
+    </fieldset>
+  </form>
+
+  <div aria-live="polite">
+    @if (hallazgosFiltrados().length > 0) {
+      <ul
+        aria-labelledby="titulo-biblioteca"
+        class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-0"
       >
-        <option value="todos">Todos</option>
-        @for (componente of componentes(); track componente.id) {
-          <option [value]="componente.id">{{ componente.nombre }}</option>
+        @for (hallazgo of hallazgosFiltrados(); track hallazgo.id) {
+          <li>
+            <article appCard>
+              <h2 class="text-base font-semibold">
+                <a
+                  [routerLink]="['/biblioteca', hallazgo.id]"
+                  class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
+                >
+                  {{ hallazgo.titulo }}
+                </a>
+              </h2>
+              <p class="text-sm text-slate-600">
+                Criterio {{ hallazgo.criterio_codigo }}
+                @if (componenteDe(hallazgo.componente_id); as componente) {
+                  · {{ componente.nombre }}
+                }
+              </p>
+              <p class="mt-2">{{ hallazgo.descripcion }}</p>
+              <ul aria-label="Etiquetas del hallazgo" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
+                @for (etiqueta of hallazgo.etiquetas; track etiqueta) {
+                  <li><app-chip>{{ etiqueta }}</app-chip></li>
+                }
+              </ul>
+              <p class="mt-3 text-sm text-slate-600">Usado {{ hallazgo.veces_usado }} veces</p>
+              <div class="mt-3 flex justify-end gap-2">
+                <button appButton variant="text" type="button" (click)="eliminar(hallazgo)">
+                  <app-icon name="delete" />
+                  Eliminar
+                </button>
+              </div>
+            </article>
+          </li>
         }
-      </select>
-    </app-form-field>
+      </ul>
+    } @else {
+      <p class="nota">
+        <app-icon name="info" />
+        Ningún hallazgo de la biblioteca coincide con los filtros seleccionados.
+      </p>
+    }
   </div>
-
-  @if (hallazgosFiltrados().length > 0) {
-    <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
-      @for (hallazgo of hallazgosFiltrados(); track hallazgo.id) {
-        <article appCard>
-          <h2 class="text-base font-semibold">
-            <a
-              [routerLink]="['/biblioteca', hallazgo.id]"
-              class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
-            >
-              {{ hallazgo.titulo }}
-            </a>
-          </h2>
-          <p class="text-sm text-slate-600">
-            Criterio {{ hallazgo.criterio_codigo }}
-            @if (componenteDe(hallazgo.componente_id); as componente) {
-              · {{ componente.nombre }}
-            }
-          </p>
-          <p class="mt-2">{{ hallazgo.descripcion }}</p>
-          <ul aria-label="Etiquetas del hallazgo" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
-            @for (etiqueta of hallazgo.etiquetas; track etiqueta) {
-              <li><app-chip>{{ etiqueta }}</app-chip></li>
-            }
-          </ul>
-          <p class="mt-3 text-sm text-slate-600">Usado {{ hallazgo.veces_usado }} veces</p>
-          <div class="mt-3 flex justify-end gap-2">
-            <button appButton variant="text" type="button" (click)="eliminar(hallazgo)">
-              <app-icon name="delete" />
-              Eliminar
-            </button>
-          </div>
-        </article>
-      }
-    </div>
-  } @else {
-    <p class="nota">
-      <app-icon name="info" />
-      Ningún hallazgo de la biblioteca coincide con los filtros seleccionados.
-    </p>
-  }
 } @else {
   <p class="nota">
     <app-icon name="info" />

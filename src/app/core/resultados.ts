@@ -58,4 +58,43 @@ export class ResultadosService {
     });
     return id!;
   }
+
+  // Upsert para el escaneo automático (specs/11-escaneo-axe.md): mismo
+  // comportamiento que guardar(), pero nunca sobrescribe un Resultado con
+  // origen 'manual' — protege el criterio experto ya aplicado por quien
+  // audita frente a un re-escaneo posterior. `aplicado: false` indica que
+  // el resultado existente era manual y se ha dejado tal cual.
+  async guardarAutomatico(
+    paginaId: number,
+    criterioCodigo: string,
+    cambios: { estado: EstadoResultado },
+  ): Promise<{ id: number; aplicado: boolean }> {
+    const existente = await this.database.db.resultados
+      .where({ pagina_id: paginaId, criterio_codigo: criterioCodigo })
+      .first();
+
+    if (existente && existente.origen === 'manual') {
+      return { id: existente.id!, aplicado: false };
+    }
+
+    const fecha_revision = new Date().toISOString().slice(0, 10);
+
+    if (existente) {
+      await this.database.db.resultados.update(existente.id!, {
+        estado: cambios.estado,
+        origen: 'automatico',
+        fecha_revision,
+      });
+      return { id: existente.id!, aplicado: true };
+    }
+
+    const id = await this.database.db.resultados.add({
+      pagina_id: paginaId,
+      criterio_codigo: criterioCodigo,
+      estado: cambios.estado,
+      origen: 'automatico',
+      fecha_revision,
+    });
+    return { id: id!, aplicado: true };
+  }
 }

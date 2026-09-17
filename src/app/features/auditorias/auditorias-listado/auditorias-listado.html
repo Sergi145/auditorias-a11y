@@ -1,5 +1,5 @@
 <div class="pantalla__cabecera">
-  <h1 class="text-2xl font-semibold text-slate-900">Auditorías</h1>
+  <h1 id="titulo-auditorias" class="text-2xl font-semibold text-slate-900">Auditorías</h1>
   <a appButton routerLink="/auditorias/nueva">
     <app-icon name="add" />
     Nueva auditoría
@@ -14,38 +14,43 @@
     para empezar.
   </p>
 } @else {
-  <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+  <ul
+    aria-labelledby="titulo-auditorias"
+    class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-0"
+  >
     @for (item of auditorias(); track item.auditoria.id) {
-      <article appCard>
-        <h2 class="text-base font-semibold">
-          <a
-            [routerLink]="['/auditorias', item.auditoria.id]"
-            class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
-          >
-            {{ item.auditoria.nombre }}
-          </a>
-        </h2>
-        <p class="text-sm text-slate-600">{{ item.auditoria.cliente }}</p>
+      <li>
+        <article appCard>
+          <h2 class="text-base font-semibold">
+            <a
+              [routerLink]="['/auditorias', item.auditoria.id]"
+              class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
+            >
+              {{ item.auditoria.nombre }}
+            </a>
+          </h2>
+          <p class="text-sm text-slate-600">{{ item.auditoria.cliente }}</p>
 
-        <ul aria-label="Metadatos de la auditoría" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
-          <li><app-chip>Nivel {{ item.auditoria.estandar_objetivo }}</app-chip></li>
-          <li><app-chip>{{ etiquetaEstado[item.auditoria.estado] }}</app-chip></li>
-        </ul>
+          <ul aria-label="Metadatos de la auditoría" class="m-0 mt-3 flex list-none flex-wrap gap-2 p-0">
+            <li><app-chip>Nivel {{ item.auditoria.estandar_objetivo }}</app-chip></li>
+            <li><app-chip>{{ etiquetaEstado[item.auditoria.estado] }}</app-chip></li>
+          </ul>
 
-        <div class="mt-3 flex items-center gap-2">
-          <app-progress-bar
-            class="flex-1"
-            [value]="item.porcentajeRevisado"
-            [label]="'Progreso revisado: ' + item.porcentajeRevisado + ' por ciento'"
-          />
-          <span class="text-sm text-slate-600">{{ item.porcentajeRevisado }}% revisado</span>
-        </div>
+          <div class="mt-3 flex items-center gap-2">
+            <app-progress-bar
+              class="flex-1"
+              [value]="item.porcentajeRevisado"
+              [label]="'Progreso revisado: ' + item.porcentajeRevisado + ' por ciento'"
+            />
+            <span class="text-sm text-slate-600">{{ item.porcentajeRevisado }}% revisado</span>
+          </div>
 
-        <p class="mt-3 text-sm text-slate-600">
-          Fallos: {{ item.fallosPorSeveridad.critica }} crítica · {{ item.fallosPorSeveridad.alta }} alta ·
-          {{ item.fallosPorSeveridad.media }} media · {{ item.fallosPorSeveridad.baja }} baja
-        </p>
-      </article>
+          <p class="mt-3 text-sm text-slate-600">
+            Fallos: {{ item.fallosPorSeveridad.critica }} crítica · {{ item.fallosPorSeveridad.alta }} alta ·
+            {{ item.fallosPorSeveridad.media }} media · {{ item.fallosPorSeveridad.baja }} baja
+          </p>
+        </article>
+      </li>
     }
-  </div>
+  </ul>
 }

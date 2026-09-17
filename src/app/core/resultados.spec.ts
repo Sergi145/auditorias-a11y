@@ -60,4 +60,42 @@ describe('ResultadosService', () => {
     const resultado = await firstValueFrom(service.porPaginaYCriterio$(PAGINA_ID, '9.9.9'));
     expect(resultado).toBeUndefined();
   });
+
+  describe('guardarAutomatico()', () => {
+    it('crea un resultado con origen automatico si no existía ninguno', async () => {
+      const { id, aplicado } = await service.guardarAutomatico(PAGINA_ID, CRITERIO, { estado: 'falla' });
+
+      expect(aplicado).toBe(true);
+      const resultado = await firstValueFrom(service.porPaginaYCriterio$(PAGINA_ID, CRITERIO));
+      expect(resultado).toEqual({
+        id,
+        pagina_id: PAGINA_ID,
+        criterio_codigo: CRITERIO,
+        estado: 'falla',
+        origen: 'automatico',
+        fecha_revision: resultado?.fecha_revision,
+      });
+    });
+
+    it('actualiza un resultado automático existente en vez de duplicarlo', async () => {
+      const primero = await service.guardarAutomatico(PAGINA_ID, CRITERIO, { estado: 'falla' });
+      const segundo = await service.guardarAutomatico(PAGINA_ID, CRITERIO, { estado: 'falla' });
+
+      expect(segundo.id).toBe(primero.id);
+      expect(segundo.aplicado).toBe(true);
+      const resultados = await firstValueFrom(service.dePagina$(PAGINA_ID));
+      expect(resultados).toHaveLength(1);
+    });
+
+    it('no sobrescribe un resultado con origen manual', async () => {
+      await service.guardar(PAGINA_ID, CRITERIO, { estado: 'no_aplica' });
+
+      const { aplicado } = await service.guardarAutomatico(PAGINA_ID, CRITERIO, { estado: 'falla' });
+
+      expect(aplicado).toBe(false);
+      const resultado = await firstValueFrom(service.porPaginaYCriterio$(PAGINA_ID, CRITERIO));
+      expect(resultado?.estado).toBe('no_aplica');
+      expect(resultado?.origen).toBe('manual');
+    });
+  });
 });
