@@ -19,6 +19,7 @@ describe('HallazgosService', () => {
   afterEach(async () => {
     await database.db.hallazgos.clear();
     await database.db.resultados.clear();
+    await database.db.evidencias.clear();
   });
 
   it('crea un hallazgo y aparece en deResultado$()', async () => {
@@ -85,6 +86,21 @@ describe('HallazgosService', () => {
 
     const hallazgos = await firstValueFrom(service.deResultado$(resultadoId));
     expect(hallazgos).toEqual([expect.objectContaining({ id: idQueda, notas: 'B' })]);
+  });
+
+  it('elimina en cascada las evidencias del hallazgo borrado, sin tocar las de otro', async () => {
+    const resultadoId = await resultados.guardar(1, '1.4.5', { estado: 'falla' });
+    const idBorrar = await service.crear({ resultado_id: resultadoId, severidad: 'alta', notas: 'A' });
+    const idQueda = await service.crear({ resultado_id: resultadoId, severidad: 'baja', notas: 'B' });
+    await database.db.evidencias.bulkAdd([
+      { hallazgo_id: idBorrar, tipo: 'captura', descripcion: 'De A' },
+      { hallazgo_id: idQueda, tipo: 'captura', descripcion: 'De B' },
+    ]);
+
+    await service.eliminar(idBorrar);
+
+    const evidenciasRestantes = await database.db.evidencias.toArray();
+    expect(evidenciasRestantes).toEqual([expect.objectContaining({ hallazgo_id: idQueda, descripcion: 'De B' })]);
   });
 
   it('dePagina$() agrupa los hallazgos de todos los resultados de esa página', async () => {
