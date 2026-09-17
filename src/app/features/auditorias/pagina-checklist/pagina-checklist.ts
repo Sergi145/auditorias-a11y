@@ -178,6 +178,30 @@ export class PaginaChecklist {
     return `hallazgos-${codigoCriterio.replace(/\./g, '-')}`;
   }
 
+  protected criterioId(codigoCriterio: string): string {
+    return `criterio-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected revisarId(codigoCriterio: string): string {
+    return `revisar-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected nivelId(codigoCriterio: string): string {
+    return `nivel-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected categoriaId(codigoCriterio: string): string {
+    return `categoria-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected estadoId(codigoCriterio: string): string {
+    return `estado-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
+  protected hallazgosId(codigoCriterio: string): string {
+    return `hallazgos-count-${codigoCriterio.replace(/\./g, '-')}`;
+  }
+
   private readonly todosLosComponentes = toSignal(this.componentesService.todos$(), {
     initialValue: [] as Componente[],
   });
