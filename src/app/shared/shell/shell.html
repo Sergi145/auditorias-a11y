@@ -88,7 +88,13 @@
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-[960px] flex-1 p-6" id="contenido">
+    <!--
+      tabindex="-1" solo para poder enfocarlo por script (ver Shell,
+      gestión de foco al navegar) — nunca se llega aquí con Tab, así que no
+      necesita su propio anillo de foco visible; los controles reales de
+      cada sección sí lo mantienen.
+    -->
+    <main #contenido class="mx-auto w-full max-w-[960px] flex-1 p-6 outline-none" id="contenido" tabindex="-1">
       <router-outlet />
     </main>
   </div>
