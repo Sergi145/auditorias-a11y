@@ -1,12 +1,18 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { Component, input, output } from '@angular/core';
+import { AppButton } from './button';
+import { AppIcon } from './icon';
 
 // Drawer de navegación modal para móvil — sustituye <mat-sidenav
 // mode="over">. Usa cdkTrapFocus (Angular CDK a11y) para atrapar el foco
-// mientras está abierto y se cierra con Escape o clic en el fondo; quien
-// lo usa (Shell) es responsable de devolver el foco al botón que lo abrió
-// al recibir (openedChange) con valor false. En escritorio se renderiza
-// como barra lateral fija, sin overlay ni trampa de foco.
+// mientras está abierto y se cierra con Escape, con el botón "Cerrar
+// menú" visible dentro del panel o con clic en el fondo (conveniencia
+// adicional, nunca el único método — ver specs/10-cierre-menu-movil.md);
+// quien lo usa (Shell) es responsable de devolver el foco al botón que lo
+// abrió al recibir (openedChange) con valor false. El botón de cerrar es
+// el primer elemento enfocable del panel, así que `cdkTrapFocusAutoCapture`
+// lo enfoca solo al abrir, sin código adicional. En escritorio se
+// renderiza como barra lateral fija, sin overlay ni trampa de foco.
 //
 // Un solo <ng-content> en una única posición del DOM (con clases/atributos
 // que cambian según isHandset()/opened()) a propósito: dos <ng-content>
@@ -15,7 +21,7 @@ import { Component, input, output } from '@angular/core';
 // specs/04-rediseno-tailwind.md.
 @Component({
   selector: 'app-drawer',
-  imports: [A11yModule],
+  imports: [A11yModule, AppButton, AppIcon],
   host: { class: 'contents' },
   template: `
     @if (isHandset() && opened()) {
@@ -41,6 +47,12 @@ import { Component, input, output } from '@angular/core';
       [cdkTrapFocusAutoCapture]="isHandset() && opened()"
       (keydown.escape)="onEscape()"
     >
+      @if (isHandset()) {
+        <button type="button" appButton variant="text" class="-ml-3 mb-4" (click)="close()">
+          <app-icon name="close" />
+          Cerrar menú
+        </button>
+      }
       <ng-content />
     </div>
   `,
