@@ -5,6 +5,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map, skip } from 'rxjs';
 import { AppButton } from '../ui/button';
 import { AppDrawer } from '../ui/drawer';
+import { AppFooter } from '../ui/footer';
 import { AppIcon } from '../ui/icon';
 import { AppToastHost } from '../ui/toast-host';
 
@@ -13,7 +14,7 @@ import { AppToastHost } from '../ui/toast-host';
 // specs/02-maqueta-m3.md.
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, AppButton, AppDrawer, AppIcon, AppToastHost],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, AppButton, AppDrawer, AppFooter, AppIcon, AppToastHost],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })

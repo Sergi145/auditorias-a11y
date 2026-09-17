@@ -20,6 +20,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 12 | [12-escaneo-url.md](./12-escaneo-url.md) | Implemented | Escaneo automático de la URL en vivo de una página vía función serverless en Vercel (Playwright + axe-core), reutilizando el mismo mapeo y persistencia que el escaneo de HTML pegado |
 | 13 | 13-captura-evidencia-escaneo.md | Pendiente | Captura de pantalla como `Evidencia` del hallazgo automático |
 | 14 | 14-panel-progreso.md | Pendiente | Dashboard de % completado y distribución de fallos |
+| 15 | [15-pie-de-pagina.md](./15-pie-de-pagina.md) | Implemented | Pie de página fijo del shell (`AppFooter`) con nombre de la app y derechos reservados |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /
 modelo de datos que toca / criterios de aceptación. Ver `CLAUDE.md` en la
