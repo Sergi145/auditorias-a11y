@@ -2,6 +2,7 @@ import * as axe from 'axe-core';
 import {
   errors as erroresPlaywright,
   type BrowserContext,
+  type Locator,
   type Page,
   type Request as PeticionPlaywright,
   type Response as RespuestaPlaywright,
@@ -9,6 +10,7 @@ import {
 import { TAGS_WCAG_2_2_A_AA } from '../src/app/core/axe-tags';
 import type { ViolacionAxe } from '../src/app/core/escaneo-axe';
 import { PresupuestoCapturas, selectorSimple } from './_lib/captura-evidencia';
+import { recorteConContexto } from './_lib/recorte-captura';
 import { lanzarNavegador } from './_lib/navegador';
 import { hostPermitido, validarFormatoUrl } from './_lib/validar-url';
 
@@ -23,6 +25,7 @@ const PRESUPUESTO_CAPTURAS_BASE64 = 3 * 1024 * 1024;
 // ver specs/12-escaneo-url.md. El mapeo a criterios WCAG y la persistencia
 // ocurren en el cliente (IndexedDB), no aquí.
 
+const VIEWPORT = { width: 1280, height: 800 };
 const TAMANO_MAXIMO_CUERPO = 4 * 1024;
 const TIMEOUT_NAVEGACION_MS = 20000;
 const ESPERA_TRAS_CARGA_MS = 1500;
@@ -121,7 +124,7 @@ async function escanearUrl(url: URL, cacheHost: Map<string, boolean>): Promise<V
   const browser = await lanzarNavegador();
   try {
     const context = await browser.newContext({
-      viewport: { width: 1280, height: 800 },
+      viewport: VIEWPORT,
       // Sin esto, page.route() no intercepta peticiones servidas por un
       // Service Worker de la web auditada — ver specs/12-escaneo-url.md.
       serviceWorkers: 'block',
@@ -205,8 +208,11 @@ async function escanearEnContexto(
 }
 
 // Captura el primer nodo afectado por una violación como evidencia — ver
-// specs/13-captura-evidencia-escaneo.md. undefined (sin lanzar) si el target
-// no es un selector simple, si no resuelve a un único elemento visible de
+// specs/13-captura-evidencia-escaneo.md. El recorte NO va pegado al elemento
+// (un enlace de 77×13 px daba una miniatura ilegible): se resalta el
+// elemento y se captura un área con contexto a su alrededor — ver
+// specs/18-captura-con-contexto.md. undefined (sin lanzar) si el target no
+// es un selector simple, si no resuelve a un único elemento visible de
 // tamaño no nulo, o si la captura no cabe en el presupuesto de la ejecución:
 // la violación se sigue aplicando igual, solo queda sin imagen.
 async function capturarPrimerNodo(
@@ -221,7 +227,20 @@ async function capturarPrimerNodo(
     const locator = page.locator(selector);
     if ((await locator.count()) !== 1) return undefined;
 
-    const buffer = await locator.screenshot({ type: 'png', timeout: 5000 });
+    await locator.scrollIntoViewIfNeeded({ timeout: 5000 });
+    const caja = await locator.boundingBox();
+    if (!caja) return undefined;
+    const recorte = recorteConContexto(caja, VIEWPORT);
+    if (!recorte) return undefined;
+
+    const quitarResaltado = await resaltar(locator);
+    let buffer: Buffer;
+    try {
+      buffer = await page.screenshot({ type: 'png', clip: recorte, timeout: 5000 });
+    } finally {
+      await quitarResaltado();
+    }
+
     const base64 = buffer.toString('base64');
     if (!presupuesto.admitir(base64.length)) return undefined;
 
@@ -231,6 +250,28 @@ async function capturarPrimerNodo(
     // de Playwright al capturarlo: se descarta sin afectar al resto.
     return undefined;
   }
+}
+
+// Marca el elemento con un recuadro rojo para que se distinga dentro del
+// recorte con contexto, y devuelve cómo deshacerlo: la página sigue viva
+// para las capturas de las violaciones siguientes, así que el resaltado no
+// puede quedarse puesto. Se restaura el atributo `style` completo (no solo
+// las propiedades tocadas) para dejarlo exactamente como estaba, incluso si
+// el elemento no tenía `style` propio.
+async function resaltar(locator: Locator): Promise<() => Promise<void>> {
+  const estiloPrevio = await locator.evaluate((elemento: HTMLElement) => {
+    const previo = elemento.getAttribute('style');
+    elemento.style.setProperty('outline', '3px solid #e11d48', 'important');
+    elemento.style.setProperty('outline-offset', '2px', 'important');
+    return previo;
+  });
+
+  return async () => {
+    await locator.evaluate((elemento: HTMLElement, previo: string | null) => {
+      if (previo === null) elemento.removeAttribute('style');
+      else elemento.setAttribute('style', previo);
+    }, estiloPrevio);
+  };
 }
 
 async function peticionPermitida(

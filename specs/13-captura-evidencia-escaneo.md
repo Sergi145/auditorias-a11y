@@ -175,9 +175,12 @@ interface RespuestaEscaneoUrl {
 - **Sí: un screenshot por violación (su primer nodo), agregado por criterio** igual que las
   notas. **No: un screenshot por nodo individual**: multiplicaría el volumen de datos sin
   aportar mucho más que el primero, ya representativo del problema.
-- **Sí: recorte al elemento (`locator.screenshot()`)** en vez de página completa. Muestra el
+- ~~**Sí: recorte al elemento (`locator.screenshot()`)** en vez de página completa. Muestra el
   contexto justo donde está el problema y pesa mucho menos. **No: captura de página completa**:
-  más contexto, pero mucho más peso y más riesgo de superar el límite de respuesta de Vercel.
+  más contexto, pero mucho más peso y más riesgo de superar el límite de respuesta de Vercel.~~
+  **Superada por `specs/18-captura-con-contexto.md`**: en webs reales el recorte pegado al
+  elemento da miniaturas ilegibles (77×13 px), así que ahora se captura el elemento resaltado
+  dentro de un área con contexto, acotada al viewport.
 - **Sí: presupuesto acumulado de bytes (3 MB en base64) como único corte**, en vez de un tope
   fijo de violaciones capturadas: se adapta al tamaño real de cada imagen. **No: tope fijo de
   N violaciones**: desperdiciaría margen si las imágenes son pequeñas y no protegería si son
