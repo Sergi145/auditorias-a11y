@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -24,6 +24,7 @@ import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
 import { ToastService } from '../../../shared/ui/toast';
+import { EvidenciasMiniaturas } from '../evidencias-miniaturas';
 import { crearControlEvidencia, EvidenciasEditor, type FormularioEvidencia } from './evidencias-editor';
 
 const ESTADOS: EstadoResultado[] = ['pasa', 'falla', 'no_aplica', 'por_revisar'];
@@ -50,6 +51,7 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
     AppInput,
     AppSelect,
     EvidenciasEditor,
+    EvidenciasMiniaturas,
   ],
   templateUrl: './criterio-revision.html',
 })
@@ -199,19 +201,7 @@ export class CriterioRevision {
 
   private hallazgoDesdeQueryAbierto = false;
 
-  // Una URL de objeto por Evidencia ya guardada, para las miniaturas de la
-  // tarjeta de lectura de cada hallazgo — ver
-  // specs/16-evidencia-imagen-hallazgo.md. Se revocan al destruir el
-  // componente (EvidenciasEditor hace lo mismo con las suyas, propias de
-  // cada formulario de hallazgo en edición).
-  private readonly urlPorEvidencia = new Map<number, string>();
-
   constructor() {
-    inject(DestroyRef).onDestroy(() => {
-      for (const url of this.urlPorEvidencia.values()) URL.revokeObjectURL(url);
-      this.urlPorEvidencia.clear();
-    });
-
     // Rellena el formulario superior en cuanto llega el primer valor real
     // del resultado (liveQuery es asíncrono): solo la primera vez, para no
     // pisar lo que el usuario esté escribiendo si el resultado se
@@ -255,15 +245,6 @@ export class CriterioRevision {
 
   protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {
     return this.evidenciasDelResultado().filter((evidencia) => evidencia.hallazgo_id === hallazgoId);
-  }
-
-  protected urlDeEvidencia(evidencia: Evidencia): string {
-    let url = this.urlPorEvidencia.get(evidencia.id!);
-    if (!url) {
-      url = URL.createObjectURL(evidencia.archivo ?? new Blob());
-      this.urlPorEvidencia.set(evidencia.id!, url);
-    }
-    return url;
   }
 
   protected empezarNuevoHallazgo(): void {
@@ -431,18 +412,9 @@ export class CriterioRevision {
     const confirmado = window.confirm('¿Eliminar este hallazgo? Esta acción no se puede deshacer.');
     if (!confirmado) return;
 
-    // Elimina también las URL de objeto cacheadas de sus evidencias — el
-    // borrado en cascada de HallazgosService.eliminar() se lleva los Blobs
-    // de Dexie, pero una URL ya creada seguiría viva en memoria hasta
-    // revocarla explícitamente.
-    for (const evidencia of this.evidenciasDeHallazgo(hallazgo.id!)) {
-      const url = this.urlPorEvidencia.get(evidencia.id!);
-      if (url) {
-        URL.revokeObjectURL(url);
-        this.urlPorEvidencia.delete(evidencia.id!);
-      }
-    }
-
+    // Las URL de objeto de sus miniaturas las revoca el propio
+    // EvidenciasMiniaturas al destruirse con la tarjeta del hallazgo —
+    // ver specs/17-evidencias-en-checklist.md.
     await this.hallazgosService.eliminar(hallazgo.id!);
     this.toast.mostrar('Hallazgo eliminado.');
     if (this.hallazgoEnEdicion() === hallazgo.id) {

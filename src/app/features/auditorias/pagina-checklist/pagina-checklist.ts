@@ -1,15 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, map, of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
+import { EvidenciasService } from '../../../core/evidencias';
 import { HallazgosService } from '../../../core/hallazgos';
 import type {
   CategoriaWCAG,
   Componente,
   CriterioWCAG,
   EstadoResultado,
+  Evidencia,
   Hallazgo,
   NivelWCAG,
   Resultado,
@@ -24,6 +26,7 @@ import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon, type IconName } from '../../../shared/ui/icon';
 import { ToastService } from '../../../shared/ui/toast';
+import { EvidenciasMiniaturas } from '../evidencias-miniaturas';
 
 interface FilaChecklist {
   criterio: CriterioWCAG;
@@ -77,13 +80,23 @@ const ETIQUETA_SEVERIDAD: Record<Severidad, string> = {
 // eliminar sus hallazgos sin salir del checklist.
 @Component({
   selector: 'app-pagina-checklist',
-  imports: [RouterLink, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppSelect],
+  imports: [
+    RouterLink,
+    AppButton,
+    AppCard,
+    AppChip,
+    AppFormField,
+    AppIcon,
+    AppSelect,
+    EvidenciasMiniaturas,
+  ],
   templateUrl: './pagina-checklist.html',
 })
 export class PaginaChecklist {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly resultadosService = inject(ResultadosService);
   private readonly hallazgosService = inject(HallazgosService);
+  private readonly evidenciasService = inject(EvidenciasService);
   private readonly componentesService = inject(ComponentesService);
   private readonly paginasService = inject(PaginasService);
   private readonly route = inject(ActivatedRoute);
@@ -135,6 +148,25 @@ export class PaginaChecklist {
     ),
     { initialValue: [] as FilaChecklist[] },
   );
+
+  // Imágenes de evidencia de todos los hallazgos ya cargados de esta
+  // página, para las miniaturas de cada tarjeta del collapse — ver
+  // specs/17-evidencias-en-checklist.md. Los ids salen de las filas que ya
+  // calcula la pantalla, sin abrir una segunda liveQuery de hallazgos.
+  private readonly hallazgoIds = computed(() =>
+    this.filas().flatMap((fila) => fila.hallazgos.map((hallazgo) => hallazgo.id!)),
+  );
+
+  private readonly evidenciasDePagina = toSignal(
+    toObservable(this.hallazgoIds).pipe(
+      switchMap((ids) => (ids.length === 0 ? of([]) : this.evidenciasService.deHallazgos$(ids))),
+    ),
+    { initialValue: [] as Evidencia[] },
+  );
+
+  protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {
+    return this.evidenciasDePagina().filter((evidencia) => evidencia.hallazgo_id === hallazgoId);
+  }
 
   protected readonly filasFiltradas = computed(() =>
     this.filas().filter((fila) => {

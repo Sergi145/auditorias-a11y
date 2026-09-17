@@ -53,6 +53,29 @@ test('crear un hallazgo con una imagen y su descripción la muestra como miniatu
   await expect(enlace).toContainText('(se abre en una pestaña nueva)');
 });
 
+test('la miniatura del hallazgo también se ve al expandir su fila en el checklist', async ({
+  page,
+}) => {
+  await abrirNuevoHallazgo(page);
+
+  await page.locator('input[type="file"]').setInputFiles(IMAGEN_VALIDA);
+  await page
+    .getByLabel('Descripción de la imagen (texto alternativo)')
+    .fill('Botón de búsqueda sin texto alternativo');
+  await page.getByRole('button', { name: 'Guardar revisión' }).click();
+  await expect(page.getByText('Hallazgo añadido.')).toBeVisible();
+
+  await page.getByRole('link', { name: 'Volver al checklist' }).click();
+  const fila = page.locator('tr').filter({ has: page.locator('strong', { hasText: '1.1.1' }) });
+  await fila.getByRole('button', { name: /hallazgos de 1\.1\.1/ }).click();
+
+  const imagen = page.getByRole('img', { name: 'Botón de búsqueda sin texto alternativo' });
+  await expect(imagen).toBeVisible();
+  await expect(page.locator('a').filter({ has: imagen })).toContainText(
+    '(se abre en una pestaña nueva)',
+  );
+});
+
 test('guardar sin describir una imagen muestra el error y no crea el hallazgo', async ({ page }) => {
   await abrirNuevoHallazgo(page);
 

@@ -198,6 +198,7 @@
                           @if (hallazgo.solucion) {
                             <p class="m-0 text-sm text-slate-600"><strong>Solución:</strong> {{ hallazgo.solucion }}</p>
                           }
+                          <app-evidencias-miniaturas [evidencias]="evidenciasDeHallazgo(hallazgo.id!)" />
                         </div>
                         <div class="flex shrink-0 gap-2">
                           <a

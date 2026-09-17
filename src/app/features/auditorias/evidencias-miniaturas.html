@@ -1,0 +1,22 @@
+@if (evidencias().length > 0) {
+  <ul aria-label="Evidencias del hallazgo" class="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+    @for (evidencia of evidencias(); track evidencia.id) {
+      <li>
+        <a
+          [href]="urlDeEvidencia(evidencia)"
+          target="_blank"
+          rel="noopener"
+          class="foco flex items-center gap-1 rounded-md"
+        >
+          <img
+            [src]="urlDeEvidencia(evidencia)"
+            [alt]="evidencia.descripcion ?? ''"
+            class="h-16 w-16 rounded-md border border-slate-200 object-contain"
+          />
+          <app-icon name="external-link" />
+          <span class="sr-only">(se abre en una pestaña nueva)</span>
+        </a>
+      </li>
+    }
+  </ul>
+}
