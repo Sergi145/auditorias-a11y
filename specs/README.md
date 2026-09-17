@@ -23,6 +23,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 15 | [15-pie-de-pagina.md](./15-pie-de-pagina.md) | Implemented | Pie de página fijo del shell (`AppFooter`) con nombre de la app y derechos reservados |
 | 16 | [16-evidencia-imagen-hallazgo.md](./16-evidencia-imagen-hallazgo.md) | Implemented | Adjuntar, describir, ver y quitar imágenes de evidencia (PNG/JPEG/WebP) en cada hallazgo de `criterio-revision`, accesible por teclado y lector de pantalla |
 | 17 | [17-evidencias-en-checklist.md](./17-evidencias-en-checklist.md) | Implemented | Miniaturas de evidencia (adjuntadas o capturadas por el escaneo) también en el collapse de hallazgos de `pagina-checklist`, con un `EvidenciasMiniaturas` compartido con `criterio-revision` |
+| 18 | [18-captura-con-contexto.md](./18-captura-con-contexto.md) | Implemented | La captura del escaneo señala el elemento con un recuadro y muestra el contexto de alrededor (sustituye el recorte pegado al elemento de la spec 13) |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /
 modelo de datos que toca / criterios de aceptación. Ver `CLAUDE.md` en la
