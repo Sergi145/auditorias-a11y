@@ -5,7 +5,9 @@ import { ToastService } from './toast';
   selector: 'app-toast-host',
   template: `
     @if (toast.actual(); as t) {
-      <div class="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+      <!-- bottom-16, no bottom-4: deja hueco para AppFooter (fijo, ~2.75rem
+           de alto) — ver specs/15-pie-de-pagina.md. -->
+      <div class="fixed inset-x-0 bottom-16 z-50 flex justify-center px-4">
         <div class="flex items-center gap-3 rounded-lg bg-slate-900 px-4 py-3 text-sm text-white shadow-lg">
           <span>{{ t.texto }}</span>
           <button
