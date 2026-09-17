@@ -1,6 +1,6 @@
 # 13 — Captura de pantalla como evidencia del hallazgo automático (modo URL en vivo)
 
-**Estado:** Approved
+**Estado:** Implemented
 **Depende de:** Spec 12 (Escaneo URL — función serverless `api/escanear-url.ts`, `ViolacionAxe`,
 `EscaneoAxeService.aplicarViolaciones` compartido con el modo "Pegar HTML"), Spec 16
 (Evidencia de imagen — `Evidencia.descripcion`, esquema v3 de Dexie, `EvidenciasService` y el

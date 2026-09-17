@@ -18,7 +18,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 10 | [10-cierre-menu-movil.md](./10-cierre-menu-movil.md) | Implemented | Botón de cierre visible, foco inicial, focus trap, Esc y devolución de foco en el menú de navegación móvil (`AppDrawer`) |
 | 11 | [11-escaneo-axe.md](./11-escaneo-axe.md) | Implemented | Escaneo automático con axe-core sobre HTML pegado (client-side, iframe aislado), pre-rellena el checklist como "Falla (automático)"; URL en vivo pasa a la spec 12 |
 | 12 | [12-escaneo-url.md](./12-escaneo-url.md) | Implemented | Escaneo automático de la URL en vivo de una página vía función serverless en Vercel (Playwright + axe-core), reutilizando el mismo mapeo y persistencia que el escaneo de HTML pegado |
-| 13 | [13-captura-evidencia-escaneo.md](./13-captura-evidencia-escaneo.md) | Pendiente | Captura de pantalla como `Evidencia` del hallazgo automático en el modo "URL en vivo" (reutiliza el esquema v3 de Dexie y `EvidenciasService` de la spec 16) |
+| 13 | [13-captura-evidencia-escaneo.md](./13-captura-evidencia-escaneo.md) | Implemented | Captura de pantalla como `Evidencia` del hallazgo automático en el modo "URL en vivo" (reutiliza el esquema v3 de Dexie y `EvidenciasService` de la spec 16) |
 | 14 | 14-panel-progreso.md | Pendiente | Dashboard de % completado y distribución de fallos |
 | 15 | [15-pie-de-pagina.md](./15-pie-de-pagina.md) | Implemented | Pie de página fijo del shell (`AppFooter`) con nombre de la app y derechos reservados |
 | 16 | [16-evidencia-imagen-hallazgo.md](./16-evidencia-imagen-hallazgo.md) | Implemented | Adjuntar, describir, ver y quitar imágenes de evidencia (PNG/JPEG/WebP) en cada hallazgo de `criterio-revision`, accesible por teclado y lector de pantalla |
