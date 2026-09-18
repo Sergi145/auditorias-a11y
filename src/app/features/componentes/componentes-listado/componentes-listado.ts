@@ -10,6 +10,7 @@ import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppInput } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
+import { AppSkipLink } from '../../../shared/ui/skip-link';
 import { ToastService } from '../../../shared/ui/toast';
 
 // Pantalla 10 de specs/02-maqueta-m3.md: catálogo de componentes (Bootstrap
@@ -18,7 +19,7 @@ import { ToastService } from '../../../shared/ui/toast';
 // specs/07-catalogo-componentes.md.
 @Component({
   selector: 'app-componentes-listado',
-  imports: [ReactiveFormsModule, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppInput],
+  imports: [ReactiveFormsModule, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppInput, AppSkipLink],
   templateUrl: './componentes-listado.html',
 })
 export class ComponentesListado {

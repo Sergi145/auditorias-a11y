@@ -209,3 +209,41 @@ mensaje). Se añade el mismo cableado que ya usa `auditoria-nueva.html`
 se enfoca en la rama de error de `anadirComponente()` — mismo patrón que
 `enfocarPrimerCampoInvalido()` en `auditoria-nueva.ts`, simplificado a un
 único campo.
+
+## Nota de revisión (2026-09-18) — enlace para saltar la lista de componentes
+
+Las listas "Predefinidos" (30 componentes Bootstrap) y "Personalizados"
+suman muchas paradas de tabulación (cada fila tiene botón de
+mostrar/ocultar, y las personalizadas además renombrar/eliminar) antes de
+llegar a cualquier otro contenido de la pantalla — el mismo problema de
+"bypass blocks" (WCAG 2.4.1) que ya resolvía el enlace "Saltar al
+contenido principal" del shell y la landing, hasta ahora sin extraer a
+componente propio. Se crea `AppSkipLink` (`src/app/shared/ui/skip-link.ts`), reutilizado en
+`shell.html` y `landing.html` (mismo comportamiento, sin cambios visibles,
+variante `fijo`: overlay fijo arriba a la izquierda respecto al viewport,
+para un enlace de página completa que debe verse por encima de todo) y
+añadido de nuevo en `componentes-listado.html` con variante `flotante`: un
+enlace "Saltar la lista de componentes" que flota (sin reservar hueco en
+el flujo, `position: absolute` sobre un contenedor `position: relative`)
+junto al encabezado "Predefinidos (Bootstrap)" — a su derecha, centrado
+verticalmente, sobre el hueco en blanco tras el título corto — en vez de
+sobre la esquina del viewport. En el orden de tabulación va justo después
+del botón "Añadir" y antes de la primera fila de "Predefinidos" (el
+encabezado `<h2>` no es tabulable), aunque en el DOM viva dentro del mismo
+contenedor que ese encabezado.
+
+Activarlo mueve el foco al primer enlace del menú de navegación lateral
+(`id="nav-principal-primer-enlace"` en el enlace "Auditorías" de
+`shell.html`) en vez de a un marcador al final de las listas: es el
+destino útil real para quien quiere evitar tabular por las ~30 filas de
+Bootstrap más las personalizadas, ya que esta pantalla no tiene ningún
+otro contenido tabulable después de ellas.
+
+El foco se mueve al destino por código (`elemento.focus()` en el
+`(click)` del enlace, con `preventDefault()` sobre la navegación nativa al
+fragmento) en vez de depender solo del comportamiento del navegador al
+navegar a un `href="#id"`: en pruebas manuales y con Playwright, dejar que
+el navegador gestionase la navegación al fragmento actualizaba la URL y
+desplazaba la vista, pero no siempre movía el foco (en algunos casos lo
+devolvía a `<body>`) — mismo patrón ya usado para el foco tras navegación
+en `Shell` (`src/app/shared/shell/shell.ts`).

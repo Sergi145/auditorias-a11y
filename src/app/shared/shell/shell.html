@@ -1,9 +1,4 @@
-<a
-  href="#contenido"
-  class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded focus:bg-[#ebd3ff] focus:px-4 focus:py-2 focus:text-slate-900 focus:outline focus:outline-2 focus:outline-violet-700"
->
-  Saltar al contenido principal
-</a>
+<app-skip-link destino="#contenido">Saltar al contenido principal</app-skip-link>
 
 <div class="flex min-h-full">
   <app-drawer
@@ -16,6 +11,7 @@
       <ul class="m-0 flex list-none flex-col gap-1 p-0">
         <li>
           <a
+            id="nav-principal-primer-enlace"
             routerLink="/auditorias"
             routerLinkActive
             #auditoriasLink="routerLinkActive"
