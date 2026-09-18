@@ -75,6 +75,8 @@ describe('InformeDatosService', () => {
       revisados: 0,
       porcentajeRevisado: 0,
       fallosPorSeveridad: { critica: 0, alta: 0, media: 0, baja: 0 },
+      criteriosPorEstado: { pasa: 0, falla: 0, no_aplica: 0, por_revisar: 0 },
+      fallosPorCategoria: { perceptible: 0, operable: 0, comprensible: 0, robusto: 0 },
     });
   });
 

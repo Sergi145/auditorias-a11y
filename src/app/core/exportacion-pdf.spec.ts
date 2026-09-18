@@ -70,6 +70,8 @@ const INFORME: InformeAuditoria = {
     revisados: 4,
     porcentajeRevisado: 4,
     fallosPorSeveridad: { critica: 1, alta: 1, media: 1, baja: 1 },
+    criteriosPorEstado: { pasa: 1, falla: 2, no_aplica: 1, por_revisar: 106 },
+    fallosPorCategoria: { perceptible: 3, operable: 1, comprensible: 0, robusto: 0 },
   },
 };
 

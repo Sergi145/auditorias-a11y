@@ -38,6 +38,8 @@ describe('ProgresoService', () => {
       revisados: 0,
       porcentajeRevisado: 0,
       fallosPorSeveridad: { critica: 0, alta: 0, media: 0, baja: 0 },
+      criteriosPorEstado: { pasa: 0, falla: 0, no_aplica: 0, por_revisar: 0 },
+      fallosPorCategoria: { perceptible: 0, operable: 0, comprensible: 0, robusto: 0 },
     });
   });
 
@@ -63,6 +65,40 @@ describe('ProgresoService', () => {
 
     expect(progreso.totalCriterios).toBe(totalCriteriosWcag * 2);
     expect(progreso.revisados).toBe(2);
+  });
+
+  it('criteriosPorEstado suma totalCriterios y cuenta un criterio sin Resultado como por_revisar', async () => {
+    await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla' });
+    await resultados.guardar(PAGINA_A.id!, '2.1.1', { estado: 'pasa' });
+    await resultados.guardar(PAGINA_A.id!, '1.4.3', { estado: 'no_aplica' });
+
+    const progreso = await firstValueFrom(service.deAuditoria$([PAGINA_A]));
+    const suma = Object.values(progreso.criteriosPorEstado).reduce((a, b) => a + b, 0);
+
+    expect(suma).toBe(progreso.totalCriterios);
+    expect(progreso.criteriosPorEstado.falla).toBe(1);
+    expect(progreso.criteriosPorEstado.pasa).toBe(1);
+    expect(progreso.criteriosPorEstado.no_aplica).toBe(1);
+    expect(progreso.criteriosPorEstado.por_revisar).toBe(totalCriteriosWcag - 3);
+  });
+
+  it('fallosPorCategoria cuenta cada hallazgo según la categoría de su criterio', async () => {
+    // 1.1.1 → perceptible, 2.1.1 → operable, 3.1.1 → comprensible.
+    const resultadoPerceptible = await resultados.guardar(PAGINA_A.id!, '1.1.1', { estado: 'falla' });
+    await hallazgos.crear({ resultado_id: resultadoPerceptible, severidad: 'alta', notas: 'Error 1' });
+    await hallazgos.crear({ resultado_id: resultadoPerceptible, severidad: 'media', notas: 'Error 2' });
+    const resultadoOperable = await resultados.guardar(PAGINA_A.id!, '2.1.1', { estado: 'falla' });
+    await hallazgos.crear({ resultado_id: resultadoOperable, severidad: 'critica', notas: 'Error 3' });
+
+    const progreso = await firstValueFrom(service.deAuditoria$([PAGINA_A]));
+    const sumaCategoria = Object.values(progreso.fallosPorCategoria).reduce((a, b) => a + b, 0);
+    const sumaSeveridad = Object.values(progreso.fallosPorSeveridad).reduce((a, b) => a + b, 0);
+
+    expect(progreso.fallosPorCategoria.perceptible).toBe(2);
+    expect(progreso.fallosPorCategoria.operable).toBe(1);
+    expect(progreso.fallosPorCategoria.comprensible).toBe(0);
+    expect(progreso.fallosPorCategoria.robusto).toBe(0);
+    expect(sumaCategoria).toBe(sumaSeveridad);
   });
 
   it('rankingPaginas$ ordena de más a menos criterios en Falla', async () => {
