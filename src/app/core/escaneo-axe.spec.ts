@@ -8,8 +8,12 @@ import { agruparViolacionesPorCriterio, type ViolacionAxe } from './escaneo-axe'
 // módulo (agruparViolacionesPorCriterio) se prueba abajo sin DOM; el resto
 // se verifica manualmente en un navegador real — ver specs/11-escaneo-axe.md
 // "Riesgos identificados".
+//
+// Por defecto el id es de una regla que no está en TRADUCCIONES_AXE, así que
+// las notas usan el help tal cual (fallback) y los tests de agrupación no
+// dependen del texto de las traducciones — ver specs/19-traduccion-axe.md.
 function violacion(datos: Partial<ViolacionAxe> & Pick<ViolacionAxe, 'tags'>): ViolacionAxe {
-  return { impact: 'moderate', help: 'Ayuda de la regla', ...datos };
+  return { id: 'regla-sin-traduccion', impact: 'moderate', help: 'Ayuda de la regla', ...datos };
 }
 
 describe('agruparViolacionesPorCriterio', () => {
@@ -79,5 +83,78 @@ describe('agruparViolacionesPorCriterio', () => {
     const agrupado = agruparViolacionesPorCriterio([violacion({ tags: ['wcag111'], help: 'Falta alt' })]);
 
     expect(agrupado.get('1.1.1')?.capturas).toEqual([]);
+  });
+});
+
+describe('agruparViolacionesPorCriterio — textos en español (spec 19)', () => {
+  it('guarda las notas traducidas al español según el id de la regla', () => {
+    const agrupado = agruparViolacionesPorCriterio([
+      violacion({
+        id: 'image-alt',
+        tags: ['wcag2a', 'wcag111'],
+        impact: 'critical',
+        help: 'Images must have alternative text',
+      }),
+      violacion({
+        id: 'role-img-alt',
+        tags: ['wcag2a', 'wcag111'],
+        impact: 'serious',
+        help: '[role="img"] and [role="image"] elements must have alternative text',
+      }),
+    ]);
+
+    expect(agrupado.get('1.1.1')).toEqual({
+      severidad: 'critica',
+      notas:
+        'Las imágenes deben tener texto alternativo\n' +
+        'Los elementos con [role="img"] y [role="image"] deben tener texto alternativo',
+      capturas: [],
+    });
+  });
+
+  it('guarda en español la descripción de las capturas (modo URL en vivo)', () => {
+    const agrupado = agruparViolacionesPorCriterio([
+      violacion({
+        id: 'color-contrast',
+        tags: ['wcag2aa', 'wcag143'],
+        help: 'Elements must meet minimum color contrast ratio thresholds',
+        capturaPng: 'data:image/png;base64,AAA',
+      }),
+    ]);
+
+    expect(agrupado.get('1.4.3')).toEqual({
+      severidad: 'media',
+      notas: 'Los elementos deben cumplir la relación de contraste de color mínima',
+      capturas: [
+        {
+          dataUrl: 'data:image/png;base64,AAA',
+          descripcion: 'Los elementos deben cumplir la relación de contraste de color mínima',
+        },
+      ],
+    });
+  });
+
+  it('usa el help original en inglés si el id de la regla no tiene traducción', () => {
+    const agrupado = agruparViolacionesPorCriterio([
+      violacion({
+        id: 'regla-futura-de-axe',
+        tags: ['wcag111'],
+        help: 'Some future rule help',
+        capturaPng: 'data:image/png;base64,AAA',
+      }),
+    ]);
+
+    expect(agrupado.get('1.1.1')?.notas).toBe('Some future rule help');
+    expect(agrupado.get('1.1.1')?.capturas).toEqual([
+      { dataUrl: 'data:image/png;base64,AAA', descripcion: 'Some future rule help' },
+    ]);
+  });
+
+  it('usa el help original si la violación llega sin id (respuesta antigua de la función)', () => {
+    const sinId = { tags: ['wcag111'], impact: 'minor', help: 'Images must have alternative text' };
+
+    const agrupado = agruparViolacionesPorCriterio([sinId as unknown as ViolacionAxe]);
+
+    expect(agrupado.get('1.1.1')?.notas).toBe('Images must have alternative text');
   });
 });
