@@ -16,6 +16,11 @@
     />
   </div>
 
+  <h2 class="text-xl font-semibold text-slate-900">Estado de los criterios</h2>
+  <div class="mb-6">
+    <app-distribucion-barras [filas]="filasEstado()" unidad="criterios" />
+  </div>
+
   <h2 class="text-xl font-semibold text-slate-900">Fallos por severidad</h2>
   <div class="mb-6 grid max-w-[640px] grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
     @for (stat of statsSeveridad(); track stat.severidad) {
@@ -29,23 +34,21 @@
       </div>
     }
   </div>
+  @if (sinHallazgos()) {
+    <p class="mb-6 text-slate-600">Todavía no hay hallazgos registrados.</p>
+  }
+
+  <h2 class="text-xl font-semibold text-slate-900">Fallos por principio WCAG</h2>
+  <div class="mb-6">
+    <app-distribucion-barras [filas]="filasCategoria()" unidad="hallazgos" />
+    @if (sinHallazgos()) {
+      <p class="text-slate-600">Todavía no hay hallazgos registrados.</p>
+    }
+  </div>
 
   <h2 class="text-xl font-semibold text-slate-900">Páginas con más incidencias</h2>
-  @if (rankingPaginas().length > 0) {
-    <ul class="m-0 flex max-w-[640px] list-none flex-col gap-2 p-0">
-      @for (fila of rankingPaginas(); track fila.nombre) {
-        <li class="grid grid-cols-[160px_1fr_32px] items-center gap-3">
-          <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ fila.nombre }}</span>
-          <div class="h-6 overflow-hidden rounded bg-violet-100">
-            <div
-              class="h-full rounded bg-violet-700"
-              [style.width.%]="(fila.cantidad / maxIncidencias()) * 100"
-            ></div>
-          </div>
-          <span class="text-right tabular-nums">{{ fila.cantidad }}</span>
-        </li>
-      }
-    </ul>
+  @if (filasRanking().length > 0) {
+    <app-distribucion-barras [filas]="filasRanking()" unidad="criterios en falla" />
   } @else {
     <p>Esta auditoría todavía no tiene páginas.</p>
   }
