@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import * as axe from 'axe-core';
 import { TAGS_WCAG_2_2_A_AA } from './axe-tags';
+import { textoViolacionEs } from './axe-traducciones';
 import { codigosCriterioParaTags, severidadDesdeImpacto } from './axe-wcag-mapping';
 import { HallazgosService } from './hallazgos';
 import type { Severidad } from './models';
@@ -23,10 +24,11 @@ export interface ResumenEscaneo {
 }
 
 // Violación de axe-core mínima que necesita el agrupador — evita acoplar
-// los tests a la forma completa de axe.Result (description/helpUrl/id/nodes).
-// capturaPng (data URL) solo lo rellena el modo "URL en vivo" — ver
-// specs/13-captura-evidencia-escaneo.md.
-export type ViolacionAxe = Pick<axe.Result, 'tags' | 'impact' | 'help'> & { capturaPng?: string };
+// los tests a la forma completa de axe.Result (description/helpUrl/nodes).
+// id identifica la regla para traducir su help al español — ver
+// specs/19-traduccion-axe.md. capturaPng (data URL) solo lo rellena el modo
+// "URL en vivo" — ver specs/13-captura-evidencia-escaneo.md.
+export type ViolacionAxe = Pick<axe.Result, 'id' | 'tags' | 'impact' | 'help'> & { capturaPng?: string };
 
 type MensajeEscaneoAxe =
   | { tipo: 'resultado-escaneo-axe'; resultados: axe.AxeResults }
@@ -43,7 +45,9 @@ export interface CapturaViolacion {
 // concatenan — ver specs/11-escaneo-axe.md "Riesgos identificados". Las
 // capturas (solo presentes en modo "URL en vivo", ver specs/13-captura-
 // evidencia-escaneo.md) se agregan igual, una entrada por violación con
-// capturaPng.
+// capturaPng. Notas y descripciones de captura se guardan en español
+// (textoViolacionEs(), con fallback al help en inglés) — ver
+// specs/19-traduccion-axe.md.
 export function agruparViolacionesPorCriterio(
   violaciones: ViolacionAxe[],
 ): Map<string, { severidad: Severidad; notas: string; capturas: CapturaViolacion[] }> {
@@ -54,13 +58,14 @@ export function agruparViolacionesPorCriterio(
 
   for (const violacion of violaciones) {
     const severidad = severidadDesdeImpacto(violacion.impact);
+    const texto = textoViolacionEs(violacion);
     for (const codigo of codigosCriterioParaTags(violacion.tags)) {
       const actual = agrupado.get(codigo);
       if (!actual) {
-        agrupado.set(codigo, { severidad, notas: [violacion.help], capturas: [] });
+        agrupado.set(codigo, { severidad, notas: [texto], capturas: [] });
         continue;
       }
-      actual.notas.push(violacion.help);
+      actual.notas.push(texto);
       if (RANGO_SEVERIDAD[severidad] > RANGO_SEVERIDAD[actual.severidad]) {
         actual.severidad = severidad;
       }
@@ -73,7 +78,10 @@ export function agruparViolacionesPorCriterio(
   for (const violacion of violaciones) {
     if (!violacion.capturaPng) continue;
     for (const codigo of codigosCriterioParaTags(violacion.tags)) {
-      agrupado.get(codigo)?.capturas.push({ dataUrl: violacion.capturaPng, descripcion: violacion.help });
+      agrupado.get(codigo)?.capturas.push({
+        dataUrl: violacion.capturaPng,
+        descripcion: textoViolacionEs(violacion),
+      });
     }
   }
 
