@@ -8,6 +8,7 @@ import { AppChip } from '../../shared/ui/chip';
 import { AppDrawer } from '../../shared/ui/drawer';
 import { AppIcon, type IconName } from '../../shared/ui/icon';
 import { AppProgressBar } from '../../shared/ui/progress-bar';
+import { AppSkipLink } from '../../shared/ui/skip-link';
 
 interface Funcionalidad {
   icono: IconName;
@@ -40,7 +41,7 @@ interface FilaEjemplo {
 // "Enviar" en un formulario — compiten por la atención en vez de guiarla.
 @Component({
   selector: 'app-landing',
-  imports: [RouterLink, AppButton, AppChip, AppDrawer, AppIcon, AppProgressBar],
+  imports: [RouterLink, AppButton, AppChip, AppDrawer, AppIcon, AppProgressBar, AppSkipLink],
   templateUrl: './landing.html',
 })
 export class Landing {

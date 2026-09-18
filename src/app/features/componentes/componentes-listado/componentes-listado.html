@@ -37,7 +37,10 @@
   </button>
 </form>
 
-<h2 class="mt-6 text-xl font-semibold text-slate-900">Predefinidos (Bootstrap)</h2>
+<div class="relative mt-6">
+  <h2 class="text-xl font-semibold text-slate-900">Predefinidos (Bootstrap)</h2>
+  <app-skip-link destino="#nav-principal-primer-enlace" variante="flotante">Saltar la lista de componentes</app-skip-link>
+</div>
 <ul aria-label="Componentes predefinidos de Bootstrap" class="m-0 mt-3 flex list-none flex-col gap-2 p-0">
   @for (componente of bootstrap(); track componente.id) {
     <li>
