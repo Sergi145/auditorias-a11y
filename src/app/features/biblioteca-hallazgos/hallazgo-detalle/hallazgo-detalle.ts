@@ -15,6 +15,15 @@ import { ToastService } from '../../../shared/ui/toast';
 
 const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
 
+// Etiquetas legibles, como en el resto de pantallas (antes se mostraba el
+// valor interno «critica») — ver specs/22-informe-ux.md P6.
+const ETIQUETA_SEVERIDAD: Record<Severidad, string> = {
+  critica: 'Crítica',
+  alta: 'Alta',
+  media: 'Media',
+  baja: 'Baja',
+};
+
 // Pantalla 9 de specs/02-maqueta-m3.md: detalle/edición de un hallazgo de
 // la biblioteca. Persistencia real desde specs/08-biblioteca-hallazgos.md:
 // "Guardar cambios" actualiza la plantilla de verdad.
@@ -33,6 +42,7 @@ export class HallazgoDetalle {
   private readonly toast = inject(ToastService);
 
   protected readonly severidades = SEVERIDADES;
+  protected readonly etiquetaSeveridad = ETIQUETA_SEVERIDAD;
   protected readonly hallazgoId = Number(this.route.snapshot.paramMap.get('id'));
 
   // Sin un porId$() dedicado en HallazgosPlantillaService (no lo pide

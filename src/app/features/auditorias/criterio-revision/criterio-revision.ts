@@ -1,4 +1,14 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Injector,
+  signal,
+  untracked,
+} from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -26,10 +36,41 @@ import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
 import { ToastService } from '../../../shared/ui/toast';
 import { EvidenciasMiniaturas } from '../evidencias-miniaturas';
-import { crearControlEvidencia, EvidenciasEditor, type FormularioEvidencia } from './evidencias-editor';
+import type { ConSalidaProtegida } from './confirmar-salida';
+import {
+  crearControlEvidencia,
+  EvidenciasEditor,
+  type FormularioEvidencia,
+} from './evidencias-editor';
 
 const ESTADOS: EstadoResultado[] = ['pasa', 'falla', 'no_aplica', 'por_revisar'];
 const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
+
+// Mismas etiquetas que el checklist, el progreso y la exportación: los
+// desplegables mostraban el valor interno (no_aplica, critica…) — ver
+// specs/22-informe-ux.md P6.
+const ETIQUETA_ESTADO: Record<EstadoResultado, string> = {
+  pasa: 'Pasa',
+  falla: 'Falla',
+  no_aplica: 'No aplica',
+  por_revisar: 'Por revisar',
+};
+
+const ETIQUETA_SEVERIDAD: Record<Severidad, string> = {
+  critica: 'Crítica',
+  alta: 'Alta',
+  media: 'Media',
+  baja: 'Baja',
+};
+
+// Mensajes de error de los campos del hallazgo que se validan — ver
+// specs/22-informe-ux.md P3.
+const ERRORES_HALLAZGO = {
+  severidad: 'Selecciona una severidad.',
+  notas: 'Describe el hallazgo.',
+  tituloPlantilla: 'Escribe un título para guardarlo en la biblioteca.',
+} as const;
+type CampoHallazgoValidado = keyof typeof ERRORES_HALLAZGO;
 
 // Pantalla 7 de specs/02-maqueta-m3.md: revisión manual de un criterio.
 // Persistencia real desde specs/06-checklist-manual.md: el formulario
@@ -55,8 +96,9 @@ const SEVERIDADES: Severidad[] = ['critica', 'alta', 'media', 'baja'];
     EvidenciasMiniaturas,
   ],
   templateUrl: './criterio-revision.html',
+  host: { '(window:beforeunload)': 'avisarAntesDeCerrar($event)' },
 })
-export class CriterioRevision {
+export class CriterioRevision implements ConSalidaProtegida {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly resultadosService = inject(ResultadosService);
   private readonly hallazgosService = inject(HallazgosService);
@@ -68,9 +110,13 @@ export class CriterioRevision {
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
   private readonly confirmacion = inject(ConfirmacionService);
+  private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   protected readonly estados = ESTADOS;
   protected readonly severidades = SEVERIDADES;
+  protected readonly etiquetaEstado = ETIQUETA_ESTADO;
+  protected readonly etiquetaSeveridad = ETIQUETA_SEVERIDAD;
 
   // El desplegable solo ofrece componentes visibles; el nombre ya asignado
   // a un hallazgo existente se resuelve contra todos() para seguir
@@ -89,6 +135,15 @@ export class CriterioRevision {
   private readonly hallazgoIdDesdeQuery = this.route.snapshot.queryParamMap.get('hallazgo')
     ? Number(this.route.snapshot.queryParamMap.get('hallazgo'))
     : undefined;
+  // Vuelta desde /biblioteca en modo "elegir redacción" — ver
+  // specs/21-elegir-desde-biblioteca.md: ?plantilla=ID rellena el formulario
+  // de hallazgo (el de ?hallazgo=ID si se estaba editando uno, o uno nuevo
+  // con ?componente=ID si no) igual que "Usar esta redacción".
+  private readonly plantillaIdDesdeQuery = this.numeroDesdeQuery('plantilla');
+  private readonly componenteIdDesdeQuery = this.numeroDesdeQuery('componente');
+  // undefined = cargando; null = ya no existe en la biblioteca.
+  private readonly plantillaDesdeQuery = signal<HallazgoPlantilla | null | undefined>(undefined);
+  private plantillaDesdeQueryAplicada = false;
 
   protected readonly criterio = this.criteriosWcag.porCodigo(this.codigo);
 
@@ -123,9 +178,12 @@ export class CriterioRevision {
     estado: ['por_revisar' as EstadoResultado, Validators.required],
   });
 
-  private readonly estadoFormularioActual = toSignal(this.formularioResultado.controls.estado.valueChanges, {
-    initialValue: this.formularioResultado.controls.estado.value,
-  });
+  private readonly estadoFormularioActual = toSignal(
+    this.formularioResultado.controls.estado.valueChanges,
+    {
+      initialValue: this.formularioResultado.controls.estado.value,
+    },
+  );
 
   // La sección de hallazgos se muestra en cuanto el select pasa a "Falla",
   // sin esperar a que el resultado esté guardado en Dexie: guardarHallazgo()
@@ -195,15 +253,40 @@ export class CriterioRevision {
   protected readonly hallazgosSugeridos = toSignal(
     toObservable(this.componenteIdHallazgoActual).pipe(
       switchMap((componenteId) =>
-        componenteId === null ? of([]) : this.hallazgosPlantillaService.sugeridos$(this.codigo, componenteId),
+        componenteId === null
+          ? of([])
+          : this.hallazgosPlantillaService.sugeridos$(this.codigo, componenteId),
       ),
     ),
     { initialValue: [] as HallazgoPlantilla[] },
   );
 
+  // En cuanto se pulsa "Usar esta redacción" (o el hallazgo ya parte de una
+  // plantilla) las sugerencias se ocultan: su descripción ya está copiada en
+  // "Descripción del hallazgo" y repetirla debajo solo duplica texto. Para
+  // cambiar de redacción queda "Ver en la biblioteca".
+  protected readonly sugerenciasVisibles = computed(() =>
+    this.hallazgoPlantillaIdActual() === null ? this.hallazgosSugeridos() : [],
+  );
+
   private hallazgoDesdeQueryAbierto = false;
 
+  // Estado del formulario de hallazgo al abrirlo, para saber si hay cambios
+  // sin guardar — ver tieneCambiosSinGuardar().
+  private instantaneaHallazgo = '';
+
+  // Id del hallazgo recién eliminado, a la espera de que desaparezca de
+  // `hallazgos()` para recolocar el foco — ver eliminarHallazgo().
+  private readonly hallazgoEliminado = signal<number | null>(null);
+
   constructor() {
+    effect(() => {
+      const id = this.hallazgoEliminado();
+      if (id === null || this.hallazgos().some((hallazgo) => hallazgo.id === id)) return;
+      this.hallazgoEliminado.set(null);
+      this.enfocar('#anadir-hallazgo, [formcontrolname="severidad"]');
+    });
+
     // Rellena el formulario superior en cuanto llega el primer valor real
     // del resultado (liveQuery es asíncrono): solo la primera vez, para no
     // pisar lo que el usuario esté escribiendo si el resultado se
@@ -211,21 +294,70 @@ export class CriterioRevision {
     effect(() => {
       const resultado = this.resultado();
       if (resultado && !this.resultadoFormularioInicializado) {
-        this.formularioResultado.patchValue({ estado: resultado.estado });
+        // Al volver de elegir una redacción en la biblioteca el hallazgo
+        // solo tiene sentido con "Falla", aunque todavía no se hubiera
+        // guardado ese estado antes de salir.
+        this.formularioResultado.patchValue({
+          estado: this.plantillaIdDesdeQuery === undefined ? resultado.estado : 'falla',
+        });
         this.resultadoFormularioInicializado = true;
       }
     });
 
     // Si se llega desde el enlace "Editar" de un hallazgo concreto en
     // pagina-checklist (?hallazgo=ID), lo abre en modo edición en cuanto
-    // aparece en la lista reactiva.
+    // aparece en la lista reactiva. Con ?plantilla=ID lo abre el effect de
+    // abajo, que además tiene que aplicar la plantilla después de abrirlo.
     effect(() => {
+      if (this.plantillaIdDesdeQuery !== undefined) return;
       if (this.hallazgoDesdeQueryAbierto || this.hallazgoIdDesdeQuery === undefined) return;
       const hallazgo = this.hallazgos().find((h) => h.id === this.hallazgoIdDesdeQuery);
       if (hallazgo) {
         this.empezarEditarHallazgo(hallazgo);
         this.hallazgoDesdeQueryAbierto = true;
       }
+    });
+
+    if (this.plantillaIdDesdeQuery !== undefined) {
+      this.formularioResultado.patchValue({ estado: 'falla' });
+      void this.hallazgosPlantillaService
+        .porId(this.plantillaIdDesdeQuery)
+        .then((plantilla) => this.plantillaDesdeQuery.set(plantilla ?? null));
+    }
+
+    // Aplica la redacción elegida en /biblioteca en cuanto está cargada (y,
+    // si se volvía a un hallazgo existente, en cuanto aparece en la lista
+    // reactiva). Si la plantilla se eliminó entretanto, abre el formulario
+    // igualmente, sin rellenarlo.
+    effect(() => {
+      if (this.plantillaDesdeQueryAplicada || this.plantillaIdDesdeQuery === undefined) return;
+      const plantilla = this.plantillaDesdeQuery();
+      if (plantilla === undefined) return;
+
+      if (this.hallazgoIdDesdeQuery !== undefined) {
+        const hallazgo = this.hallazgos().find((h) => h.id === this.hallazgoIdDesdeQuery);
+        if (!hallazgo) return;
+        untracked(() => this.empezarEditarHallazgo(hallazgo));
+      } else {
+        untracked(() => this.empezarNuevoHallazgo());
+        this.formularioHallazgo.patchValue({ componenteId: this.componenteIdDesdeQuery ?? null });
+      }
+      this.plantillaDesdeQueryAplicada = true;
+
+      if (plantilla) {
+        this.usarPlantilla(plantilla);
+        this.toast.mostrar(`Redacción «${plantilla.titulo}» aplicada al hallazgo.`);
+      } else {
+        this.toast.mostrar('La redacción elegida ya no está en la biblioteca.');
+      }
+      // Se quita ?plantilla de la URL para que recargar no la vuelva a aplicar
+      // encima de lo que se haya editado después.
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { plantilla: null, componente: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     });
 
     // "Título" solo es obligatorio mientras el checkbox "guardar en
@@ -239,14 +371,37 @@ export class CriterioRevision {
     });
   }
 
+  private numeroDesdeQuery(nombre: string): number | undefined {
+    const valor = this.route.snapshot.queryParamMap.get(nombre);
+    return valor ? Number(valor) : undefined;
+  }
+
+  // "Ver en la biblioteca" abre /biblioteca en modo "elegir redacción" con lo
+  // necesario para volver aquí — ver specs/21-elegir-desde-biblioteca.md.
+  protected queryBiblioteca(): Record<string, string | number> {
+    const queryParams: Record<string, string | number> = {
+      auditoria: this.auditoriaId,
+      pagina: this.paginaId,
+      criterio: this.codigo,
+    };
+    const enEdicion = this.hallazgoEnEdicion();
+    if (typeof enEdicion === 'number') queryParams['hallazgo'] = enEdicion;
+    const componenteId = this.componenteIdHallazgoActual();
+    if (componenteId !== null) queryParams['componente'] = componenteId;
+    return queryParams;
+  }
+
   protected componenteNombre(hallazgo: Hallazgo): string | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)
+          ?.nombre;
   }
 
   protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {
-    return this.evidenciasDelResultado().filter((evidencia) => evidencia.hallazgo_id === hallazgoId);
+    return this.evidenciasDelResultado().filter(
+      (evidencia) => evidencia.hallazgo_id === hallazgoId,
+    );
   }
 
   protected empezarNuevoHallazgo(): void {
@@ -263,6 +418,11 @@ export class CriterioRevision {
       guardarEnBiblioteca: false,
       tituloPlantilla: '',
     });
+    this.instantaneaHallazgo = this.resumenHallazgo();
+    // El botón "Añadir hallazgo" desaparece al abrir el formulario: el foco
+    // pasa a su primer campo en vez de perderse en <body> — ver
+    // specs/22-informe-ux.md P2.
+    this.enfocar('[formcontrolname="severidad"]');
   }
 
   protected empezarEditarHallazgo(hallazgo: Hallazgo): void {
@@ -291,10 +451,80 @@ export class CriterioRevision {
         }),
       );
     }
+    this.instantaneaHallazgo = this.resumenHallazgo();
+    // La tarjeta (con el botón "Editar" pulsado) se sustituye por el formulario.
+    this.enfocar('[formcontrolname="severidad"]');
   }
 
+  // Antes de salir de la pantalla con un hallazgo a medio redactar se
+  // pregunta con el modal propio — ver confirmarSalidaSinGuardar y
+  // specs/22-informe-ux.md P8. "Ver en la biblioteca" no pregunta porque ya
+  // avisa por texto junto al enlace (specs/21-elegir-desde-biblioteca.md).
+  puedeSalir(destino: string): boolean | Promise<boolean> {
+    if (!this.tieneCambiosSinGuardar() || destino.startsWith('/biblioteca?')) return true;
+    return this.confirmacion.confirmar({
+      titulo: '¿Salir sin guardar el hallazgo?',
+      mensaje: 'Los cambios del hallazgo que estás redactando se perderán.',
+      textoConfirmar: 'Salir sin guardar',
+    });
+  }
+
+  // Hay un hallazgo abierto que ha cambiado desde que se abrió. Se compara
+  // con una instantánea y no con `dirty` porque añadir o quitar imágenes de
+  // evidencia no marca el formulario como modificado.
+  private tieneCambiosSinGuardar(): boolean {
+    return this.hallazgoEnEdicion() !== null && this.resumenHallazgo() !== this.instantaneaHallazgo;
+  }
+
+  // Cerrar o recargar la pestaña con un hallazgo a medio redactar: el
+  // navegador muestra su propio aviso (no se puede personalizar el texto).
+  protected avisarAntesDeCerrar(evento: BeforeUnloadEvent): void {
+    if (this.tieneCambiosSinGuardar()) evento.preventDefault();
+  }
+
+  private resumenHallazgo(): string {
+    const { evidencias, ...campos } = this.formularioHallazgo.getRawValue();
+    return JSON.stringify({
+      ...campos,
+      evidencias: evidencias.map(({ id, descripcion }) => ({ id, descripcion })),
+    });
+  }
+
+  // Cierra el formulario abierto sin guardar y devuelve el foco a lo que lo
+  // abrió: el "Editar" de esa tarjeta, o "Añadir hallazgo".
   protected cancelarHallazgo(): void {
+    const enEdicion = this.hallazgoEnEdicion();
     this.hallazgoEnEdicion.set(null);
+    this.enfocar(
+      typeof enEdicion === 'number' ? `#editar-hallazgo-${enEdicion}` : '#anadir-hallazgo',
+    );
+  }
+
+  protected campoInvalido(campo: CampoHallazgoValidado): boolean {
+    const control = this.formularioHallazgo.controls[campo];
+    return control.invalid && control.touched;
+  }
+
+  protected errorHallazgo(campo: CampoHallazgoValidado): string | null {
+    return this.campoInvalido(campo) ? ERRORES_HALLAZGO[campo] : null;
+  }
+
+  // Marca los errores del hallazgo, lleva el foco al primer campo erróneo
+  // (tras pintarse, que es cuando tiene aria-invalid) y avisa de que no se
+  // ha guardado — ver specs/22-informe-ux.md P3.
+  private mostrarErroresHallazgo(): void {
+    this.formularioHallazgo.markAllAsTouched();
+    this.toast.mostrar('El hallazgo no se ha guardado: revisa los campos marcados.');
+    this.enfocar('[aria-invalid="true"]');
+  }
+
+  // Enfoca el primer elemento de esta pantalla que cumpla el selector, una
+  // vez que Angular ha pintado el cambio que lo hace aparecer.
+  private enfocar(selector: string): void {
+    afterNextRender(
+      () => this.elemento.nativeElement.querySelector<HTMLElement>(selector)?.focus(),
+      { injector: this.injector },
+    );
   }
 
   protected usarPlantilla(plantilla: HallazgoPlantilla): void {
@@ -308,9 +538,19 @@ export class CriterioRevision {
     });
   }
 
+  // "Usar esta redacción" sobre una sugerencia: al aplicarla, las sugerencias
+  // desaparecen (ver `sugerenciasVisibles`) y con ellas el botón pulsado, así
+  // que el foco se lleva a la descripción ya rellena en vez de perderse en
+  // <body>, y se anuncia el cambio.
+  protected usarSugerencia(plantilla: HallazgoPlantilla, campoNotas: HTMLTextAreaElement): void {
+    this.usarPlantilla(plantilla);
+    campoNotas.focus();
+    this.toast.mostrar(`Redacción «${plantilla.titulo}» aplicada al hallazgo.`);
+  }
+
   protected async guardarHallazgo(): Promise<void> {
     if (this.formularioHallazgo.invalid) {
-      this.formularioHallazgo.markAllAsTouched();
+      this.mostrarErroresHallazgo();
       return;
     }
     // El resultado puede no existir todavía en Dexie (p. ej. se acaba de
@@ -383,6 +623,9 @@ export class CriterioRevision {
 
     await this.guardarEvidencias(hallazgoId, idsGuardados);
     this.hallazgoEnEdicion.set(null);
+    // El formulario se cierra con el foco dentro: pasa al "Editar" de la
+    // tarjeta guardada (un hallazgo nuevo sale de la pantalla al guardar).
+    if (!esNuevo) this.enfocar(`#editar-hallazgo-${hallazgoId}`);
   }
 
   // Compara las imágenes actuales del formulario (nuevas sin id, existentes
@@ -426,6 +669,10 @@ export class CriterioRevision {
     if (this.hallazgoEnEdicion() === hallazgo.id) {
       this.hallazgoEnEdicion.set(null);
     }
+    // El foco se recoloca cuando la tarjeta desaparece de verdad de la lista
+    // reactiva (ver el effect del constructor): si se hiciera ya, el modal
+    // lo devolvería al "Eliminar" de la tarjeta justo antes de borrarla.
+    this.hallazgoEliminado.set(hallazgo.id!);
   }
 
   protected async guardarResultado(): Promise<void> {
@@ -434,22 +681,30 @@ export class CriterioRevision {
       return;
     }
 
+    // El hallazgo nuevo no tiene botón propio de guardado: "Guardar
+    // revisión" es también el único disparador para persistirlo. Si está
+    // incompleto no se guarda nada (ni la revisión): antes se guardaba
+    // "Falla" con 0 hallazgos y se anunciaba "Revisión guardada." sin
+    // ningún error — ver specs/22-informe-ux.md P3. Para no añadirlo, está
+    // "Descartar hallazgo".
+    if (this.hallazgoEnEdicion() === 'nuevo' && this.formularioHallazgo.invalid) {
+      this.mostrarErroresHallazgo();
+      return;
+    }
+
     const valores = this.formularioResultado.getRawValue();
     await this.resultadosService.guardar(Number(this.paginaId), this.codigo, valores);
     this.toast.mostrar('Revisión guardada.');
 
-    // El hallazgo nuevo no tiene botón propio de guardado: "Guardar
-    // revisión" es también el único disparador para persistirlo. Si está
-    // incompleto, guardarHallazgo() marca los campos como touched y no
-    // guarda nada, pero tampoco bloquea el guardado de la revisión.
     if (this.hallazgoEnEdicion() === 'nuevo') {
       await this.guardarHallazgo();
     }
 
-    // "Falla" se queda en la pantalla para poder añadir hallazgos justo
-    // después de guardar; el resto de estados vuelve al checklist, igual
-    // que antes de esta rebanada.
-    if (valores.estado !== 'falla') {
+    // Vuelve siempre al checklist, también en "Falla": los hallazgos ya se
+    // pueden añadir antes de guardar la revisión. Solo se queda en la
+    // pantalla si queda un hallazgo abierto sin guardar (el nuevo no pasó
+    // la validación, o hay uno existente en edición), para no perderlo.
+    if (this.hallazgoEnEdicion() === null) {
       void this.router.navigate(['/auditorias', this.auditoriaId, 'paginas', this.paginaId]);
     }
   }

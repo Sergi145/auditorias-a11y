@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { confirmarSalidaSinGuardar } from './features/auditorias/criterio-revision/confirmar-salida';
 
 // La landing ('bienvenida') es la puerta de entrada pública: vive fuera del
 // shell interno (sin drawer/nav lateral), como página propia. Todo lo demás
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'bienvenida' },
   {
     path: 'bienvenida',
+    title: 'Bienvenida',
     loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
   },
   {
@@ -22,6 +24,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'auditorias',
+        title: 'Auditorías',
         loadComponent: () =>
           import('./features/auditorias/auditorias-listado/auditorias-listado').then(
             (m) => m.AuditoriasListado,
@@ -29,6 +32,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/nueva',
+        title: 'Nueva auditoría',
         loadComponent: () =>
           import('./features/auditorias/auditoria-nueva/auditoria-nueva').then(
             (m) => m.AuditoriaNueva,
@@ -36,21 +40,30 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId/paginas/nueva',
+        title: 'Añadir página',
         loadComponent: () =>
           import('./features/auditorias/pagina-nueva/pagina-nueva').then((m) => m.PaginaNueva),
       },
       {
         path: 'auditorias/:auditoriaId/paginas/:paginaId/escaneo',
+        title: 'Escaneo automático',
         loadComponent: () =>
-          import('./features/auditorias/pagina-escaneo/pagina-escaneo').then((m) => m.PaginaEscaneo),
+          import('./features/auditorias/pagina-escaneo/pagina-escaneo').then(
+            (m) => m.PaginaEscaneo,
+          ),
       },
       {
         path: 'auditorias/:auditoriaId/paginas/:paginaId/editar',
+        title: 'Editar página',
         loadComponent: () =>
           import('./features/auditorias/pagina-nueva/pagina-nueva').then((m) => m.PaginaNueva),
       },
       {
         path: 'auditorias/:auditoriaId/paginas/:paginaId/criterios/:codigo',
+        title: (ruta) => `Revisión del criterio ${ruta.paramMap.get('codigo')}`,
+        // Pregunta antes de salir con un hallazgo a medio redactar
+        // (specs/22-informe-ux.md P8).
+        canDeactivate: [confirmarSalidaSinGuardar],
         loadComponent: () =>
           import('./features/auditorias/criterio-revision/criterio-revision').then(
             (m) => m.CriterioRevision,
@@ -58,6 +71,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId/paginas/:paginaId',
+        title: 'Checklist de la página',
         loadComponent: () =>
           import('./features/auditorias/pagina-checklist/pagina-checklist').then(
             (m) => m.PaginaChecklist,
@@ -65,6 +79,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId/progreso',
+        title: 'Progreso de la auditoría',
         loadComponent: () =>
           import('./features/auditorias/auditoria-progreso/auditoria-progreso').then(
             (m) => m.AuditoriaProgreso,
@@ -72,6 +87,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId/exportar',
+        title: 'Exportar informe',
         loadComponent: () =>
           import('./features/auditorias/auditoria-exportar/auditoria-exportar').then(
             (m) => m.AuditoriaExportar,
@@ -79,6 +95,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId/editar',
+        title: 'Editar auditoría',
         loadComponent: () =>
           import('./features/auditorias/auditoria-nueva/auditoria-nueva').then(
             (m) => m.AuditoriaNueva,
@@ -86,6 +103,7 @@ export const routes: Routes = [
       },
       {
         path: 'auditorias/:auditoriaId',
+        title: 'Detalle de la auditoría',
         loadComponent: () =>
           import('./features/auditorias/auditoria-detalle/auditoria-detalle').then(
             (m) => m.AuditoriaDetalle,
@@ -93,6 +111,7 @@ export const routes: Routes = [
       },
       {
         path: 'biblioteca',
+        title: 'Biblioteca de hallazgos',
         loadComponent: () =>
           import('./features/biblioteca-hallazgos/biblioteca-listado/biblioteca-listado').then(
             (m) => m.BibliotecaListado,
@@ -100,6 +119,7 @@ export const routes: Routes = [
       },
       {
         path: 'biblioteca/:id',
+        title: 'Plantilla de hallazgo',
         loadComponent: () =>
           import('./features/biblioteca-hallazgos/hallazgo-detalle/hallazgo-detalle').then(
             (m) => m.HallazgoDetalle,
@@ -107,6 +127,7 @@ export const routes: Routes = [
       },
       {
         path: 'componentes',
+        title: 'Catálogo de componentes',
         loadComponent: () =>
           import('./features/componentes/componentes-listado/componentes-listado').then(
             (m) => m.ComponentesListado,

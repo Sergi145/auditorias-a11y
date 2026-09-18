@@ -4,6 +4,15 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 // es A/AA de WCAG 2.2) — mismo criterio que specs/14-panel-progreso.md.
 const ETIQUETAS_AXE = ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'];
 
+const ETIQUETAS: Record<string, string> = {
+  pasa: 'Pasa',
+  falla: 'Falla',
+  critica: 'Crítica',
+  alta: 'Alta',
+  media: 'Media',
+  baja: 'Baja',
+};
+
 // Crea una auditoría con una página desde la UI y deja al usuario en el
 // checklist de esa página — ver e2e/evidencia-hallazgo.spec.ts.
 async function crearAuditoriaConPagina(page: Page): Promise<void> {
@@ -23,10 +32,9 @@ async function crearAuditoriaConPagina(page: Page): Promise<void> {
 }
 
 // Abre el criterio indicado desde el checklist y guarda su revisión. En
-// "falla" añade un hallazgo con la severidad dada y vuelve al checklist
-// (guardarResultado() se queda en la pantalla cuando el estado es "falla" —
-// ver criterio-revision.ts); en "pasa" no hace falta, guardarResultado()
-// navega solo de vuelta al checklist.
+// "falla" añade un hallazgo con la severidad dada. En ambos estados
+// guardarResultado() navega solo de vuelta al checklist — ver
+// criterio-revision.ts.
 async function revisarCriterio(
   page: Page,
   codigo: string,
@@ -34,13 +42,18 @@ async function revisarCriterio(
 ): Promise<void> {
   const fila = page.locator('tr').filter({ has: page.locator('strong', { hasText: codigo }) });
   await fila.getByRole('link', { name: /^Revisar/ }).click();
-  await expect(page.getByRole('heading', { name: new RegExp(codigo.replace('.', '\\.')) })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: new RegExp(codigo.replace('.', '\\.')) }),
+  ).toBeVisible();
 
-  await page.getByLabel('Estado').selectOption(opciones.estado);
+  // Los desplegables muestran etiquetas legibles (specs/22-informe-ux.md P6).
+  await page.getByLabel('Estado').selectOption({ label: ETIQUETAS[opciones.estado] });
 
   if (opciones.estado === 'falla') {
     await page.getByRole('button', { name: 'Añadir hallazgo' }).click();
-    await page.getByLabel('Severidad', { exact: true }).selectOption(opciones.severidad!);
+    await page
+      .getByLabel('Severidad', { exact: true })
+      .selectOption({ label: ETIQUETAS[opciones.severidad!] });
     await page.getByLabel('Descripción del hallazgo').fill(`Hallazgo de prueba en ${codigo}.`);
   }
 
@@ -51,7 +64,6 @@ async function revisarCriterio(
     // nuevo pendiente, encadena guardarHallazgo(), que sustituye el toast
     // por "Hallazgo añadido." — es ese el que queda visible al terminar.
     await expect(page.getByText('Hallazgo añadido.')).toBeVisible();
-    await page.getByRole('link', { name: 'Volver al checklist' }).click();
   } else {
     await expect(page.getByText('Revisión guardada.')).toBeVisible();
   }
@@ -110,7 +122,9 @@ test('el panel de progreso desglosa los criterios por estado, severidad y princi
   await expect(cifraDistribucion(page, 'Falla')).toHaveText('2 criterios');
   await expect(cifraDistribucion(page, 'Pasa')).toHaveText('1 criterios');
   await expect(cifraDistribucion(page, 'No aplica')).toHaveText('0 criterios');
-  await expect(cifraDistribucion(page, 'Por revisar')).toHaveText(`${totalCriterios - 3} criterios`);
+  await expect(cifraDistribucion(page, 'Por revisar')).toHaveText(
+    `${totalCriterios - 3} criterios`,
+  );
 
   await expect(cifraSeveridad(page, 'Crítica')).toHaveText('1');
   await expect(cifraSeveridad(page, 'Alta')).toHaveText('1');
@@ -134,7 +148,9 @@ test('el panel de progreso desglosa los criterios por estado, severidad y princi
   expect(resultado.violations).toEqual([]);
 });
 
-test('una auditoría sin páginas muestra el panel con los cinco bloques a cero', async ({ page }) => {
+test('una auditoría sin páginas muestra el panel con los cinco bloques a cero', async ({
+  page,
+}) => {
   await page.goto('/auditorias/nueva');
   await page.getByLabel('Nombre de la auditoría').fill('Auditoría vacía');
   await page.getByLabel('Cliente').fill('Cliente de prueba');

@@ -214,3 +214,17 @@ array en memoria en `MockDataService` a las tablas reales `auditorias` y
   `window.confirm()` es la única salvaguarda; si en el futuro se detecta
   que es insuficiente, es motivo para la spec futura del diálogo modal
   propio mencionada arriba.
+
+## Arreglos pendientes (detectados en la spec 22)
+
+Ver [22-informe-ux.md](./22-informe-ux.md). Al arreglarlo, quitar el
+`test.fixme` de `Recorrido 5 — persistencia` en `e2e/recorridos-usuario.spec.ts`.
+
+- [x] **P1 (Alta, arreglado 2026-09-18):** el desplegable «Estado de la auditoría» de
+  `auditoria-detalle` muestra «En progreso» al volver a la pantalla aunque
+  el estado guardado sea otro. `[value]` se aplicaba antes de que el `@for`
+  pintara las `<option>`; ahora cada opción lleva `[selected]` según
+  `auditoria.estado`.
+- [x] **P7 (Baja, arreglado 2026-09-18):** crear una auditoría o una página
+  no se anunciaba (editar sí). Ahora se anuncia «Auditoría creada.» y
+  «Página añadida.».

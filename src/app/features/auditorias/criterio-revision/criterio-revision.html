@@ -4,12 +4,16 @@
     Volver al checklist
   </a>
 
-  <h1 class="text-2xl font-semibold text-slate-900">{{ criterio.codigo }} · {{ criterio.nombre }}</h1>
+  <h1 class="text-2xl font-semibold text-slate-900">
+    {{ criterio.codigo }} · {{ criterio.nombre }}
+  </h1>
   <p class="subtitulo">Nivel {{ criterio.nivel }} · {{ criterio.categoria }}</p>
   <p>{{ criterio.descripcion }}</p>
   <ul aria-label="Técnicas relacionadas" class="m-0 flex list-none flex-wrap gap-2 p-0">
     @for (tecnica of criterio.tecnicas; track tecnica) {
-      <li><app-chip>{{ tecnica }}</app-chip></li>
+      <li>
+        <app-chip>{{ tecnica }}</app-chip>
+      </li>
     }
   </ul>
 
@@ -36,7 +40,7 @@
           formControlName="estado"
         >
           @for (estado of estados; track estado) {
-            <option [ngValue]="estado">{{ estado }}</option>
+            <option [ngValue]="estado">{{ etiquetaEstado[estado] }}</option>
           }
         </select>
       </app-form-field>
@@ -52,21 +56,29 @@
               <li>
                 @if (hallazgoEnEdicion() === hallazgo.id) {
                   <article appCard [formGroup]="formularioHallazgo">
-                    <app-form-field label="Severidad" #campoSeveridadEditar="appFormField">
+                    <app-form-field
+                      label="Severidad"
+                      #campoSeveridadEditar="appFormField"
+                      [error]="errorHallazgo('severidad')"
+                    >
                       <select
                         appSelect
                         [id]="campoSeveridadEditar.id"
                         [attr.aria-describedby]="campoSeveridadEditar.describedBy"
+                        [attr.aria-invalid]="campoInvalido('severidad')"
                         formControlName="severidad"
                       >
                         <option [ngValue]="null">Selecciona una severidad…</option>
                         @for (severidad of severidades; track severidad) {
-                          <option [ngValue]="severidad">{{ severidad }}</option>
+                          <option [ngValue]="severidad">{{ etiquetaSeveridad[severidad] }}</option>
                         }
                       </select>
                     </app-form-field>
 
-                    <app-form-field label="Componente afectado" #campoComponenteEditar="appFormField">
+                    <app-form-field
+                      label="Componente afectado"
+                      #campoComponenteEditar="appFormField"
+                    >
                       <select
                         appSelect
                         [id]="campoComponenteEditar.id"
@@ -80,29 +92,58 @@
                       </select>
                     </app-form-field>
 
-                    @if (hallazgosSugeridos().length > 0) {
-                      <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
-                      @for (plantilla of hallazgosSugeridos(); track plantilla.id) {
+                    @if (sugerenciasVisibles().length > 0) {
+                      <p class="text-sm font-medium text-slate-700">
+                        Hallazgos sugeridos de la biblioteca
+                      </p>
+                      @for (plantilla of sugerenciasVisibles(); track plantilla.id) {
                         <article appCard class="mb-3">
-                          <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
+                          <h4 class="text-sm font-semibold text-slate-900">
+                            {{ plantilla.titulo }}
+                          </h4>
                           <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
                           <div class="mt-3 flex gap-2">
-                            <button appButton variant="text" type="button" (click)="usarPlantilla(plantilla)">
+                            <button
+                              appButton
+                              variant="text"
+                              type="button"
+                              (click)="usarSugerencia(plantilla, notasEditar)"
+                            >
                               Usar esta redacción
                             </button>
-                            <a appButton variant="text" [routerLink]="['/biblioteca', plantilla.id]">
-                              Ver en la biblioteca
-                            </a>
                           </div>
                         </article>
                       }
                     }
 
-                    <app-form-field label="Descripción del hallazgo" #campoNotasEditar="appFormField">
+                    <div class="mb-3">
+                      <a
+                        appButton
+                        variant="text"
+                        routerLink="/biblioteca"
+                        [queryParams]="queryBiblioteca()"
+                        aria-describedby="aviso-biblioteca-editar"
+                      >
+                        <app-icon name="book" />
+                        Ver en la biblioteca
+                      </a>
+                      <p id="aviso-biblioteca-editar" class="m-0 text-sm text-slate-600">
+                        Elige cualquier redacción de la biblioteca. Los cambios sin guardar de este
+                        hallazgo se perderán.
+                      </p>
+                    </div>
+
+                    <app-form-field
+                      label="Descripción del hallazgo"
+                      #campoNotasEditar="appFormField"
+                      [error]="errorHallazgo('notas')"
+                    >
                       <textarea
                         appInput
                         [id]="campoNotasEditar.id"
                         [attr.aria-describedby]="campoNotasEditar.describedBy"
+                        [attr.aria-invalid]="campoInvalido('notas')"
+                        #notasEditar
                         formControlName="notas"
                         rows="4"
                       ></textarea>
@@ -124,35 +165,47 @@
                       <button appButton variant="text" type="button" (click)="cancelarHallazgo()">
                         Cancelar
                       </button>
-                      <button appButton type="button" (click)="guardarHallazgo()">Guardar hallazgo</button>
+                      <button appButton type="button" (click)="guardarHallazgo()">
+                        Guardar hallazgo
+                      </button>
                     </div>
                   </article>
                 } @else {
                   <article appCard class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p class="m-0 text-sm font-semibold text-slate-900">
-                        {{ hallazgo.severidad }}
+                        {{ etiquetaSeveridad[hallazgo.severidad] }}
                         @if (componenteNombre(hallazgo); as nombreComponente) {
                           · {{ nombreComponente }}
                         }
                       </p>
                       <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
                       @if (hallazgo.solucion) {
-                        <p class="m-0 text-sm text-slate-600"><strong>Solución:</strong> {{ hallazgo.solucion }}</p>
+                        <p class="m-0 text-sm text-slate-600">
+                          <strong>Solución:</strong> {{ hallazgo.solucion }}
+                        </p>
                       }
-                      <app-evidencias-miniaturas [evidencias]="evidenciasDeHallazgo(hallazgo.id!)" />
+                      <app-evidencias-miniaturas
+                        [evidencias]="evidenciasDeHallazgo(hallazgo.id!)"
+                      />
                     </div>
                     <div class="flex shrink-0 gap-2">
                       <button
                         appButton
                         variant="text"
                         type="button"
+                        [id]="'editar-hallazgo-' + hallazgo.id"
                         (click)="empezarEditarHallazgo(hallazgo)"
                       >
                         <app-icon name="edit" />
                         Editar
                       </button>
-                      <button appButton variant="text" type="button" (click)="eliminarHallazgo(hallazgo)">
+                      <button
+                        appButton
+                        variant="text"
+                        type="button"
+                        (click)="eliminarHallazgo(hallazgo)"
+                      >
                         <app-icon name="delete" />
                         Eliminar
                       </button>
@@ -168,16 +221,21 @@
           <article appCard class="mb-3" [formGroup]="formularioHallazgo">
             <h3 class="text-base font-semibold text-slate-900">Nuevo hallazgo</h3>
 
-            <app-form-field label="Severidad" #campoSeveridadNuevo="appFormField">
+            <app-form-field
+              label="Severidad"
+              #campoSeveridadNuevo="appFormField"
+              [error]="errorHallazgo('severidad')"
+            >
               <select
                 appSelect
                 [id]="campoSeveridadNuevo.id"
                 [attr.aria-describedby]="campoSeveridadNuevo.describedBy"
+                [attr.aria-invalid]="campoInvalido('severidad')"
                 formControlName="severidad"
               >
                 <option [ngValue]="null">Selecciona una severidad…</option>
                 @for (severidad of severidades; track severidad) {
-                  <option [ngValue]="severidad">{{ severidad }}</option>
+                  <option [ngValue]="severidad">{{ etiquetaSeveridad[severidad] }}</option>
                 }
               </select>
             </app-form-field>
@@ -196,31 +254,55 @@
               </select>
             </app-form-field>
 
-            @if (hallazgosSugeridos().length > 0) {
+            @if (sugerenciasVisibles().length > 0) {
               <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
-              @for (plantilla of hallazgosSugeridos(); track plantilla.id) {
+              @for (plantilla of sugerenciasVisibles(); track plantilla.id) {
                 <article appCard class="mb-3">
                   <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
                   <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
                   <div class="mt-3 flex gap-2">
-                    <button appButton variant="text" type="button" (click)="usarPlantilla(plantilla)">
+                    <button
+                      appButton
+                      variant="text"
+                      type="button"
+                      (click)="usarSugerencia(plantilla, notasNuevo)"
+                    >
                       Usar esta redacción
                     </button>
-                    <a appButton variant="text" [routerLink]="['/biblioteca', plantilla.id]">
-                      Ver en la biblioteca
-                    </a>
                   </div>
                 </article>
               }
             }
 
+            <div class="mb-3">
+              <a
+                appButton
+                variant="text"
+                routerLink="/biblioteca"
+                [queryParams]="queryBiblioteca()"
+                aria-describedby="aviso-biblioteca-nuevo"
+              >
+                <app-icon name="book" />
+                Ver en la biblioteca
+              </a>
+              <p id="aviso-biblioteca-nuevo" class="m-0 text-sm text-slate-600">
+                Elige cualquier redacción de la biblioteca. Los cambios sin guardar de este hallazgo
+                se perderán.
+              </p>
+            </div>
+
             @if (muestraGuardarEnBiblioteca()) {
-              <app-form-field label="Título" #campoTituloPlantilla="appFormField">
+              <app-form-field
+                label="Título"
+                #campoTituloPlantilla="appFormField"
+                [error]="errorHallazgo('tituloPlantilla')"
+              >
                 <input
                   appInput
                   type="text"
                   [id]="campoTituloPlantilla.id"
                   [attr.aria-describedby]="campoTituloPlantilla.describedBy"
+                  [attr.aria-invalid]="campoInvalido('tituloPlantilla')"
                   formControlName="tituloPlantilla"
                   (keydown.enter)="$event.preventDefault()"
                   [required]="muestraTituloPlantilla()"
@@ -228,11 +310,17 @@
               </app-form-field>
             }
 
-            <app-form-field label="Descripción del hallazgo" #campoNotasNuevo="appFormField">
+            <app-form-field
+              label="Descripción del hallazgo"
+              #campoNotasNuevo="appFormField"
+              [error]="errorHallazgo('notas')"
+            >
               <textarea
                 appInput
                 [id]="campoNotasNuevo.id"
                 [attr.aria-describedby]="campoNotasNuevo.describedBy"
+                [attr.aria-invalid]="campoInvalido('notas')"
+                #notasNuevo
                 formControlName="notas"
                 rows="4"
               ></textarea>
@@ -263,9 +351,21 @@
                 </label>
               </div>
             }
+
+            <div class="formulario__acciones">
+              <button appButton variant="text" type="button" (click)="cancelarHallazgo()">
+                Descartar hallazgo
+              </button>
+            </div>
           </article>
         } @else {
-          <button appButton variant="text" type="button" (click)="empezarNuevoHallazgo()">
+          <button
+            appButton
+            variant="text"
+            type="button"
+            id="anadir-hallazgo"
+            (click)="empezarNuevoHallazgo()"
+          >
             <app-icon name="add" />
             Añadir hallazgo
           </button>
@@ -274,7 +374,9 @@
     }
 
     <div class="formulario__acciones">
-      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]">Cancelar</a>
+      <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId, 'paginas', paginaId]"
+        >Cancelar</a
+      >
       <button appButton type="submit">Guardar revisión</button>
     </div>
   </form>

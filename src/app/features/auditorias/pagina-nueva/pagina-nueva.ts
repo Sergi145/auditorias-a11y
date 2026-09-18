@@ -69,6 +69,8 @@ export class PaginaNueva {
       auditoria_id: this.auditoriaId,
       ...this.formulario.getRawValue(),
     });
+    // Crear también se anuncia, igual que editar — ver specs/22-informe-ux.md P7.
+    this.toast.mostrar('Página añadida.');
     void this.router.navigate(['/auditorias', this.auditoriaId]);
   }
 }

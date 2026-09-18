@@ -79,3 +79,11 @@ constantes en cada rebanada siguiente.
 - Un escaneo de axe (manual, con la extensión de navegador, ya que
   axe-core aún no está integrado en la app) sobre la shell vacía no
   devuelve errores críticos.
+
+## Arreglo posterior (detectado en la spec 22)
+
+- *2026-09-18, informe de la spec 22, P5 (WCAG 2.4.2):* el título de la
+  pestaña era siempre «Auditorías A11y». Cada ruta de `app.routes.ts` tiene
+  ahora su `title` y `TituloPagina` (`src/app/core/titulo-pagina.ts`, una
+  `TitleStrategy`) le añade «· Auditorías A11y»; la revisión de criterio
+  incluye el código («Revisión del criterio 1.1.1»).

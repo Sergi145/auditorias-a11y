@@ -79,6 +79,8 @@ export class AuditoriaNueva {
       ...this.formulario.getRawValue(),
       estado: 'en_progreso',
     });
+    // Crear también se anuncia, igual que editar — ver specs/22-informe-ux.md P7.
+    this.toast.mostrar('Auditoría creada.');
     void this.router.navigate(['/auditorias', id]);
   }
 

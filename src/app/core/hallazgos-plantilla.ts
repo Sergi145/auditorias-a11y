@@ -34,6 +34,13 @@ export class HallazgosPlantillaService {
     );
   }
 
+  // Lectura puntual (no reactiva) de una plantilla: la usa criterio-revision
+  // al volver de elegir una redacción en /biblioteca (?plantilla=ID) — ver
+  // specs/21-elegir-desde-biblioteca.md.
+  porId(id: number): Promise<HallazgoPlantilla | undefined> {
+    return this.database.db.hallazgosPlantilla.get(id);
+  }
+
   async crear(datos: Omit<HallazgoPlantilla, 'id' | 'veces_usado' | 'fecha_creacion'>): Promise<number> {
     const id = await this.database.db.hallazgosPlantilla.add({
       ...datos,

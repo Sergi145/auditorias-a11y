@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
@@ -30,6 +30,8 @@ export class BibliotecaListado {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly toast = inject(ToastService);
   private readonly confirmacion = inject(ConfirmacionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly criterios: CriterioWCAG[] = this.criteriosWcag.todos();
 
@@ -41,7 +43,22 @@ export class BibliotecaListado {
     initialValue: [] as HallazgoPlantilla[],
   });
 
-  protected readonly filtroCriterio = signal<string | 'todos'>('todos');
+  // Modo "elegir redacción" — ver specs/21-elegir-desde-biblioteca.md: se
+  // llega desde "Ver en la biblioteca" de criterio-revision con
+  // ?auditoria=&pagina=&criterio= (y ?hallazgo= si se estaba editando uno
+  // existente, ?componente= si ya había uno elegido). Cada tarjeta ofrece
+  // entonces "Usar esta redacción", que vuelve a ese criterio con
+  // ?plantilla=ID para rellenar el formulario de hallazgo.
+  private readonly query = this.route.snapshot.queryParamMap;
+  protected readonly seleccion = this.leerSeleccion();
+
+  protected readonly etiquetaCriterio = this.seleccion ? this.describirCriterio(this.seleccion.criterio) : '';
+
+  // En modo selección se parte filtrado por el criterio que se está
+  // revisando (no por componente, para ver también las redacciones que
+  // las sugerencias automáticas no ofrecen); el filtro se puede cambiar a
+  // "Todos" para elegir cualquier entrada de la biblioteca.
+  protected readonly filtroCriterio = signal<string | 'todos'>(this.seleccion?.criterio ?? 'todos');
   protected readonly filtroComponente = signal<number | 'todos'>('todos');
 
   protected readonly hallazgosFiltrados = computed(() =>
@@ -55,6 +72,45 @@ export class BibliotecaListado {
       return true;
     }),
   );
+
+  private leerSeleccion():
+    | { auditoria: string; pagina: string; criterio: string; hallazgo?: string; componente?: string }
+    | undefined {
+    const auditoria = this.query.get('auditoria');
+    const pagina = this.query.get('pagina');
+    const criterio = this.query.get('criterio');
+    if (!auditoria || !pagina || !criterio) return undefined;
+    return {
+      auditoria,
+      pagina,
+      criterio,
+      hallazgo: this.query.get('hallazgo') ?? undefined,
+      componente: this.query.get('componente') ?? undefined,
+    };
+  }
+
+  private describirCriterio(codigo: string): string {
+    const criterio = this.criteriosWcag.porCodigo(codigo);
+    return criterio ? `${codigo} · ${criterio.nombre}` : codigo;
+  }
+
+  protected rutaCriterio(): string[] {
+    const seleccion = this.seleccion!;
+    return ['/auditorias', seleccion.auditoria, 'paginas', seleccion.pagina, 'criterios', seleccion.criterio];
+  }
+
+  // Parámetros de vuelta sin elegir nada: se conserva ?hallazgo= para
+  // reabrir en edición el hallazgo del que se partió.
+  protected queryVolver(): Record<string, string> {
+    return this.seleccion?.hallazgo ? { hallazgo: this.seleccion.hallazgo } : {};
+  }
+
+  protected usar(hallazgo: HallazgoPlantilla): void {
+    const seleccion = this.seleccion!;
+    const queryParams: Record<string, string | number> = { ...this.queryVolver(), plantilla: hallazgo.id! };
+    if (seleccion.componente) queryParams['componente'] = seleccion.componente;
+    void this.router.navigate(this.rutaCriterio(), { queryParams });
+  }
 
   protected componenteDe(id: number | undefined): Componente | undefined {
     return id === undefined ? undefined : this.componentes().find((componente) => componente.id === id);
