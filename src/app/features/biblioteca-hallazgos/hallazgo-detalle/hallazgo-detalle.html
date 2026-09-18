@@ -52,7 +52,7 @@
         formControlName="severidad_tipica"
       >
         @for (severidad of severidades; track severidad) {
-          <option [ngValue]="severidad">{{ severidad }}</option>
+          <option [ngValue]="severidad">{{ etiquetaSeveridad[severidad] }}</option>
         }
       </select>
     </app-form-field>

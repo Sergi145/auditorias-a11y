@@ -63,6 +63,13 @@ describe('HallazgosPlantillaService', () => {
     expect(todas[0].titulo).toBe('Título editado');
   });
 
+  it('porId devuelve la plantilla pedida, o undefined si no existe', async () => {
+    const id = await service.crear(datosBase);
+
+    expect((await service.porId(id))?.titulo).toBe(datosBase.titulo);
+    expect(await service.porId(id + 1000)).toBeUndefined();
+  });
+
   it('elimina una plantilla', async () => {
     const id = await service.crear(datosBase);
     await service.eliminar(id);

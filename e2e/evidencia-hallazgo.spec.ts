@@ -26,10 +26,20 @@ async function abrirNuevoHallazgo(page: Page): Promise<void> {
   await fila.getByRole('link', { name: /^Revisar/ }).click();
   await expect(page.getByRole('heading', { name: /1\.1\.1/ })).toBeVisible();
 
-  await page.getByLabel('Estado').selectOption('falla');
+  await page.getByLabel('Estado').selectOption({ label: 'Falla' });
   await page.getByRole('button', { name: 'Añadir hallazgo' }).click();
-  await page.getByLabel('Severidad', { exact: true }).selectOption('alta');
-  await page.getByLabel('Descripción del hallazgo').fill('El botón de búsqueda no tiene alternativa textual.');
+  await page.getByLabel('Severidad', { exact: true }).selectOption({ label: 'Alta' });
+  await page
+    .getByLabel('Descripción del hallazgo')
+    .fill('El botón de búsqueda no tiene alternativa textual.');
+}
+
+// "Guardar revisión" vuelve al checklist también en "Falla": reabre el
+// criterio 1.1.1 desde ahí para ver sus hallazgos guardados.
+async function reabrirCriterio(page: Page): Promise<void> {
+  const fila = page.locator('tr').filter({ has: page.locator('strong', { hasText: '1.1.1' }) });
+  await fila.getByRole('link', { name: /^Revisar/ }).click();
+  await expect(page.getByRole('heading', { name: /1\.1\.1/ })).toBeVisible();
 }
 
 test('crear un hallazgo con una imagen y su descripción la muestra como miniatura en la tarjeta', async ({
@@ -47,6 +57,7 @@ test('crear un hallazgo con una imagen y su descripción la muestra como miniatu
   await page.getByRole('button', { name: 'Guardar revisión' }).click();
 
   await expect(page.getByText('Hallazgo añadido.')).toBeVisible();
+  await reabrirCriterio(page);
   const imagen = page.getByRole('img', { name: 'Botón de búsqueda sin texto alternativo' });
   await expect(imagen).toBeVisible();
   const enlace = page.locator('a').filter({ has: imagen });
@@ -65,7 +76,7 @@ test('la miniatura del hallazgo también se ve al expandir su fila en el checkli
   await page.getByRole('button', { name: 'Guardar revisión' }).click();
   await expect(page.getByText('Hallazgo añadido.')).toBeVisible();
 
-  await page.getByRole('link', { name: 'Volver al checklist' }).click();
+  // "Guardar revisión" ya deja al usuario en el checklist.
   const fila = page.locator('tr').filter({ has: page.locator('strong', { hasText: '1.1.1' }) });
   await fila.getByRole('button', { name: /hallazgos de 1\.1\.1/ }).click();
 
@@ -76,7 +87,9 @@ test('la miniatura del hallazgo también se ve al expandir su fila en el checkli
   );
 });
 
-test('guardar sin describir una imagen muestra el error y no crea el hallazgo', async ({ page }) => {
+test('guardar sin describir una imagen muestra el error y no crea el hallazgo', async ({
+  page,
+}) => {
   await abrirNuevoHallazgo(page);
 
   await page.locator('input[type="file"]').setInputFiles(IMAGEN_VALIDA);
@@ -87,7 +100,9 @@ test('guardar sin describir una imagen muestra el error y no crea el hallazgo', 
   await expect(page.getByRole('heading', { name: 'Nuevo hallazgo' })).toBeVisible();
 });
 
-test('elegir un archivo que no es una imagen admitida lo rechaza con su motivo', async ({ page }) => {
+test('elegir un archivo que no es una imagen admitida lo rechaza con su motivo', async ({
+  page,
+}) => {
   await abrirNuevoHallazgo(page);
 
   await page.locator('input[type="file"]').setInputFiles(ARCHIVO_NO_VALIDO);
@@ -101,6 +116,8 @@ test('editar un hallazgo, quitar su imagen y guardar la deja sin miniaturas', as
   await page.locator('input[type="file"]').setInputFiles(IMAGEN_VALIDA);
   await page.getByLabel('Descripción de la imagen (texto alternativo)').fill('Icono sin describir');
   await page.getByRole('button', { name: 'Guardar revisión' }).click();
+  await expect(page.getByText('Hallazgo añadido.')).toBeVisible();
+  await reabrirCriterio(page);
   await expect(page.getByRole('img', { name: 'Icono sin describir' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Editar' }).click();

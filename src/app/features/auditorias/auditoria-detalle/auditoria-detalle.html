@@ -34,9 +34,12 @@
   </div>
 
   <app-form-field label="Estado de la auditoría" class="mb-8 max-w-full sm:max-w-[240px]" #campoEstado="appFormField">
-    <select appSelect [id]="campoEstado.id" [value]="auditoria.estado" (change)="cambiarEstado($event)">
+    <!-- [selected] por opción y no [value] en el <select>: [value] se aplicaba antes
+         de que el @for pintara las <option> y el navegador se quedaba con la
+         primera ("En progreso") — ver specs/22-informe-ux.md P1. -->
+    <select appSelect [id]="campoEstado.id" (change)="cambiarEstado($event)">
       @for (estado of estados; track estado) {
-        <option [value]="estado">{{ etiquetaEstado[estado] }}</option>
+        <option [value]="estado" [selected]="estado === auditoria.estado">{{ etiquetaEstado[estado] }}</option>
       }
     </select>
   </app-form-field>

@@ -88,3 +88,9 @@ anunciando por `LiveAnnouncer`,
 pero al no haber banner visual ya no hay superposición que evitar con el
 pie de página; las referencias a `AppToastHost` y a su offset `bottom-16`
 se retiraron de esta rebanada.
+
+*Actualización (informe de la spec 22, P4):* `AppToastHost` vuelve (ver
+la nota de `specs/04-rediseno-tailwind.md`). Es `position: fixed` con
+`bottom-16`, así que queda por encima del pie sin taparlo y no cambia el
+patrón "sticky footer": no ocupa sitio en el flujo ni necesita
+`padding` en `<main>`.

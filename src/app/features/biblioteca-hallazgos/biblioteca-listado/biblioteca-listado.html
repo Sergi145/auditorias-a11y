@@ -3,6 +3,22 @@
   Redacciones de hallazgos ya usadas en auditorías anteriores, listas para reutilizar.
 </p>
 
+@if (seleccion; as seleccion) {
+  <section aria-labelledby="titulo-seleccion" appCard class="mb-4 bg-violet-50">
+    <h2 id="titulo-seleccion" class="text-base font-semibold text-slate-900">Elige una redacción</h2>
+    <p class="text-sm text-slate-700">
+      Pulsa «Usar esta redacción» en cualquier hallazgo para volver al criterio {{ etiquetaCriterio }}
+      con el formulario del hallazgo relleno.
+    </p>
+    <div class="mt-3">
+      <a appButton variant="text" [routerLink]="rutaCriterio()" [queryParams]="queryVolver()">
+        <app-icon name="arrow-back" />
+        Volver al criterio sin elegir
+      </a>
+    </div>
+  </section>
+}
+
 @if (hallazgos().length > 0) {
   <form class="mb-4">
     <fieldset class="formulario__grupo">
@@ -17,7 +33,12 @@
           >
             <option value="todos">Todos</option>
             @for (criterio of criterios; track criterio.codigo) {
-              <option [value]="criterio.codigo">{{ criterio.codigo }} · {{ criterio.nombre }}</option>
+              <!-- [selected] además de [value] en el select: el modo "elegir
+                   redacción" arranca filtrado por un criterio, y [value] se
+                   asigna antes de que existan estas opciones. -->
+              <option [value]="criterio.codigo" [selected]="criterio.codigo === filtroCriterio()">
+                {{ criterio.codigo }} · {{ criterio.nombre }}
+              </option>
             }
           </select>
         </app-form-field>
@@ -48,7 +69,7 @@
         @for (hallazgo of hallazgosFiltrados(); track hallazgo.id) {
           <li>
             <article appCard>
-              <h2 class="text-base font-semibold">
+              <h2 [id]="'titulo-plantilla-' + hallazgo.id" class="text-base font-semibold">
                 <a
                   [routerLink]="['/biblioteca', hallazgo.id]"
                   class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
@@ -69,7 +90,17 @@
                 }
               </ul>
               <p class="mt-3 text-sm text-slate-600">Usado {{ hallazgo.veces_usado }} veces</p>
-              <div class="mt-3 flex justify-end gap-2">
+              <div class="mt-3 flex flex-wrap justify-end gap-2">
+                @if (seleccion) {
+                  <button
+                    appButton
+                    type="button"
+                    [attr.aria-describedby]="'titulo-plantilla-' + hallazgo.id"
+                    (click)="usar(hallazgo)"
+                  >
+                    Usar esta redacción
+                  </button>
+                }
                 <button appButton variant="text" type="button" (click)="eliminar(hallazgo)">
                   <app-icon name="delete" />
                   Eliminar

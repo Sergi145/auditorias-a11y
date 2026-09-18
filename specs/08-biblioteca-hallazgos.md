@@ -153,6 +153,17 @@ y contar usos) y desde `/biblioteca/:id` (editar), y borrada desde
 - Pulsar "Usar esta redacción" sobre una sugerencia rellena severidad y
   notas del formulario de hallazgo con los datos de la plantilla, editables
   antes de guardar.
+- *Añadido 2026-09-18:* tras pulsar "Usar esta redacción", el bloque
+  "Hallazgos sugeridos de la biblioteca" desaparece (su descripción ya está
+  copiada en "Descripción del hallazgo" y repetirla solo duplicaba texto);
+  tampoco se muestra al editar un hallazgo que ya parte de una plantilla. El
+  foco pasa al campo "Descripción del hallazgo" (el botón pulsado deja de
+  existir) y se anuncia «Redacción «…» aplicada al hallazgo.» por
+  `ToastService`. Para cambiar de redacción queda "Ver en la biblioteca"
+  (spec 21). Cubierto en `e2e/elegir-desde-biblioteca.spec.ts`.
+- *Añadido 2026-09-18 (informe de la spec 22, P6):* el desplegable
+  «Severidad típica» de `/biblioteca/:id` muestra etiquetas legibles
+  («Crítica», no `critica`), como el resto de pantallas.
 - Guardar un hallazgo nuevo que reutiliza una plantilla sugerida incrementa
   `veces_usado` de esa plantilla en 1; editar después ese mismo hallazgo no
   lo vuelve a incrementar.

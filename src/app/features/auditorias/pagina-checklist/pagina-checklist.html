@@ -85,7 +85,7 @@
       >
         <option value="todos">Todas</option>
         @for (severidad of severidades; track severidad) {
-          <option [value]="severidad">{{ severidad }}</option>
+          <option [value]="severidad">{{ etiquetaSeveridad[severidad] }}</option>
         }
       </select>
     </app-form-field>

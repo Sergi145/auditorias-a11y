@@ -140,6 +140,14 @@ mantiene y sigue anunciando por `LiveAnnouncer`, pero ya no pinta ningún
 aviso visual — ver `specs/15-pie-de-pagina.md`, que dependía de
 `AppToastHost` para el espaciado con el pie de página.
 
+*Revertido el mismo día (informe de la spec 22, P4):* sin aviso visual,
+quien no usa lector de pantalla no recibía ninguna confirmación. Vuelve
+`AppToastHost` (`src/app/shared/ui/toast.ts`, montado en el shell), ahora
+como la propia región `role="status"` / `aria-live="polite"`: el texto
+existe una sola vez, se ve y se anuncia (ya no se usa `LiveAnnouncer`
+para los avisos). Fijo abajo y centrado (`bottom-16`, por encima del pie),
+sin controles ni `pointer-events`, y desaparece solo a los 5 s.
+
 En `pagina-checklist` (cabecera de acciones y filtros de nivel/categoría/
 estado/severidad), los botones y los `app-form-field` de filtro llevaban
 un ancho fijo (`min-w-[160px]`) que en móvil los dejaba a un tamaño

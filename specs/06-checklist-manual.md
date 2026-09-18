@@ -244,10 +244,13 @@ manual.
   `HallazgoPlantilla` (sigue mock hasta `08-biblioteca-hallazgos`), así que
   ambos campos no hacían nada real — dejarlos habría sido una interacción a
   medias.
-- **"Guardar revisión" solo navega de vuelta al checklist cuando el estado
-  guardado no es "Falla"**: en "Falla" se queda en la pantalla para poder
-  añadir hallazgos justo después de guardar, coherente con que la sección
-  de hallazgos solo se habilita una vez el resultado existe en Dexie.
+- **"Guardar revisión" navega de vuelta al checklist en cualquier estado,
+  "Falla" incluido.** (Antes se quedaba en la pantalla en "Falla" para poder
+  añadir hallazgos después de guardar; dejó de hacer falta cuando la
+  sección de hallazgos pasó a mostrarse sin que el resultado exista en
+  Dexie.) La única excepción es que quede un hallazgo abierto sin guardar
+  (el nuevo no pasa la validación o hay uno existente en edición): entonces
+  se queda para no perderlo.
 
 ## Riesgos identificados
 
@@ -265,3 +268,43 @@ manual.
 - El aviso "Adjuntar capturas estará disponible en la rebanada
   06-checklist-manual" en `criterio-revision.html` deja de ser cierto y hay
   que corregirlo para no prometer una fecha que ya no aplica.
+
+## Arreglos pendientes (detectados en la spec 22)
+
+Ver [22-informe-ux.md](./22-informe-ux.md). Al arreglarlos, quitar los
+`test.fixme` correspondientes de `e2e/recorridos-usuario.spec.ts`.
+
+- [x] **P2 (Alta, WCAG 2.4.3, arreglado 2026-09-18):** el foco cae en `<body>` en
+  `criterio-revision` al pulsar «Añadir hallazgo», al pulsar «Editar» en un
+  hallazgo, al pulsar «Guardar hallazgo» y al eliminar un hallazgo, porque
+  el elemento enfocado desaparece. Llevar el foco al primer campo del
+  formulario que se abre, a la tarjeta guardada, o al siguiente elemento
+  lógico tras eliminar. Mismo problema al pasar de la bienvenida a «Nueva
+  auditoría» (fuera del shell).
+  *Arreglo:* al abrir el formulario (nuevo o en edición) el foco va a
+  «Severidad»; al guardar o cancelar una edición, al «Editar» de esa
+  tarjeta; al descartar uno nuevo, a «Añadir hallazgo»; al eliminar, a
+  «Añadir hallazgo» en cuanto la tarjeta desaparece de la lista. En el shell,
+  el foco al contenido también se aplica a la navegación que lo crea al
+  venir de la bienvenida (antes `skip(1)` se la saltaba).
+- [x] **P3 (Alta, WCAG 3.3.1 / 4.1.3, arreglado 2026-09-18):** «Guardar revisión» con un hallazgo
+  nuevo incompleto guarda «Falla» con 0 hallazgos, anuncia «Revisión
+  guardada.» y no marca ni anuncia los errores del hallazgo. Debe validar
+  el hallazgo antes de guardar, marcar los campos (`aria-invalid` + mensaje
+  visible), llevar el foco al primero y no anunciar que se ha guardado.
+  *Arreglo:* con un hallazgo nuevo incompleto, «Guardar revisión» no guarda
+  nada; Severidad, Descripción y Título (si se guarda en la biblioteca)
+  muestran su error con `aria-invalid`, el foco va al primero y se anuncia
+  «El hallazgo no se ha guardado: revisa los campos marcados.». Nuevo botón
+  «Descartar hallazgo» para cerrar el formulario sin guardar.
+- [x] **P6 (Media, arreglado 2026-09-18):** los desplegables Estado y
+  Severidad de `criterio-revision`, la tarjeta del hallazgo y el filtro de
+  severidad del checklist mostraban el valor interno (`no_aplica`,
+  `critica`). Ahora usan las mismas etiquetas que el resto de pantallas.
+- [x] **P8 (Media, arreglado 2026-09-18):** salir de `criterio-revision` con
+  un hallazgo a medio redactar no avisaba. Ahora un `canDeactivate`
+  (`confirmarSalidaSinGuardar`) pregunta con el modal propio («¿Salir sin
+  guardar el hallazgo?») si el formulario abierto ha cambiado desde que se
+  abrió (incluidas las imágenes de evidencia), y cerrar o recargar la
+  pestaña muestra el aviso del navegador. «Ver en la biblioteca» no
+  pregunta porque ya avisa por texto (spec 21).
