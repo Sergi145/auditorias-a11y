@@ -7,14 +7,13 @@ import { AppButton } from '../ui/button';
 import { AppDrawer } from '../ui/drawer';
 import { AppFooter } from '../ui/footer';
 import { AppIcon } from '../ui/icon';
-import { AppToastHost } from '../ui/toast-host';
 
 // Shell de navegación — top bar + drawer lateral, ver
 // specs/04-rediseno-tailwind.md. Sustituye el shell M3 de
 // specs/02-maqueta-m3.md.
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, AppButton, AppDrawer, AppFooter, AppIcon, AppToastHost],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, AppButton, AppDrawer, AppFooter, AppIcon],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })

@@ -1,6 +1,6 @@
 import { Directive, computed, input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'icon';
+export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'icon' | 'danger' | 'info' | 'accent';
 
 // aria-disabled (además de disabled): un botón que se deshabilita
 // mientras conserva el foco (p. ej. el estado "Generando…" de
@@ -10,11 +10,21 @@ export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'icon';
 const BASE =
   'inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
+// danger/info/accent: mismo tratamiento "secondary" (borde + texto, sin
+// relleno) con un color semántico en vez de slate — para acciones que
+// conviene diferenciar visualmente (editar, eliminar, escanear) sin
+// llegar a variant="primary". Los tonos -700 se eligen porque dan
+// contraste >= 4.5:1 sobre blanco (texto) y >= 3:1 (borde), igual que
+// --severidad-critica en styles.css usa el mismo rojo (#b91c1c) para el
+// mismo motivo — ver nota de revisión en specs/04-rediseno-tailwind.md.
 const VARIANTES: Record<ButtonVariant, string> = {
   primary: `${BASE} px-5 py-2.5 bg-violet-700 text-white hover:bg-violet-800`,
   secondary: `${BASE} px-5 py-2.5 border border-slate-400 text-slate-800 hover:bg-slate-100`,
   text: `${BASE} px-3 py-2 text-violet-700 hover:bg-violet-50`,
   icon: `${BASE} h-10 w-10 text-slate-700 hover:bg-slate-100`,
+  danger: `${BASE} px-5 py-2.5 border border-red-700 text-red-700 hover:bg-red-50`,
+  info: `${BASE} px-5 py-2.5 border border-blue-700 text-blue-700 hover:bg-blue-50`,
+  accent: `${BASE} px-5 py-2.5 border border-violet-700 text-violet-700 hover:bg-violet-50`,
 };
 
 // Directiva de clases sobre <button>/<a> nativos — ver

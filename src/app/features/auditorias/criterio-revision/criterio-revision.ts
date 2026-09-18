@@ -20,6 +20,7 @@ import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
 import { AppChip } from '../../../shared/ui/chip';
+import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppInput, AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
@@ -66,6 +67,7 @@ export class CriterioRevision {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly confirmacion = inject(ConfirmacionService);
 
   protected readonly estados = ESTADOS;
   protected readonly severidades = SEVERIDADES;
@@ -409,7 +411,11 @@ export class CriterioRevision {
   }
 
   protected async eliminarHallazgo(hallazgo: Hallazgo): Promise<void> {
-    const confirmado = window.confirm('¿Eliminar este hallazgo? Esta acción no se puede deshacer.');
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar el hallazgo?',
+      mensaje: 'Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar hallazgo',
+    });
     if (!confirmado) return;
 
     // Las URL de objeto de sus miniaturas las revoca el propio

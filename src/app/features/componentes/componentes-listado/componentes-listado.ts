@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ComponentesService } from '../../../core/componentes';
@@ -6,6 +6,7 @@ import type { Componente } from '../../../core/models';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
 import { AppChip } from '../../../shared/ui/chip';
+import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppInput } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
@@ -24,6 +25,7 @@ export class ComponentesListado {
   private readonly componentesService = inject(ComponentesService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly confirmacion = inject(ConfirmacionService);
 
   private readonly todos = toSignal(this.componentesService.todos$(), { initialValue: [] as Componente[] });
 
@@ -37,6 +39,9 @@ export class ComponentesListado {
   protected readonly formularioNuevo = this.fb.nonNullable.group({
     nombre: ['', Validators.required],
   });
+  // Foco al input al enviar vacío — mismo patrón que
+  // enfocarPrimerCampoInvalido() en auditoria-nueva.ts.
+  private readonly inputNuevoComponente = viewChild<ElementRef<HTMLInputElement>>('inputNuevoComponente');
 
   protected readonly componenteEnEdicion = signal<number | null>(null);
   protected readonly formularioRenombrar = this.fb.nonNullable.group({
@@ -46,6 +51,7 @@ export class ComponentesListado {
   protected async anadirComponente(): Promise<void> {
     if (this.formularioNuevo.invalid) {
       this.formularioNuevo.markAllAsTouched();
+      this.inputNuevoComponente()?.nativeElement.focus();
       return;
     }
     await this.componentesService.crear(this.formularioNuevo.getRawValue().nombre);
@@ -86,9 +92,11 @@ export class ComponentesListado {
   }
 
   protected async eliminar(componente: Componente): Promise<void> {
-    const confirmado = window.confirm(
-      `¿Eliminar "${componente.nombre}"? Esta acción no se puede deshacer.`,
-    );
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar el componente?',
+      mensaje: `«${componente.nombre}» se eliminará. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar componente',
+    });
     if (!confirmado) return;
 
     await this.componentesService.eliminar(componente.id!);

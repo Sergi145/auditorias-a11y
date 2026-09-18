@@ -8,6 +8,7 @@
     <button
       appButton
       type="button"
+      class="w-full sm:w-auto"
       [attr.aria-disabled]="generando() === 'Excel' || sinDatosExportables() ? 'true' : null"
       [attr.aria-describedby]="sinDatosExportables() ? 'aviso-sin-datos' : null"
       (click)="exportar('Excel')"
@@ -19,6 +20,7 @@
       appButton
       variant="secondary"
       type="button"
+      class="w-full sm:w-auto"
       [attr.aria-disabled]="generando() === 'PDF' || sinDatosExportables() ? 'true' : null"
       [attr.aria-describedby]="sinDatosExportables() ? 'aviso-sin-datos' : null"
       (click)="exportar('PDF')"
@@ -35,7 +37,7 @@
     </p>
   }
 
-  <a appButton variant="text" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
+  <a appButton variant="text" class="mt-4" [routerLink]="['/auditorias', auditoriaId]">Volver a la auditoría</a>
 } @else {
   <p>No se ha encontrado la auditoría.</p>
 }

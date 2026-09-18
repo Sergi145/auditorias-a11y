@@ -6,17 +6,29 @@
 </p>
 
 <form
-  class="formulario mt-4 flex max-w-[420px] flex-col items-stretch gap-3 sm:flex-row sm:items-end"
+  class="formulario mt-4 flex max-w-[420px] flex-col items-stretch gap-3 sm:flex-row sm:items-center"
   [formGroup]="formularioNuevo"
   (ngSubmit)="anadirComponente()"
 >
-  <app-form-field label="Nuevo componente" class="flex-1" #campoNuevo="appFormField">
+  <app-form-field
+    label="Nuevo componente"
+    class="flex-1"
+    #campoNuevo="appFormField"
+    [error]="
+      formularioNuevo.controls.nombre.invalid && formularioNuevo.controls.nombre.touched
+        ? 'Introduce un nombre de componente.'
+        : null
+    "
+  >
     <input
       appInput
+      #inputNuevoComponente
       type="text"
       [id]="campoNuevo.id"
       [attr.aria-describedby]="campoNuevo.describedBy"
+      [attr.aria-invalid]="formularioNuevo.controls.nombre.invalid && formularioNuevo.controls.nombre.touched"
       formControlName="nombre"
+      required
     />
   </app-form-field>
   <button appButton type="submit">
