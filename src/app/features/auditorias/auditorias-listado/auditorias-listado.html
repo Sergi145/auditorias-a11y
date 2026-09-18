@@ -18,11 +18,11 @@
   >
     @for (item of auditorias(); track item.auditoria.id) {
       <li>
-        <article appCard>
+        <article appCard class="card-enlace">
           <h2 class="text-base font-semibold">
             <a
               [routerLink]="['/auditorias', item.auditoria.id]"
-              class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
+              class="card-enlace__principal text-slate-900 hover:underline focus-visible:underline"
             >
               {{ item.auditoria.nombre }}
               <span class="sr-only">, acceder a la auditoría</span>

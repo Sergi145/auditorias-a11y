@@ -68,11 +68,11 @@
       >
         @for (hallazgo of hallazgosFiltrados(); track hallazgo.id) {
           <li>
-            <article appCard>
+            <article appCard class="card-enlace">
               <h2 [id]="'titulo-plantilla-' + hallazgo.id" class="text-base font-semibold">
                 <a
                   [routerLink]="['/biblioteca', hallazgo.id]"
-                  class="foco rounded-sm text-slate-900 hover:underline focus-visible:underline"
+                  class="card-enlace__principal text-slate-900 hover:underline focus-visible:underline"
                 >
                   {{ hallazgo.titulo }}
                 </a>
@@ -94,6 +94,7 @@
                 @if (seleccion) {
                   <button
                     appButton
+                    class="card-enlace__accion"
                     type="button"
                     [attr.aria-describedby]="'titulo-plantilla-' + hallazgo.id"
                     (click)="usar(hallazgo)"
@@ -101,7 +102,13 @@
                     Usar esta redacción
                   </button>
                 }
-                <button appButton variant="text" type="button" (click)="eliminar(hallazgo)">
+                <button
+                  appButton
+                  variant="text"
+                  class="card-enlace__accion"
+                  type="button"
+                  (click)="eliminar(hallazgo)"
+                >
                   <app-icon name="delete" />
                   Eliminar
                 </button>
