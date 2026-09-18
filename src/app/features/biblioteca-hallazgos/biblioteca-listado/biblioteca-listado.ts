@@ -8,6 +8,7 @@ import type { Componente, CriterioWCAG, HallazgoPlantilla } from '../../../core/
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
 import { AppChip } from '../../../shared/ui/chip';
+import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
@@ -16,8 +17,8 @@ import { ToastService } from '../../../shared/ui/toast';
 // Pantalla 8 de specs/02-maqueta-m3.md: listado de hallazgos reutilizables
 // de la biblioteca. Datos y gestión reales desde
 // specs/08-biblioteca-hallazgos.md: filtros por criterio/componente y
-// eliminar (mismo patrón window.confirm() que auditorías/páginas/
-// hallazgos/componentes).
+// eliminar (mismo patrón ConfirmacionService que auditorías/páginas/
+// hallazgos/componentes — specs/19-modal-confirmacion.md).
 @Component({
   selector: 'app-biblioteca-listado',
   imports: [RouterLink, AppButton, AppCard, AppChip, AppFormField, AppIcon, AppSelect],
@@ -28,6 +29,7 @@ export class BibliotecaListado {
   private readonly componentesService = inject(ComponentesService);
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly toast = inject(ToastService);
+  private readonly confirmacion = inject(ConfirmacionService);
 
   protected readonly criterios: CriterioWCAG[] = this.criteriosWcag.todos();
 
@@ -68,9 +70,11 @@ export class BibliotecaListado {
   }
 
   protected async eliminar(hallazgo: HallazgoPlantilla): Promise<void> {
-    const confirmado = window.confirm(
-      `¿Eliminar "${hallazgo.titulo}" de la biblioteca? Esta acción no se puede deshacer.`,
-    );
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar de la biblioteca?',
+      mensaje: `«${hallazgo.titulo}» se eliminará de la biblioteca. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar de la biblioteca',
+    });
     if (!confirmado) return;
 
     await this.hallazgosPlantillaService.eliminar(hallazgo.id!);

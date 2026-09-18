@@ -42,9 +42,9 @@ cambio.
 - Kit de componentes propio en `src/app/shared/ui/`: `AppIcon`,
   `appButton` (directiva), `AppFormField`, `appSelect` (directiva),
   `appCard` (directiva), `AppChip`, `AppDrawer`, `AppTabs`,
-  `AppProgressBar`, `ToastService` + `AppToastHost` (sustituye
-  `MatSnackBar`, usa `LiveAnnouncer` de CDK `a11y` para el anuncio
-  accesible además del aviso visual).
+  `AppProgressBar`, `ToastService` (sustituye `MatSnackBar`; usa
+  `LiveAnnouncer` de CDK `a11y` para el anuncio accesible — sin componente
+  visual, ver nota de revisión).
 - Iconos: ~20 SVG inline de trazo simple (outline, 24×24, `stroke`,
   estilo homogéneo) escritos a mano dentro de `AppIcon` — **no** se copian
   path data de ningún set con licencia externa (Material Symbols,
@@ -131,3 +131,42 @@ Ninguno. Cambio puramente de presentación sobre los mismos datos mock de
   devuelve errores críticos.
 - `00-producto.md §7` y `CLAUDE.md` reflejan componentes propios +
   Tailwind + CDK `a11y`, no Material.
+
+## Nota de revisión (2026-09-18)
+
+Se eliminó `AppToastHost`, el componente visual que acompañaba a
+`ToastService` (banner fijo inferior). `ToastService.mostrar()` se
+mantiene y sigue anunciando por `LiveAnnouncer`, pero ya no pinta ningún
+aviso visual — ver `specs/15-pie-de-pagina.md`, que dependía de
+`AppToastHost` para el espaciado con el pie de página.
+
+En `pagina-checklist` (cabecera de acciones y filtros de nivel/categoría/
+estado/severidad), los botones y los `app-form-field` de filtro llevaban
+un ancho fijo (`min-w-[160px]`) que en móvil los dejaba a un tamaño
+intermedio incómodo en vez de ocupar el ancho completo. Se corrige a
+`w-full sm:w-auto` (botones) y `w-full sm:w-auto sm:min-w-[160px]`
+(filtros): 100% de ancho por debajo de `sm` (640px), tamaño de contenido
+a partir de ahí — mismo patrón responsive que ya usa el resto de la app,
+solo que no se había aplicado aquí.
+
+## Nota de revisión (2026-09-18) — color en los botones de `pagina-checklist` y `auditoria-detalle`
+
+Los botones de cabecera de `pagina-checklist` (Editar página, Eliminar
+página, Escanear automáticamente) y de `auditoria-detalle` (Editar,
+Eliminar) usaban todos `variant="secondary"` (borde/texto slate),
+indistinguibles entre sí salvo por el icono y el texto. Se añaden tres
+variantes nuevas a `appButton` (`src/app/shared/ui/button.ts`) con el
+mismo tratamiento visual que `secondary` (borde + texto, sin relleno)
+pero con color semántico: `danger` (rojo, botones "Eliminar"), `info`
+(azul, botones "Editar") y `accent` (violeta, "Escanear automáticamente"
+— mismo tono que `primary`/`text`, ya que el escaneo automático es la
+funcionalidad central del producto). Los botones "Progreso" y "Exportar"
+de `auditoria-detalle` se mantienen en `secondary`: no forman parte de
+este par editar/eliminar/escanear.
+
+Los tonos se fijan en `-700` (`red-700`, `blue-700`, `violet-700`) porque
+dan contraste ≥ 4.5:1 sobre blanco para el texto y ≥ 3:1 para el borde
+(WCAG 2.2 AA, criterios 1.4.3 y 1.4.11) — el mismo motivo por el que
+`--severidad-critica` en `src/styles.css` ya usa `#b91c1c` (idéntico a
+`red-700`) en vez de un rojo más claro. El icono hereda el color por
+`stroke="currentColor"` (`AppIcon`), así que no hace falta tocarlo aparte.

@@ -1,19 +1,19 @@
 @if (auditoria(); as auditoria) {
-  <a appButton variant="text" routerLink="/auditorias">
+  <a appButton variant="text" routerLink="/auditorias" class="mb-6">
     <app-icon name="arrow-back" />
     Volver a auditorías
   </a>
 
-  <div class="pantalla__cabecera">
+  <div class="pantalla__cabecera gap-6 mb-8">
     <div>
       <h1 class="text-2xl font-semibold text-slate-900">{{ auditoria.nombre }}</h1>
       <p class="subtitulo">{{ auditoria.cliente }} · {{ auditoria.url_base }}</p>
-      <ul aria-label="Metadatos de la auditoría" class="m-0 flex list-none flex-wrap gap-2 p-0">
+      <ul aria-label="Metadatos de la auditoría" class="mx-0 mb-0 mt-3 flex list-none flex-wrap gap-2 p-0">
         <li><app-chip>Nivel {{ auditoria.estandar_objetivo }}</app-chip></li>
         <li><app-chip>{{ etiquetaEstado[auditoria.estado] }}</app-chip></li>
       </ul>
     </div>
-    <div class="acciones">
+    <div class="acciones w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
       <a appButton variant="secondary" [routerLink]="['/auditorias', auditoriaId, 'progreso']">
         <app-icon name="insights" />
         Progreso
@@ -22,18 +22,18 @@
         <app-icon name="download" />
         Exportar
       </a>
-      <a appButton variant="secondary" [routerLink]="['/auditorias', auditoriaId, 'editar']">
+      <a appButton variant="info" [routerLink]="['/auditorias', auditoriaId, 'editar']">
         <app-icon name="edit" />
         Editar
       </a>
-      <button appButton variant="secondary" type="button" (click)="eliminar()">
+      <button appButton variant="danger" type="button" (click)="eliminar()">
         <app-icon name="delete" />
         Eliminar
       </button>
     </div>
   </div>
 
-  <app-form-field label="Estado de la auditoría" class="max-w-[240px]" #campoEstado="appFormField">
+  <app-form-field label="Estado de la auditoría" class="mb-8 max-w-full sm:max-w-[240px]" #campoEstado="appFormField">
     <select appSelect [id]="campoEstado.id" [value]="auditoria.estado" (change)="cambiarEstado($event)">
       @for (estado of estados; track estado) {
         <option [value]="estado">{{ etiquetaEstado[estado] }}</option>
@@ -43,7 +43,7 @@
 
   <div class="pantalla__cabecera">
     <h2 class="text-xl font-semibold text-slate-900">Páginas</h2>
-    <a appButton [routerLink]="['/auditorias', auditoriaId, 'paginas', 'nueva']">
+    <a appButton [routerLink]="['/auditorias', auditoriaId, 'paginas', 'nueva']" class="w-full sm:w-auto">
       <app-icon name="add" />
       Añadir página
     </a>
@@ -55,10 +55,11 @@
         <li>
           <a
             [routerLink]="['/auditorias', auditoriaId, 'paginas', pagina.id]"
-            class="foco block rounded-lg px-3 py-2 hover:bg-slate-100"
+            class="foco block rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 hover:bg-slate-100"
           >
+            <span class="sr-only">Ver los criterios de la auditoria</span>
             <span class="block font-medium text-slate-900">{{ pagina.nombre }}</span>
-            <span class="block text-sm text-slate-600">{{ pagina.url }}</span>
+            <span class="block text-sm text-slate-600" aria-hidden="true">{{ pagina.url }}</span>
           </a>
         </li>
       }

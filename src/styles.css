@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Posicionamiento del overlay de @angular/cdk/dialog (AppDialogoConfirmacion
+   — specs/19-modal-confirmacion.md). Sin esto el modal se pinta al final
+   del <body> sin centrar ni recortar por viewport. */
+@import '@angular/cdk/overlay-prebuilt.css';
+
 /* Ver specs/04-rediseno-tailwind.md — sustituye el tema Material Design 3
    (specs/02-maqueta-m3.md). Sin tailwind.config.js: se usa la paleta por
    defecto de Tailwind directamente en las plantillas, no había ninguna

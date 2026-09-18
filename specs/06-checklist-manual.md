@@ -57,6 +57,15 @@ manual.
 - Los hallazgos ya guardados de un criterio se conservan aunque su estado
   cambie a algo distinto de "Falla" (no se borran).
 - Un criterio se puede guardar como "Falla" sin ningún hallazgo todavía.
+- **Addendum:** el control de expandir/colapsar de `pagina-checklist` solo
+  aparece si, además de estar en "Falla", el criterio tiene al menos un
+  hallazgo guardado. Antes aparecía con cualquier "Falla" y, si no había
+  hallazgos, el collapse expandido mostraba el texto "Todavía no hay
+  hallazgos registrados para este criterio."; ese mensaje sobraba porque no
+  hay nada que expandir ni editar en ese caso — se quita el control junto
+  con el mensaje. Guardar "Falla" sin hallazgos sigue siendo válido (ver
+  punto anterior), solo cambia que no se ofrece un collapse vacío en la
+  tabla.
 
 ## Qué NO entra todavía
 
@@ -157,9 +166,10 @@ manual.
 - Añadir dos hallazgos con severidades distintas a un mismo criterio en
   "Falla" persiste ambos; recargar los mantiene.
 - La fila del criterio en el checklist muestra un control de expandir/
-  colapsar solo cuando el criterio está en "Falla"; al expandirlo se listan
-  sus hallazgos guardados (severidad, componente si tiene, inicio de la
-  nota).
+  colapsar solo cuando el criterio está en "Falla" **y** tiene al menos un
+  hallazgo guardado; al expandirlo se listan sus hallazgos (severidad,
+  componente si tiene, inicio de la nota). Un criterio en "Falla" sin
+  hallazgos todavía no muestra collapse (nada que expandir).
 - Eliminar un hallazgo desde el collapse de la tabla (con confirmación) lo
   quita de la lista y de Dexie, sin afectar a los demás hallazgos del mismo
   criterio.

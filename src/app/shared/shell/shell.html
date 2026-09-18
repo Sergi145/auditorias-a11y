@@ -1,11 +1,11 @@
 <a
   href="#contenido"
-  class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-slate-900 focus:outline focus:outline-2 focus:outline-violet-700"
+  class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded focus:bg-[#ebd3ff] focus:px-4 focus:py-2 focus:text-slate-900 focus:outline focus:outline-2 focus:outline-violet-700"
 >
   Saltar al contenido principal
 </a>
 
-<div class="flex h-full">
+<div class="flex min-h-full">
   <app-drawer
     [isHandset]="isHandset()"
     [opened]="abierto()"
@@ -97,11 +97,10 @@
       necesita su propio anillo de foco visible; los controles reales de
       cada sección sí lo mantienen.
     -->
-    <main #contenido class="mx-auto w-full max-w-[960px] flex-1 p-6 pb-16 outline-none" id="contenido" tabindex="-1">
+    <main #contenido class="mx-auto w-full max-w-[960px] flex-1 p-6 outline-none" id="contenido" tabindex="-1">
       <router-outlet />
     </main>
+
+    <app-footer />
   </div>
 </div>
-
-<app-toast-host />
-<app-footer />

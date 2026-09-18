@@ -22,6 +22,7 @@ import { ResultadosService } from '../../../core/resultados';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
 import { AppChip } from '../../../shared/ui/chip';
+import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppSelect } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon, type IconName } from '../../../shared/ui/icon';
@@ -102,6 +103,7 @@ export class PaginaChecklist {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly confirmacion = inject(ConfirmacionService);
 
   protected readonly etiquetaEstado = ETIQUETA_ESTADO;
   protected readonly iconoEstado = ICONO_ESTADO;
@@ -188,6 +190,12 @@ export class PaginaChecklist {
     return fila.resultado?.estado ?? 'por_revisar';
   }
 
+  // El collapse solo tiene sentido si hay algo que listar: una fila en
+  // "Falla" sin hallazgos todavía no ofrece control de expandir/colapsar.
+  protected tieneCollapse(fila: FilaChecklist): boolean {
+    return this.estadoDe(fila) === 'falla' && fila.hallazgos.length > 0;
+  }
+
   // Métodos en vez de indexar los Record directamente en la plantilla:
   // el control de tipos estricto de la plantilla no infiere el tipo de
   // `fila` dentro de @for sin ayuda, así que se resuelve en el componente.
@@ -268,7 +276,11 @@ export class PaginaChecklist {
   }
 
   protected async eliminarHallazgo(hallazgo: Hallazgo): Promise<void> {
-    const confirmado = window.confirm('¿Eliminar este hallazgo? Esta acción no se puede deshacer.');
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar el hallazgo?',
+      mensaje: 'Esta acción no se puede deshacer.',
+      textoConfirmar: 'Eliminar hallazgo',
+    });
     if (!confirmado) return;
 
     await this.hallazgosService.eliminar(hallazgo.id!);
@@ -293,9 +305,11 @@ export class PaginaChecklist {
 
   protected async eliminarPagina(): Promise<void> {
     const nombre = this.pagina()?.nombre ?? 'esta página';
-    const confirmado = window.confirm(
-      `¿Eliminar «${nombre}»? Esta acción no se puede deshacer.`,
-    );
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar la página?',
+      mensaje: `«${nombre}» se eliminará. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar página',
+    });
     if (!confirmado) return;
 
     await this.paginasService.eliminar(this.paginaIdNum);

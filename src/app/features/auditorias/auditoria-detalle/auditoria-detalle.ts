@@ -6,6 +6,7 @@ import type { EstadoAuditoria } from '../../../core/models';
 import { PaginasService } from '../../../core/paginas';
 import { AppButton } from '../../../shared/ui/button';
 import { AppChip } from '../../../shared/ui/chip';
+import { ConfirmacionService } from '../../../shared/ui/confirmacion';
 import { AppFormField } from '../../../shared/ui/form-field';
 import { AppIcon } from '../../../shared/ui/icon';
 import { AppSelect } from '../../../shared/ui/field-controls';
@@ -31,6 +32,7 @@ export class AuditoriaDetalle {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly confirmacion = inject(ConfirmacionService);
 
   protected readonly etiquetaEstado = ETIQUETA_ESTADO;
   protected readonly estados: EstadoAuditoria[] = ['en_progreso', 'completada', 'archivada'];
@@ -51,9 +53,11 @@ export class AuditoriaDetalle {
 
   protected async eliminar(): Promise<void> {
     const nombre = this.auditoria()?.nombre ?? 'esta auditoría';
-    const confirmado = window.confirm(
-      `¿Eliminar «${nombre}»? Se eliminarán también todas sus páginas. Esta acción no se puede deshacer.`,
-    );
+    const confirmado = await this.confirmacion.confirmar({
+      titulo: '¿Eliminar la auditoría?',
+      mensaje: `«${nombre}» y todas sus páginas se eliminarán. Esta acción no se puede deshacer.`,
+      textoConfirmar: 'Eliminar auditoría',
+    });
     if (!confirmado) return;
 
     await this.auditoriasService.eliminar(this.auditoriaId);

@@ -195,3 +195,17 @@ catálogo Bootstrap y editable desde la app a partir de esta rebanada.
   pendiente un escaneo de axe dedicado (contraste, validez ARIA más allá
   de roles/etiquetas) con la extensión de navegador, que es un paso manual
   del propio auditor.
+
+## Nota de revisión (2026-09-18) — validación visible en "Nuevo componente"
+
+El campo "Nuevo componente" ya tenía `Validators.required` y
+`markAllAsTouched()` en `anadirComponente()`, pero la plantilla no
+conectaba ese estado con `app-form-field`: no había `[error]` ni
+`required`/`aria-invalid` en el `<input>`, así que al enviar vacío no
+pasaba nada visible (el control quedaba `touched`+`invalid` pero sin
+mensaje). Se añade el mismo cableado que ya usa `auditoria-nueva.html`
+(`[error]` con el mensaje condicionado a `invalid && touched`, `required`,
+`[attr.aria-invalid]`) y, para el foco, un `viewChild` del `<input>` que
+se enfoca en la rama de error de `anadirComponente()` — mismo patrón que
+`enfocarPrimerCampoInvalido()` en `auditoria-nueva.ts`, simplificado a un
+único campo.
