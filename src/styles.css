@@ -67,7 +67,7 @@ body {
   }
 
   .formulario {
-    @apply flex max-w-[480px] flex-col gap-2;
+    @apply flex max-w-[480px] flex-col gap-4;
   }
 
   .formulario__grupo {
