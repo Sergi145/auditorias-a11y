@@ -198,6 +198,9 @@ async function escanearEnContexto(
   const violaciones: ViolacionAxe[] = [];
   for (const violacion of resultado.violations) {
     violaciones.push({
+      // id de la regla: el cliente traduce el help al español a partir de
+      // él — ver specs/19-traduccion-axe.md.
+      id: violacion.id,
       tags: violacion.tags,
       impact: violacion.impact,
       help: violacion.help,
