@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { App } from './app';
 import { routes } from './app.routes';
-import { Landing } from './features/landing/landing';
+import { LayoutPublico } from './features/publico/layout-publico/layout-publico';
 import { Shell } from './shared/shell/shell';
 
 describe('App', () => {
@@ -23,7 +23,8 @@ describe('App', () => {
 
   it('la raíz redirige a la landing pública', async () => {
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/', Landing);
+    // La landing se pinta dentro de LayoutPublico (specs/24-vistas-publicas.md).
+    await harness.navigateByUrl('/', LayoutPublico);
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
       'Auditorías de accesibilidad',
     );

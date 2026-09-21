@@ -228,3 +228,18 @@ Ver [22-informe-ux.md](./22-informe-ux.md). Al arreglarlo, quitar el
 - [x] **P7 (Baja, arreglado 2026-09-18):** crear una auditoría o una página
   no se anunciaba (editar sí). Ahora se anuncia «Auditoría creada.» y
   «Página añadida.».
+
+## Nota de revisión (2026-09-21) — foco al primer campo erróneo en "Añadir página"
+
+`pagina-nueva` (formulario de añadir y editar página) marcaba los campos
+como `touched` al enviar con datos inválidos, pero el foco se quedaba en el
+botón de envío: quien usa teclado o lector de pantalla no sabía qué campo
+corregir. Se aplica el mismo patrón que `auditoria-nueva.ts`: un `viewChild`
+por control nativo (`#inputNombre`, `#inputUrl`) y un
+`enfocarPrimerCampoInvalido()` que enfoca el primero inválido en orden de
+formulario. De paso se añade `[attr.aria-invalid]` a ambos inputs, que
+`auditoria-nueva.html` ya tenía y aquí faltaba.
+
+- **Criterio de aceptación:** al pulsar «Añadir página» (o «Guardar
+  cambios») con el nombre vacío, el foco pasa al campo «Nombre de la
+  página»; con el nombre relleno y la URL vacía o inválida, pasa a «URL».

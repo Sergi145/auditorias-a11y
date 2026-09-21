@@ -1,0 +1,44 @@
+<div class="mx-auto max-w-[1180px] px-4 py-16 sm:px-6 sm:py-20">
+  <div class="max-w-[640px]">
+    <h1 class="text-4xl leading-[1.1] font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+      Funcionalidades
+    </h1>
+    <p class="mt-5 text-lg leading-relaxed text-slate-600">
+      Todo lo que necesitas para auditar la accesibilidad de un sitio web, del escaneo automático al
+      informe final.
+    </p>
+  </div>
+
+  <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+    @for (funcionalidad of funcionalidades; track funcionalidad.titulo) {
+      <section class="rounded-xl border border-slate-200 p-7">
+        <span
+          class="inline-flex h-11 w-11 items-center justify-center rounded-[10px] bg-violet-50 text-violet-700"
+        >
+          <app-icon [name]="funcionalidad.icono" />
+        </span>
+        <h2 class="mt-4 text-xl font-bold text-slate-900">{{ funcionalidad.titulo }}</h2>
+        <p class="mt-2 text-[15px] leading-relaxed text-slate-600">
+          {{ funcionalidad.descripcion }}
+        </p>
+        <ul class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0">
+          @for (detalle of funcionalidad.detalles; track detalle) {
+            <li class="flex items-start gap-2.5 text-[15px] leading-snug text-slate-700">
+              <app-icon name="check-circle" class="mt-0.5 text-violet-700" />
+              <span>{{ detalle }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+
+  <div
+    class="mt-16 flex flex-col items-start gap-4 rounded-xl bg-slate-50 p-8 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <p class="m-0 text-lg font-semibold text-slate-900">
+      Prueba todo esto en tu próxima auditoría.
+    </p>
+    <a appButton variant="primary" routerLink="/auditorias/nueva">Empezar una auditoría</a>
+  </div>
+</div>

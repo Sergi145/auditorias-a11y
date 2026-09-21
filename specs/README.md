@@ -28,6 +28,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 21 | [21-elegir-desde-biblioteca.md](./21-elegir-desde-biblioteca.md) | Implemented | "Ver en la biblioteca" abre `/biblioteca` en modo "elegir redacción": se puede usar cualquier entrada y se vuelve al hallazgo (nuevo o en edición) con ella aplicada |
 | 22 | [22-pruebas-usuario-ux.md](./22-pruebas-usuario-ux.md) | Implemented | Recorridos de usuario completos en Playwright (incluido solo teclado y móvil 320 px, axe en cada pantalla) + revisión manual con lector de pantalla, con un informe de problemas de experiencia priorizado |
 | 23 | [23-paginacion-auditorias.md](./23-paginacion-auditorias.md) | Implemented | Paginación accesible del listado de auditorías (`AppPaginacion`, 9 por página, `?pagina=N`, foco en el `<h1>` y anuncio al cambiar de página, correcta a 320 px) |
+| 24 | [24-vistas-publicas.md](./24-vistas-publicas.md) | Approved | Vistas públicas `/funcionalidades`, `/como-funciona` y `/accesibilidad` (declaración de accesibilidad) con un `LayoutPublico` compartido con la bienvenida; los enlaces de la landing dejan de ser anclas rotas |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /
 modelo de datos que toca / criterios de aceptación. Ver `CLAUDE.md` en la
