@@ -96,4 +96,32 @@ body {
   .foco {
     @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-700;
   }
+
+  /* Card con enlace estirado — ver specs/04-rediseno-tailwind.md. El
+     enlace principal envuelve solo el título (nombre accesible corto),
+     pero su ::after cubre toda la card para que cualquier clic en ella
+     navegue. Los demás controles de la card llevan .card-enlace__accion
+     para quedar por encima del área estirada. El foco del enlace se pinta
+     en toda la card (:has), no solo en el texto del título. */
+  .card-enlace {
+    @apply relative transition-shadow hover:shadow-md;
+  }
+
+  .card-enlace:has(.card-enlace__principal:focus-visible) {
+    @apply outline-2 outline-offset-2 outline-violet-700;
+    outline-style: solid;
+  }
+
+  .card-enlace__principal {
+    @apply outline-none;
+  }
+
+  .card-enlace__principal::after {
+    content: '';
+    @apply absolute inset-0 z-[1] rounded-[inherit];
+  }
+
+  .card-enlace__accion {
+    @apply relative z-[2];
+  }
 }

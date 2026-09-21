@@ -191,3 +191,27 @@ pegados: la card del hallazgo era un bloque sin separación entre hijos y
 - Las cards de hallazgo en edición (nuevo y existente) pasan a
   `flex flex-col gap-4`; se quitan los `mb-3` sueltos de su interior
   (sugerencias y bloque "Ver en la biblioteca"), que ya separa el `gap`.
+
+## Nota de revisión (2026-09-18) — card con enlace estirado
+
+Las cards de listado que abren un detalle (`auditorias-listado` y
+`biblioteca-listado`) solo navegaban al pulsar el título, aunque la card
+entera parecía clicable. Se aplica la técnica de **enlace estirado**
+(clases globales en `src/styles.css`, `@layer components`):
+
+- `.card-enlace` en el `appCard`: `position: relative`, sombra al pasar el
+  ratón, y el anillo de foco (`violet-700`) se pinta en toda la card con
+  `:has(.card-enlace__principal:focus-visible)`.
+- `.card-enlace__principal` en el enlace del título: sigue envolviendo solo
+  el título (nombre accesible corto, sin leer toda la card), pero su
+  `::after` cubre la card entera, así que un clic en cualquier zona navega.
+  Su propio outline se quita para no duplicar el foco.
+- `.card-enlace__accion` en cada control secundario de la card (botones
+  "Usar esta redacción" y "Eliminar" de la biblioteca): queda por encima del
+  área estirada y sigue funcionando por separado. Va en cada botón, no en su
+  fila, para que el hueco junto a los botones siga abriendo la card.
+
+No se aplica al resto de `appCard`: formularios (hallazgo, evidencias),
+tarjetas de hallazgo con Editar/Eliminar y sugerencias de la biblioteca no
+tienen un destino principal al que llevar. Tampoco a la vista de
+componentes (`componentes-listado`), por decisión del usuario.
