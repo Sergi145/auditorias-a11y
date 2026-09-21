@@ -18,6 +18,12 @@ import { AppIcon } from '../ui/icon';
 import { AppSkipLink } from '../ui/skip-link';
 import { AppToastHost } from '../ui/toast';
 
+// Ruta de una URL sin query params ni fragmento: '/auditorias?pagina=2#x' →
+// '/auditorias'.
+function rutaSinQuery(url: string): string {
+  return url.split(/[?#]/)[0];
+}
+
 // Shell de navegación — top bar + drawer lateral, ver
 // specs/04-rediseno-tailwind.md. Sustituye el shell M3 de
 // specs/02-maqueta-m3.md.
@@ -52,6 +58,8 @@ export class Shell {
   private readonly botonMenu = viewChild<ElementRef<HTMLButtonElement>>('botonMenu');
   private readonly contenido = viewChild<ElementRef<HTMLElement>>('contenido');
 
+  private rutaAnterior: string | null = null;
+
   constructor() {
     // Al navegar entre secciones el enlace activado desaparece del DOM (lo
     // sustituye la nueva ruta), así que el navegador devuelve el foco a
@@ -62,17 +70,26 @@ export class Shell {
     // de él: antes `skip(1)` se saltaba justo esa y el foco se quedaba en
     // <body> (specs/22-informe-ux.md P2). Se enfoca tras pintar, porque en
     // esa primera navegación #contenido aún no existe.
+    //
+    // Tampoco se enfoca si solo cambian los query params o el fragmento (misma
+    // ruta que la navegación anterior, p. ej. `/auditorias` → `?pagina=2`):
+    // no se sustituye la pantalla, y la propia pantalla decide dónde va el
+    // foco (el listado lo pone en su <h1>) — specs/23-paginacion-auditorias.md.
     this.router.events
       .pipe(
         filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd),
-        filter((evento) => evento.id > 1),
         takeUntilDestroyed(),
       )
-      .subscribe(() =>
+      .subscribe((evento) => {
+        const ruta = rutaSinQuery(evento.urlAfterRedirects);
+        const cambiaDeRuta = ruta !== this.rutaAnterior;
+        this.rutaAnterior = ruta;
+        if (evento.id === 1 || !cambiaDeRuta) return;
+
         afterNextRender(() => this.contenido()?.nativeElement.focus(), {
           injector: this.injector,
-        }),
-      );
+        });
+      });
   }
 
   protected alternar(): void {
