@@ -46,7 +46,7 @@
     <li>
       <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
         <div class="flex min-w-0 flex-wrap items-center gap-2">
-          <app-chip [id]="chipId(componente)">{{ componente.nombre }}</app-chip>
+          <app-chip [id]="chipId(componente)" [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</app-chip>
           @if (!componente.visible) {
             <app-chip>Oculto</app-chip>
           }

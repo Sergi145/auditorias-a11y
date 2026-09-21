@@ -52,7 +52,7 @@
           >
             <option value="todos">Todos</option>
             @for (componente of componentes(); track componente.id) {
-              <option [value]="componente.id">{{ componente.nombre }}</option>
+              <option [value]="componente.id" [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</option>
             }
           </select>
         </app-form-field>
@@ -80,7 +80,7 @@
               <p class="text-sm text-slate-600">
                 Criterio {{ hallazgo.criterio_codigo }}
                 @if (componenteDe(hallazgo.componente_id); as componente) {
-                  · {{ componente.nombre }}
+                  · <span [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</span>
                 }
               </p>
               <p class="mt-2">{{ hallazgo.descripcion }}</p>

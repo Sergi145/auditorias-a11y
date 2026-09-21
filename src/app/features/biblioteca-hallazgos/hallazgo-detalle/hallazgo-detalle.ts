@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
 import type { Componente, HallazgoPlantilla, Severidad } from '../../../core/models';
@@ -47,7 +48,7 @@ export class HallazgoDetalle {
 
   // Sin un porId$() dedicado en HallazgosPlantillaService (no lo pide
   // specs/08-biblioteca-hallazgos.md): se resuelve por id sobre el listado
-  // completo, mismo patrón que componenteNombre() en criterio-revision.ts.
+  // completo, mismo patrón que componenteDe() en criterio-revision.ts.
   protected readonly hallazgo = signal<HallazgoPlantilla | undefined>(undefined);
   protected readonly criterio = computed(() => {
     const hallazgo = this.hallazgo();
@@ -63,6 +64,7 @@ export class HallazgoDetalle {
       ? undefined
       : this.componentes().find((componente) => componente.id === componenteId);
   });
+  protected readonly idiomaNombre = idiomaNombreComponente;
 
   protected readonly formulario = this.fb.nonNullable.group({
     titulo: ['', Validators.required],

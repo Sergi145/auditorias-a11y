@@ -2,6 +2,7 @@ import { Component, ElementRef, computed, inject, signal, viewChild } from '@ang
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ComponentesService } from '../../../core/componentes';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import type { Componente } from '../../../core/models';
 import { AppButton } from '../../../shared/ui/button';
 import { AppCard } from '../../../shared/ui/card';
@@ -83,6 +84,8 @@ export class ComponentesListado {
     await this.componentesService.alternarVisible(componente.id!, !componente.visible);
     this.toast.mostrar(componente.visible ? 'Componente ocultado.' : 'Componente mostrado.');
   }
+
+  protected readonly idiomaNombre = idiomaNombreComponente;
 
   protected chipId(componente: Componente): string {
     return `chip-nombre-${componente.id}`;

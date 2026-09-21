@@ -15,6 +15,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import { EvidenciasService } from '../../../core/evidencias';
 import { HallazgosService } from '../../../core/hallazgos';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
@@ -391,11 +392,12 @@ export class CriterioRevision implements ConSalidaProtegida {
     return queryParams;
   }
 
-  protected componenteNombre(hallazgo: Hallazgo): string | undefined {
+  protected readonly idiomaNombre = idiomaNombreComponente;
+
+  protected componenteDe(hallazgo: Hallazgo): Componente | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)
-          ?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id);
   }
 
   protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {

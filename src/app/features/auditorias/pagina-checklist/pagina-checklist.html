@@ -192,8 +192,8 @@
                       <div>
                         <p class="m-0 text-sm font-semibold text-slate-900">
                           {{ etiquetaSeveridad[hallazgo.severidad] }}
-                          @if (componenteNombre(hallazgo); as nombreComponente) {
-                            · {{ nombreComponente }}
+                          @if (componenteDe(hallazgo); as componente) {
+                            · <span [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</span>
                           }
                         </p>
                         <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>

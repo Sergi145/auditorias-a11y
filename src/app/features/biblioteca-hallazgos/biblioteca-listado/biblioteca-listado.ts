@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ComponentesService } from '../../../core/componentes';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
 import type { Componente, CriterioWCAG, HallazgoPlantilla } from '../../../core/models';
 import { AppButton } from '../../../shared/ui/button';
@@ -40,6 +41,7 @@ export class BibliotecaListado {
   });
 
   protected readonly hallazgos = toSignal(this.hallazgosPlantillaService.todos$(), {
+  protected readonly idiomaNombre = idiomaNombreComponente;
     initialValue: [] as HallazgoPlantilla[],
   });
 
