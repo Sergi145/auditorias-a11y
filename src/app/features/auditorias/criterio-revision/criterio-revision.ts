@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
   afterNextRender,
   Component,
@@ -14,6 +15,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { EvidenciasService } from '../../../core/evidencias';
 import { HallazgosService } from '../../../core/hallazgos';
@@ -110,6 +112,7 @@ export class CriterioRevision implements ConSalidaProtegida {
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
   private readonly confirmacion = inject(ConfirmacionService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
 
@@ -193,6 +196,18 @@ export class CriterioRevision implements ConSalidaProtegida {
 
   private resultadoFormularioInicializado = false;
 
+  // Elegir "Falla" abre la sección de hallazgos debajo del select, pero el
+  // foco se queda en él y un lector de pantalla no se entera de que ha
+  // aparecido. Va en (change) y no en valueChanges para no anunciarlo cuando
+  // el estado se rellena por código (al cargar o al volver de la biblioteca).
+  protected anunciarSeccionHallazgos(): void {
+    if (this.formularioResultado.controls.estado.value !== 'falla') return;
+    void this.liveAnnouncer.announce(
+      'Se ha abierto la sección Hallazgos, debajo del estado, para añadir hallazgos a este fallo.',
+      'polite',
+    );
+  }
+
   protected readonly hallazgoEnEdicion = signal<number | 'nuevo' | null>(null);
 
   protected readonly formularioHallazgo = this.fb.nonNullable.group({
@@ -269,6 +284,32 @@ export class CriterioRevision implements ConSalidaProtegida {
     this.hallazgoPlantillaIdActual() === null ? this.hallazgosSugeridos() : [],
   );
 
+  // Las sugerencias aparecen bajo "Componente afectado" con el foco aún en
+  // el select, así que se anuncia cuántas hay. Se marca en (change) y se
+  // anuncia cuando llega la consulta a Dexie (asíncrona) — ver el effect del
+  // constructor; no se anuncia al rellenar el componente por código.
+  private anunciarSugerenciasPendiente = false;
+
+  protected marcarAnuncioSugerencias(): void {
+    this.anunciarSugerenciasPendiente = true;
+  }
+
+  private anunciarSugerencias(total: number): void {
+    const mensaje =
+      total === 0
+        ? 'No hay hallazgos sugeridos de la biblioteca para este componente.'
+        : total === 1
+          ? 'Se ha encontrado 1 hallazgo sugerido de la biblioteca, debajo del componente. Pulsa Tab para llegar a él.'
+          : `Se han encontrado ${total} hallazgos sugeridos de la biblioteca, debajo del componente. Pulsa Tab para recorrerlos.`;
+    void this.liveAnnouncer.announce(mensaje, 'polite');
+  }
+
+  // Mismo nombre accesible que en /biblioteca: título y descripción de la
+  // sugerencia en el propio botón, para saber qué error es antes de usarla.
+  protected nombreUsarRedaccion(plantilla: HallazgoPlantilla): string {
+    return `Usar esta redacción: ${plantilla.titulo}. ${plantilla.descripcion}`;
+  }
+
   private hallazgoDesdeQueryAbierto = false;
 
   // Estado del formulario de hallazgo al abrirlo, para saber si hay cambios
@@ -280,6 +321,14 @@ export class CriterioRevision implements ConSalidaProtegida {
   private readonly hallazgoEliminado = signal<number | null>(null);
 
   constructor() {
+    effect(() => {
+      const sugerencias = this.sugerenciasVisibles();
+      if (!this.anunciarSugerenciasPendiente) return;
+      this.anunciarSugerenciasPendiente = false;
+      if (untracked(this.componenteIdHallazgoActual) === null) return;
+      this.anunciarSugerencias(sugerencias.length);
+    });
+
     effect(() => {
       const id = this.hallazgoEliminado();
       if (id === null || this.hallazgos().some((hallazgo) => hallazgo.id === id)) return;
@@ -391,11 +440,12 @@ export class CriterioRevision implements ConSalidaProtegida {
     return queryParams;
   }
 
-  protected componenteNombre(hallazgo: Hallazgo): string | undefined {
+  protected readonly idiomaNombre = idiomaNombreComponente;
+
+  protected componenteDe(hallazgo: Hallazgo): Componente | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)
-          ?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id);
   }
 
   protected evidenciasDeHallazgo(hallazgoId: number): Evidencia[] {

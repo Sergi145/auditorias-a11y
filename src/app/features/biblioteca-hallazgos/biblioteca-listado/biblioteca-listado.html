@@ -52,7 +52,7 @@
           >
             <option value="todos">Todos</option>
             @for (componente of componentes(); track componente.id) {
-              <option [value]="componente.id">{{ componente.nombre }}</option>
+              <option [value]="componente.id" [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</option>
             }
           </select>
         </app-form-field>
@@ -60,10 +60,16 @@
     </fieldset>
   </form>
 
-  <div aria-live="polite">
+  <!-- Sin aria-live aquí: releería la lista entera al filtrar. El número de
+       resultados se anuncia por LiveAnnouncer (onFiltro*) y queda visible
+       en este párrafo; los resultados siguen a los selects en el orden de
+       tabulación. -->
+  <div>
     @if (hallazgosFiltrados().length > 0) {
+      <p id="resultado-filtro" class="mb-3 text-sm text-slate-700">{{ textoResultados() }}</p>
       <ul
         aria-labelledby="titulo-biblioteca"
+        aria-describedby="resultado-filtro"
         class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-0"
       >
         @for (hallazgo of hallazgosFiltrados(); track hallazgo.id) {
@@ -80,7 +86,7 @@
               <p class="text-sm text-slate-600">
                 Criterio {{ hallazgo.criterio_codigo }}
                 @if (componenteDe(hallazgo.componente_id); as componente) {
-                  · {{ componente.nombre }}
+                  · <span [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</span>
                 }
               </p>
               <p class="mt-2">{{ hallazgo.descripcion }}</p>
@@ -96,7 +102,7 @@
                     appButton
                     class="card-enlace__accion"
                     type="button"
-                    [attr.aria-describedby]="'titulo-plantilla-' + hallazgo.id"
+                    [attr.aria-label]="nombreUsarRedaccion(hallazgo)"
                     (click)="usar(hallazgo)"
                   >
                     Usar esta redacción

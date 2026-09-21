@@ -38,6 +38,7 @@
           [id]="campoEstado.id"
           [attr.aria-describedby]="campoEstado.describedBy"
           formControlName="estado"
+          (change)="anunciarSeccionHallazgos()"
         >
           @for (estado of estados; track estado) {
             <option [ngValue]="estado">{{ etiquetaEstado[estado] }}</option>
@@ -84,10 +85,11 @@
                         [id]="campoComponenteEditar.id"
                         [attr.aria-describedby]="campoComponenteEditar.describedBy"
                         formControlName="componenteId"
+                        (change)="marcarAnuncioSugerencias()"
                       >
                         <option [ngValue]="null">Selecciona un componente…</option>
                         @for (componente of componentesVisibles(); track componente.id) {
-                          <option [ngValue]="componente.id">{{ componente.nombre }}</option>
+                          <option [ngValue]="componente.id" [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</option>
                         }
                       </select>
                     </app-form-field>
@@ -101,12 +103,15 @@
                           <h4 class="text-sm font-semibold text-slate-900">
                             {{ plantilla.titulo }}
                           </h4>
-                          <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
+                          <p class="text-sm text-slate-600">
+                            {{ plantilla.descripcion }}
+                          </p>
                           <div class="mt-3 flex gap-2">
                             <button
                               appButton
                               variant="text"
                               type="button"
+                              [attr.aria-label]="nombreUsarRedaccion(plantilla)"
                               (click)="usarSugerencia(plantilla, notasEditar)"
                             >
                               Usar esta redacción
@@ -175,8 +180,8 @@
                     <div>
                       <p class="m-0 text-sm font-semibold text-slate-900">
                         {{ etiquetaSeveridad[hallazgo.severidad] }}
-                        @if (componenteNombre(hallazgo); as nombreComponente) {
-                          · {{ nombreComponente }}
+                        @if (componenteDe(hallazgo); as componente) {
+                          · <span [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</span>
                         }
                       </p>
                       <p class="m-0 text-sm text-slate-600">{{ hallazgo.notas }}</p>
@@ -246,10 +251,11 @@
                 [id]="campoComponenteNuevo.id"
                 [attr.aria-describedby]="campoComponenteNuevo.describedBy"
                 formControlName="componenteId"
+                (change)="marcarAnuncioSugerencias()"
               >
                 <option [ngValue]="null">Selecciona un componente…</option>
                 @for (componente of componentesVisibles(); track componente.id) {
-                  <option [ngValue]="componente.id">{{ componente.nombre }}</option>
+                  <option [ngValue]="componente.id" [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</option>
                 }
               </select>
             </app-form-field>
@@ -258,13 +264,18 @@
               <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
               @for (plantilla of sugerenciasVisibles(); track plantilla.id) {
                 <article appCard>
-                  <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
-                  <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
+                  <h4 class="text-sm font-semibold text-slate-900">
+                    {{ plantilla.titulo }}
+                  </h4>
+                  <p class="text-sm text-slate-600">
+                    {{ plantilla.descripcion }}
+                  </p>
                   <div class="mt-3 flex gap-2">
                     <button
                       appButton
                       variant="text"
                       type="button"
+                      [attr.aria-label]="nombreUsarRedaccion(plantilla)"
                       (click)="usarSugerencia(plantilla, notasNuevo)"
                     >
                       Usar esta redacción

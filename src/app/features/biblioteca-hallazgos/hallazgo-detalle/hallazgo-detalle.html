@@ -6,7 +6,7 @@
       · {{ criterio.nombre }}
     }
     @if (componente(); as componente) {
-      · {{ componente.nombre }}
+      · <span [attr.lang]="idiomaNombre(componente)">{{ componente.nombre }}</span>
     }
     · Usado {{ hallazgo.veces_usado }} veces
   </p>

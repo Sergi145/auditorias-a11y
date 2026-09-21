@@ -6,6 +6,22 @@
 // ids en su campo componente_id.
 import type { Componente } from './models';
 
+// Nombres del catálogo que NO están en inglés (el resto son los nombres
+// oficiales de Bootstrap). Hay que listar aquí cualquier nombre en español
+// que se añada al catálogo, o se marcará como inglés en pantalla.
+const NOMBRES_BOOTSTRAP_EN_ESPANOL: ReadonlySet<string> = new Set(['Tabla']);
+
+// Valor del atributo `lang` con el que mostrar el nombre de un componente
+// (WCAG 3.1.2, Idioma de las partes): los Bootstrap están en inglés y el
+// resto de la app en español, así que se marcan para que el lector de
+// pantalla use la voz correcta. Los personalizados los escribe el auditor y
+// no sabemos en qué idioma, así que devuelven null y heredan el de la página.
+export function idiomaNombreComponente(componente: Pick<Componente, 'origen' | 'nombre'>): 'en' | null {
+  return componente.origen === 'bootstrap' && !NOMBRES_BOOTSTRAP_EN_ESPANOL.has(componente.nombre)
+    ? 'en'
+    : null;
+}
+
 export const CATALOGO_COMPONENTES_BOOTSTRAP: Componente[] = [
   { id: 1, nombre: 'Accordion', origen: 'bootstrap', visible: true },
   { id: 2, nombre: 'Alert', origen: 'bootstrap', visible: true },

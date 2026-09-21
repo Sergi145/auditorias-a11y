@@ -3,6 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { ComponentesService } from '../../../core/componentes';
+import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
 import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { EvidenciasService } from '../../../core/evidencias';
 import { HallazgosService } from '../../../core/hallazgos';
@@ -253,10 +254,12 @@ export class PaginaChecklist {
     initialValue: [] as Componente[],
   });
 
-  protected componenteNombre(hallazgo: Hallazgo): string | undefined {
+  protected readonly idiomaNombre = idiomaNombreComponente;
+
+  protected componenteDe(hallazgo: Hallazgo): Componente | undefined {
     return hallazgo.componente_id === undefined
       ? undefined
-      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id)?.nombre;
+      : this.todosLosComponentes().find((componente) => componente.id === hallazgo.componente_id);
   }
 
   private readonly expandidas = signal<ReadonlySet<string>>(new Set());

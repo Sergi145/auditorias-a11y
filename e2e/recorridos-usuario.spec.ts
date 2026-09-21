@@ -47,6 +47,9 @@ async function revisarSinHallazgo(
 async function revisarConHallazgoCompleto(page: Page, recorrido: Recorrido): Promise<void> {
   await abrirCriterio(page, '1.1.1');
   await page.getByLabel('Estado').selectOption({ label: 'Falla' });
+  await expect
+    .poll(() => recorrido.anuncios())
+    .toContainEqual(expect.stringContaining('Se ha abierto la sección Hallazgos'));
   await page.getByRole('button', { name: 'Añadir hallazgo' }).click();
   await recorrido.comprobarFoco('tras pulsar «Añadir hallazgo»');
   await page.getByLabel('Severidad', { exact: true }).selectOption({ label: 'Alta' });

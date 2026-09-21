@@ -210,6 +210,35 @@ se enfoca en la rama de error de `anadirComponente()` — mismo patrón que
 `enfocarPrimerCampoInvalido()` en `auditoria-nueva.ts`, simplificado a un
 único campo.
 
+## Nota de revisión (2026-09-21) — idioma de los nombres Bootstrap (WCAG 3.1.2)
+
+Los nombres del catálogo Bootstrap (`Accordion`, `Button group`, `Navs & tabs`…)
+son los nombres oficiales en inglés, pero se mostraban en `/componentes`
+dentro de una página `lang="es"` sin marcar el cambio de idioma, así que un
+lector de pantalla los leía con la voz y la pronunciación del español (WCAG
+3.1.2, Idioma de las partes). El valor de `lang` sale de
+`idiomaNombreComponente()` (`componentes-catalogo.ts`), que devuelve `'en'`
+para los Bootstrap y `null` (sin atributo) para el resto. Se aplica allí donde
+se muestra el nombre de un componente:
+
+- `/componentes`: el `app-chip` de la lista "Predefinidos".
+- `criterio-revision`: las `<option>` de los dos desplegables "Componente
+  afectado" y el nombre junto a cada hallazgo guardado.
+- `pagina-checklist`: el nombre junto a cada hallazgo de la fila expandida.
+- `/biblioteca` (`biblioteca-listado`): las `<option>` del filtro
+  "Componente" y el nombre en cada tarjeta.
+- `hallazgo-detalle`: el nombre en el subtítulo.
+
+En las tres pantallas con hallazgos, `componenteNombre(hallazgo)` pasa a
+llamarse `componenteDe(hallazgo)` y devuelve el `Componente` entero (no solo
+el nombre) para poder calcular el idioma; el resto no cambia.
+
+Dos excepciones deliberadas: `Tabla`, el único nombre del catálogo sembrado en
+español (se lista en `NOMBRES_BOOTSTRAP_EN_ESPANOL`, en el mismo fichero, y no
+se marca), y los componentes "Personalizados", que escribe el auditor y de los
+que no se conoce el idioma (heredan el de la página). Quedan fuera los
+exportables (Excel/PDF), que no llevan `lang`.
+
 ## Nota de revisión (2026-09-18) — enlace para saltar la lista de componentes
 
 Las listas "Predefinidos" (30 componentes Bootstrap) y "Personalizados"
