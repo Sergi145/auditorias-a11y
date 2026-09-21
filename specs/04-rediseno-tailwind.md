@@ -179,6 +179,19 @@ dan contraste ≥ 4.5:1 sobre blanco para el texto y ≥ 3:1 para el borde
 `red-700`) en vez de un rojo más claro. El icono hereda el color por
 `stroke="currentColor"` (`AppIcon`), así que no hace falta tocarlo aparte.
 
+## Nota de revisión (2026-09-18) — espaciado de los formularios
+
+Los campos del formulario de hallazgo (`criterio-revision`) quedaban
+pegados: la card del hallazgo era un bloque sin separación entre hijos y
+`.formulario` solo dejaba `gap-2` (8 px). Se aumenta el espaciado:
+
+- `.formulario` (`src/styles.css`): `gap-2` → `gap-4` (16 px) entre campos,
+  en todos los formularios de la app.
+- `AppFormField`: `gap-1` → `gap-1.5` entre etiqueta, control y ayuda/error.
+- Las cards de hallazgo en edición (nuevo y existente) pasan a
+  `flex flex-col gap-4`; se quitan los `mb-3` sueltos de su interior
+  (sugerencias y bloque "Ver en la biblioteca"), que ya separa el `gap`.
+
 ## Nota de revisión (2026-09-18) — card con enlace estirado
 
 Las cards de listado que abren un detalle (`auditorias-listado` y

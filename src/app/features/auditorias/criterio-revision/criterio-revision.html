@@ -55,7 +55,7 @@
             @for (hallazgo of hallazgos(); track hallazgo.id) {
               <li>
                 @if (hallazgoEnEdicion() === hallazgo.id) {
-                  <article appCard [formGroup]="formularioHallazgo">
+                  <article appCard class="flex flex-col gap-4" [formGroup]="formularioHallazgo">
                     <app-form-field
                       label="Severidad"
                       #campoSeveridadEditar="appFormField"
@@ -97,7 +97,7 @@
                         Hallazgos sugeridos de la biblioteca
                       </p>
                       @for (plantilla of sugerenciasVisibles(); track plantilla.id) {
-                        <article appCard class="mb-3">
+                        <article appCard>
                           <h4 class="text-sm font-semibold text-slate-900">
                             {{ plantilla.titulo }}
                           </h4>
@@ -116,7 +116,7 @@
                       }
                     }
 
-                    <div class="mb-3">
+                    <div>
                       <a
                         appButton
                         variant="text"
@@ -218,7 +218,7 @@
         }
 
         @if (hallazgoEnEdicion() === 'nuevo') {
-          <article appCard class="mb-3" [formGroup]="formularioHallazgo">
+          <article appCard class="mb-3 flex flex-col gap-4" [formGroup]="formularioHallazgo">
             <h3 class="text-base font-semibold text-slate-900">Nuevo hallazgo</h3>
 
             <app-form-field
@@ -257,7 +257,7 @@
             @if (sugerenciasVisibles().length > 0) {
               <p class="text-sm font-medium text-slate-700">Hallazgos sugeridos de la biblioteca</p>
               @for (plantilla of sugerenciasVisibles(); track plantilla.id) {
-                <article appCard class="mb-3">
+                <article appCard>
                   <h4 class="text-sm font-semibold text-slate-900">{{ plantilla.titulo }}</h4>
                   <p class="text-sm text-slate-600">{{ plantilla.descripcion }}</p>
                   <div class="mt-3 flex gap-2">
@@ -274,7 +274,7 @@
               }
             }
 
-            <div class="mb-3">
+            <div>
               <a
                 appButton
                 variant="text"

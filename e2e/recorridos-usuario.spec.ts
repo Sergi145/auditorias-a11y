@@ -94,7 +94,11 @@ async function recorridoPrimeraAuditoria(page: Page, recorrido: Recorrido): Prom
   // Detalle de la auditoría
   await expect(page.getByRole('heading', { level: 1, name: 'Tienda online' })).toBeVisible();
   await recorrido.comprobarFoco('tras crear la auditoría');
-  expect.soft(await recorrido.anuncios(), 'crear la auditoría debería anunciarse').not.toEqual([]);
+  // El aviso llega 100 ms después de crear (PAUSA_ANUNCIO_MS de ToastService),
+  // así que se espera a que aparezca en vez de leerlo a la primera.
+  await expect
+    .poll(() => recorrido.anuncios(), { message: 'crear la auditoría debería anunciarse' })
+    .not.toEqual([]);
   await recorrido.revisarPantalla('Detalle de auditoría');
   await anotarTitulo('Detalle de auditoría');
 

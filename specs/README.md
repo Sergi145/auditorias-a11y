@@ -27,6 +27,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 20 | [20-modal-confirmacion.md](./19-modal-confirmacion.md) | Implemented | Modal de confirmación propio (`ConfirmacionService` + `AppDialogoConfirmacion` sobre `@angular/cdk/dialog`) que sustituye las 6 llamadas a `window.confirm()` en las eliminaciones de auditoría, página, hallazgo, componente y entrada de la biblioteca |
 | 21 | [21-elegir-desde-biblioteca.md](./21-elegir-desde-biblioteca.md) | Implemented | "Ver en la biblioteca" abre `/biblioteca` en modo "elegir redacción": se puede usar cualquier entrada y se vuelve al hallazgo (nuevo o en edición) con ella aplicada |
 | 22 | [22-pruebas-usuario-ux.md](./22-pruebas-usuario-ux.md) | Implemented | Recorridos de usuario completos en Playwright (incluido solo teclado y móvil 320 px, axe en cada pantalla) + revisión manual con lector de pantalla, con un informe de problemas de experiencia priorizado |
+| 23 | [23-paginacion-auditorias.md](./23-paginacion-auditorias.md) | Implemented | Paginación accesible del listado de auditorías (`AppPaginacion`, 9 por página, `?pagina=N`, foco en el `<h1>` y anuncio al cambiar de página, correcta a 320 px) |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /
 modelo de datos que toca / criterios de aceptación. Ver `CLAUDE.md` en la

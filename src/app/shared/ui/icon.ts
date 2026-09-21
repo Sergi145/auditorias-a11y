@@ -25,6 +25,8 @@ export type IconName =
   | 'edit'
   | 'delete'
   | 'chevron-down'
+  | 'chevron-left'
+  | 'chevron-right'
   | 'eye'
   | 'eye-off'
   | 'shield'
@@ -136,6 +138,12 @@ export type IconName =
         }
         @case ('chevron-down') {
           <path d="M6 9l6 6 6-6" />
+        }
+        @case ('chevron-left') {
+          <path d="M15 6l-6 6 6 6" />
+        }
+        @case ('chevron-right') {
+          <path d="M9 6l6 6-6 6" />
         }
         @case ('eye') {
           <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />

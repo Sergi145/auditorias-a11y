@@ -1,5 +1,12 @@
 <div class="pantalla__cabecera">
-  <h1 id="titulo-auditorias" class="text-2xl font-semibold text-slate-900">Auditorías</h1>
+  <h1
+    #titulo
+    id="titulo-auditorias"
+    tabindex="-1"
+    class="foco rounded-sm text-2xl font-semibold text-slate-900"
+  >
+    Auditorías
+  </h1>
   <a appButton routerLink="/auditorias/nueva">
     <app-icon name="add" />
     Nueva auditoría
@@ -16,7 +23,7 @@
     aria-labelledby="titulo-auditorias"
     class="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-0"
   >
-    @for (item of auditorias(); track item.auditoria.id) {
+    @for (item of visibles(); track item.auditoria.id) {
       <li>
         <article appCard class="card-enlace">
           <h2 class="text-base font-semibold">
@@ -52,4 +59,11 @@
       </li>
     }
   </ul>
+
+  <app-paginacion
+    [total]="auditorias().length"
+    [porPagina]="porPagina"
+    [paginaActual]="paginaActual()"
+    etiqueta="Paginación de auditorías"
+  />
 }

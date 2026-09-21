@@ -10,7 +10,7 @@ let siguienteId = 0;
 @Component({
   selector: 'app-form-field',
   exportAs: 'appFormField',
-  host: { class: 'flex flex-col gap-1' },
+  host: { class: 'flex flex-col gap-1.5' },
   template: `
     <label [for]="id" class="text-sm font-medium text-slate-700">{{ label() }}</label>
     <ng-content />
