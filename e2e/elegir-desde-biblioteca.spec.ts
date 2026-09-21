@@ -51,7 +51,9 @@ test('"Ver en la biblioteca" lleva al listado y "Usar esta redacción" rellena u
   await expect(page.getByRole('heading', { name: 'Elige una redacción' })).toBeVisible();
   await expect(page.getByLabel('Criterio')).toHaveValue('1.1.1');
 
-  await page.getByRole('button', { name: 'Usar esta redacción' }).click();
+  const usar = page.getByRole('button', { name: 'Usar esta redacción' });
+  await expect(usar).toHaveAccessibleName(`Usar esta redacción: Logotipo sin alt. ${REDACCION}`);
+  await usar.click();
 
   await expect(page.getByRole('heading', { name: /1\.1\.1/ })).toBeVisible();
   await expect(page.getByLabel('Estado')).toHaveValue(/falla/);
@@ -99,6 +101,28 @@ test('fuera del modo selección, la biblioteca no ofrece "Usar esta redacción"'
   await expect(page.getByRole('heading', { name: 'Elige una redacción' })).toHaveCount(0);
 });
 
+test('filtrar la biblioteca anuncia cuántos hallazgos hay y Tab llega a ellos', async ({ page }) => {
+  await prepararCriterioConPlantilla(page);
+
+  await page.getByRole('button', { name: 'Añadir hallazgo' }).click();
+  await page.getByRole('link', { name: 'Ver en la biblioteca' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Elige una redacción' })).toBeVisible();
+
+  const anunciador = page.locator('.cdk-live-announcer-element');
+  const filtroComponente = page.getByLabel('Componente', { exact: true });
+  await filtroComponente.selectOption({ label: 'Button' });
+  await expect(anunciador).toContainText('Ningún hallazgo de la biblioteca coincide');
+
+  await filtroComponente.selectOption({ label: 'Todos' });
+  await expect(anunciador).toHaveText('1 hallazgo encontrado. Pulsa Tab para recorrerlos.');
+  await expect(page.getByText('1 hallazgo encontrado.', { exact: true })).toBeVisible();
+
+  await filtroComponente.focus();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Logotipo sin alt' })).toBeFocused();
+});
+
 test('al usar una sugerencia, las sugerencias desaparecen y el foco pasa a la descripción', async ({
   page,
 }) => {
@@ -108,8 +132,20 @@ test('al usar una sugerencia, las sugerencias desaparecen y el foco pasa a la de
   await page.getByLabel('Componente afectado').selectOption({ label: 'Button' });
   await expect(page.getByText('Hallazgos sugeridos de la biblioteca')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Logotipo sin alt' })).toBeVisible();
+  await expect(page.locator('.cdk-live-announcer-element')).toContainText(
+    'Se ha encontrado 1 hallazgo sugerido de la biblioteca',
+  );
 
-  await page.getByRole('button', { name: 'Usar esta redacción' }).click();
+  // Tab desde el select llega al botón de la sugerencia, que se describe
+  // con su título y descripción en el nombre accesible (aria-describedby no
+  // lo leen todos los lectores) para decidir si usarla sin salir del botón.
+  await page.getByLabel('Componente afectado').focus();
+  await page.keyboard.press('Tab');
+  const usar = page.getByRole('button', { name: 'Usar esta redacción' });
+  await expect(usar).toBeFocused();
+  await expect(usar).toHaveAccessibleName(`Usar esta redacción: Logotipo sin alt. ${REDACCION}`);
+
+  await usar.click();
 
   const descripcion = page.getByLabel('Descripción del hallazgo');
   await expect(descripcion).toHaveValue(REDACCION);

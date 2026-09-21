@@ -1,9 +1,10 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ComponentesService } from '../../../core/componentes';
-import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { idiomaNombreComponente } from '../../../core/componentes-catalogo';
+import { CriteriosWcagService } from '../../../core/criterios-wcag';
 import { HallazgosPlantillaService } from '../../../core/hallazgos-plantilla';
 import type { Componente, CriterioWCAG, HallazgoPlantilla } from '../../../core/models';
 import { AppButton } from '../../../shared/ui/button';
@@ -31,6 +32,7 @@ export class BibliotecaListado {
   private readonly criteriosWcag = inject(CriteriosWcagService);
   private readonly toast = inject(ToastService);
   private readonly confirmacion = inject(ConfirmacionService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -39,9 +41,9 @@ export class BibliotecaListado {
   protected readonly componentes = toSignal(this.componentesService.todos$(), {
     initialValue: [] as Componente[],
   });
+  protected readonly idiomaNombre = idiomaNombreComponente;
 
   protected readonly hallazgos = toSignal(this.hallazgosPlantillaService.todos$(), {
-  protected readonly idiomaNombre = idiomaNombreComponente;
     initialValue: [] as HallazgoPlantilla[],
   });
 
@@ -114,17 +116,43 @@ export class BibliotecaListado {
     void this.router.navigate(this.rutaCriterio(), { queryParams });
   }
 
+  // Título y descripción en el nombre del botón (no en aria-describedby, que
+  // varios lectores de pantalla no leen al enfocar): así se sabe qué error
+  // es antes de decidir si usar esa redacción. Empieza por el texto visible
+  // (WCAG 2.5.3).
+  protected nombreUsarRedaccion(hallazgo: HallazgoPlantilla): string {
+    return `Usar esta redacción: ${hallazgo.titulo}. ${hallazgo.descripcion}`;
+  }
+
   protected componenteDe(id: number | undefined): Componente | undefined {
     return id === undefined ? undefined : this.componentes().find((componente) => componente.id === id);
   }
 
+  protected readonly textoResultados = computed(() => {
+    const total = this.hallazgosFiltrados().length;
+    return total === 1 ? '1 hallazgo encontrado.' : `${total} hallazgos encontrados.`;
+  });
+
   protected onFiltroCriterio(evento: Event): void {
     this.filtroCriterio.set((evento.target as HTMLSelectElement).value);
+    this.anunciarResultados();
   }
 
   protected onFiltroComponente(evento: Event): void {
     const valor = (evento.target as HTMLSelectElement).value;
     this.filtroComponente.set(valor === 'todos' ? 'todos' : Number(valor));
+    this.anunciarResultados();
+  }
+
+  // Al filtrar el foco se queda en el select: sin este aviso un lector de
+  // pantalla no sabe cuántos hallazgos han quedado ni que se llega a ellos
+  // con Tab. Solo en (change), no al cargar la pantalla.
+  private anunciarResultados(): void {
+    const mensaje =
+      this.hallazgosFiltrados().length > 0
+        ? `${this.textoResultados()} Pulsa Tab para recorrerlos.`
+        : 'Ningún hallazgo de la biblioteca coincide con los filtros seleccionados.';
+    void this.liveAnnouncer.announce(mensaje, 'polite');
   }
 
   protected async eliminar(hallazgo: HallazgoPlantilla): Promise<void> {

@@ -179,6 +179,11 @@ manual.
   revisar" oculta la sección de hallazgos pero no los borra: al volver a
   marcar "Falla" reaparecen.
 - Se puede guardar un criterio como "Falla" sin ningún hallazgo todavía.
+- Al elegir "Falla" en el select Estado se anuncia por `LiveAnnouncer`
+  (`polite`) que se ha abierto la sección Hallazgos: el foco se queda en el
+  select y, sin aviso, un lector de pantalla no sabe que ha aparecido. No se
+  anuncia cuando el estado se rellena por código (al cargar o al volver de la
+  biblioteca) (`e2e/recorridos-usuario.spec.ts`).
 - El panel de progreso (`/auditorias/:id/progreso`) y el listado de
   auditorías calculan `% revisado` y `fallosPorSeveridad` sobre datos reales
   (`Resultado`/`Hallazgo` en Dexie).

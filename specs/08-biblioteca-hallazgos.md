@@ -170,6 +170,26 @@ y contar usos) y desde `/biblioteca/:id` (editar), y borrada desde
 - `/biblioteca` lista las plantillas reales; en una base de datos nueva la
   lista está vacía (sin datos ficticios). Los filtros por criterio y por
   componente acotan la lista sin recargar la página.
+- *Añadido 2026-09-21:* al cambiar cualquiera de los dos selects de filtro
+  (también en el modo "elegir redacción" de la spec 21) se anuncia por
+  `LiveAnnouncer` (`polite`) cuántos hallazgos han quedado («N hallazgos
+  encontrados. Pulsa Tab para recorrerlos.», o que ninguno coincide), y el
+  número queda visible sobre la lista. La lista ya no es una región
+  `aria-live` (releía todas las tarjetas). Desde el select, Tab lleva al
+  primer hallazgo filtrado. Cubierto en `e2e/elegir-desde-biblioteca.spec.ts`.
+- *Añadido 2026-09-21:* lo mismo con los hallazgos sugeridos de
+  `criterio-revision`: al elegir un "Componente afectado" se anuncia por
+  `LiveAnnouncer` (`polite`) cuántas sugerencias han aparecido debajo (o que
+  no hay ninguna para ese componente), una vez llega la consulta a Dexie. No
+  se anuncia al rellenar el componente por código ni al volver a "Selecciona
+  un componente…". Tab desde el select llega al primer "Usar esta
+  redacción", cuyo nombre accesible incluye el título y la descripción de
+  su sugerencia («Usar esta redacción: título. descripción», vía
+  `aria-label` que empieza por el texto visible) para decidir si usarla sin salir del botón; igual en las
+  tarjetas de `/biblioteca` en modo "elegir redacción". Va en el nombre y
+  no en `aria-describedby` porque varios lectores de pantalla no leen la
+  descripción al enfocar.
+  Cubierto en `e2e/elegir-desde-biblioteca.spec.ts`.
 - Eliminar una plantilla desde `/biblioteca` (con confirmación) la borra de
   Dexie y de la lista.
 - Editar una plantilla desde `/biblioteca/:id` y pulsar "Guardar cambios"
