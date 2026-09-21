@@ -45,7 +45,7 @@
   @for (componente of bootstrap(); track componente.id) {
     <li>
       <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
-        <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
           <app-chip [id]="chipId(componente)">{{ componente.nombre }}</app-chip>
           @if (!componente.visible) {
             <app-chip>Oculto</app-chip>
@@ -92,13 +92,13 @@
           </article>
         } @else {
           <article appCard class="flex flex-wrap items-center justify-between gap-3 py-3">
-            <div class="flex items-center gap-2">
+            <div class="flex min-w-0 flex-wrap items-center gap-2">
               <app-chip [id]="chipId(componente)">{{ componente.nombre }}</app-chip>
               @if (!componente.visible) {
                 <app-chip>Oculto</app-chip>
               }
             </div>
-            <div class="flex shrink-0 flex-wrap gap-2">
+            <div class="flex min-w-0 flex-wrap gap-2">
               <button appButton variant="text" type="button" (click)="empezarRenombrar(componente)">
                 <app-icon name="edit" />
                 Renombrar
