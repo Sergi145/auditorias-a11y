@@ -29,6 +29,7 @@ rebanadas verticales de implementación, en el orden pensado para construirse.
 | 22 | [22-pruebas-usuario-ux.md](./22-pruebas-usuario-ux.md) | Implemented | Recorridos de usuario completos en Playwright (incluido solo teclado y móvil 320 px, axe en cada pantalla) + revisión manual con lector de pantalla, con un informe de problemas de experiencia priorizado |
 | 23 | [23-paginacion-auditorias.md](./23-paginacion-auditorias.md) | Implemented | Paginación accesible del listado de auditorías (`AppPaginacion`, 9 por página, `?pagina=N`, foco en el `<h1>` y anuncio al cambiar de página, correcta a 320 px) |
 | 24 | [24-vistas-publicas.md](./24-vistas-publicas.md) | Approved | Vistas públicas `/funcionalidades`, `/como-funciona` y `/accesibilidad` (declaración de accesibilidad) con un `LayoutPublico` compartido con la bienvenida; los enlaces de la landing dejan de ser anclas rotas |
+| 25 | [25-selector-fecha.md](./25-selector-fecha.md) | Implemented | Selector de fecha accesible propio (`AppSelectorFecha` + `AppCalendarioDialogo`, patrón «Date Picker Dialog» de la APG) en «Fecha de inicio»: campo `dd/mm/aaaa` con calendario modal en rejilla, teclado completo, valor ISO y validador `fechaInvalida` |
 
 Convención de cada spec de rebanada: qué entra / qué no entra todavía /
 modelo de datos que toca / criterios de aceptación. Ver `CLAUDE.md` en la

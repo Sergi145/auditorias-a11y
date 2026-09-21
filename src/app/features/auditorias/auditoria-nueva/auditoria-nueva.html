@@ -68,20 +68,14 @@
 
     <app-form-field
       label="Fecha de inicio"
+      hint="Formato: dd/mm/aaaa."
       #campoFecha="appFormField"
-      [error]="
-        formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched
-          ? 'Selecciona una fecha.'
-          : null
-      "
+      [error]="errorFecha()"
     >
-      <input
-        appInput
-        #inputFecha
-        [id]="campoFecha.id"
-        [attr.aria-describedby]="campoFecha.describedBy"
-        [attr.aria-invalid]="formulario.controls.fecha_inicio.invalid && formulario.controls.fecha_inicio.touched"
-        type="date"
+      <app-selector-fecha
+        [inputId]="campoFecha.id"
+        [describedBy]="campoFecha.describedBy"
+        [invalido]="errorFecha() !== null"
         formControlName="fecha_inicio"
         required
       />

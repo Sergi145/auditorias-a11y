@@ -6,6 +6,7 @@ import { AuditoriasService } from '../../../core/auditorias';
 import { AppButton } from '../../../shared/ui/button';
 import { AppInput } from '../../../shared/ui/field-controls';
 import { AppFormField } from '../../../shared/ui/form-field';
+import { AppSelectorFecha } from '../../../shared/ui/selector-fecha';
 import { ToastService } from '../../../shared/ui/toast';
 
 // Pantalla 2 de specs/02-maqueta-m3.md: crear auditoría. Persiste de verdad
@@ -15,7 +16,7 @@ import { ToastService } from '../../../shared/ui/toast';
 // actualiza — evita duplicar plantilla.
 @Component({
   selector: 'app-auditoria-nueva',
-  imports: [ReactiveFormsModule, RouterLink, AppButton, AppFormField, AppInput],
+  imports: [ReactiveFormsModule, RouterLink, AppButton, AppFormField, AppInput, AppSelectorFecha],
   templateUrl: './auditoria-nueva.html',
 })
 export class AuditoriaNueva {
@@ -41,12 +42,13 @@ export class AuditoriaNueva {
     estandar_objetivo: ['AA' as 'A' | 'AA', Validators.required],
   });
 
-  // Refs a los controles nativos en el mismo orden que el formulario, para
-  // poder mover el foco al primero inválido al enviar (ver enviar()).
+  // Refs a los controles en el mismo orden que el formulario, para poder
+  // mover el foco al primero inválido al enviar (ver enviar()). La fecha es
+  // el selector de fecha (specs/25-selector-fecha.md), que expone enfocar().
   private readonly inputNombre = viewChild<ElementRef<HTMLInputElement>>('inputNombre');
   private readonly inputCliente = viewChild<ElementRef<HTMLInputElement>>('inputCliente');
   private readonly inputUrl = viewChild<ElementRef<HTMLInputElement>>('inputUrl');
-  private readonly inputFecha = viewChild<ElementRef<HTMLInputElement>>('inputFecha');
+  private readonly selectorFecha = viewChild(AppSelectorFecha);
   private readonly inputEstandarObjetivo = viewChild<ElementRef<HTMLInputElement>>('inputEstandarObjetivo');
 
   constructor() {
@@ -84,19 +86,33 @@ export class AuditoriaNueva {
     void this.router.navigate(['/auditorias', id]);
   }
 
+  // Error de «Fecha de inicio», o null si no hay que mostrarlo (el campo aún
+  // no se ha tocado, o es válido). El formato no válido va antes que el campo
+  // vacío: si hay texto escrito, «Selecciona una fecha.» no diría qué falla.
+  protected errorFecha(): string | null {
+    const control = this.formulario.controls.fecha_inicio;
+    if (!control.touched) {
+      return null;
+    }
+    if (control.hasError('fechaInvalida')) {
+      return 'Introduce una fecha válida con el formato dd/mm/aaaa.';
+    }
+    return control.hasError('required') ? 'Selecciona una fecha.' : null;
+  }
+
   private enfocarPrimerCampoInvalido(): void {
     const controles = this.formulario.controls;
     const campos = [
-      [controles.nombre, this.inputNombre],
-      [controles.cliente, this.inputCliente],
-      [controles.url_base, this.inputUrl],
-      [controles.fecha_inicio, this.inputFecha],
-      [controles.estandar_objetivo, this.inputEstandarObjetivo],
+      [controles.nombre, () => this.inputNombre()?.nativeElement.focus()],
+      [controles.cliente, () => this.inputCliente()?.nativeElement.focus()],
+      [controles.url_base, () => this.inputUrl()?.nativeElement.focus()],
+      [controles.fecha_inicio, () => this.selectorFecha()?.enfocar()],
+      [controles.estandar_objetivo, () => this.inputEstandarObjetivo()?.nativeElement.focus()],
     ] as const;
 
-    for (const [control, ref] of campos) {
+    for (const [control, enfocar] of campos) {
       if (control.invalid) {
-        ref()?.nativeElement.focus();
+        enfocar();
         return;
       }
     }
