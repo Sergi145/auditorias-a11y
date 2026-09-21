@@ -1,0 +1,93 @@
+<div class="mx-auto max-w-[1180px] px-4 py-16 sm:px-6 sm:py-20">
+  <div class="max-w-[720px]">
+    <h1 class="text-4xl leading-[1.1] font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+      Declaración de accesibilidad
+    </h1>
+    <p class="mt-5 text-lg leading-relaxed text-slate-600">
+      Auditorías A11y es una herramienta de accesibilidad, así que tiene que cumplir sobre sí misma
+      lo que ayuda a comprobar en otros sitios.
+    </p>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Compromiso</h2>
+      <p class="mt-3 text-base leading-relaxed text-slate-700">
+        La app se diseña y se desarrolla para cumplir las Pautas de Accesibilidad para el Contenido
+        Web (WCAG) 2.2, nivel AA, en toda su interfaz.
+      </p>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Estado de cumplimiento</h2>
+      <p class="mt-3 text-base leading-relaxed text-slate-700">
+        No se conocen incumplimientos de WCAG 2.2 AA en la interfaz. Hay aspectos que todavía no se
+        han podido verificar del todo: se enumeran en «Limitaciones conocidas».
+      </p>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Cómo se comprueba</h2>
+      <ul class="m-0 mt-4 list-none p-0">
+        @for (compromiso of compromisos; track compromiso.texto) {
+          <li class="flex items-start gap-3 border-t border-slate-200 py-4 first:border-t-0">
+            <app-icon name="check-circle" class="mt-0.5 text-green-700" />
+            <div>
+              <p class="m-0 text-base font-semibold text-slate-900">{{ compromiso.texto }}</p>
+              <p class="mt-1 text-[15px] leading-relaxed text-slate-600">
+                {{ compromiso.comoSeVerifica }}
+              </p>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Limitaciones conocidas</h2>
+      <ul class="mt-4 flex list-disc flex-col gap-3 pl-5 text-base leading-relaxed text-slate-700">
+        <li>
+          Todavía no se ha hecho una sesión con un lector de pantalla real (NVDA o Narrator). Las
+          pruebas actuales usan una aproximación automatizada: registran los anuncios y el árbol de
+          accesibilidad, pero no cómo pronuncia cada lector.
+        </li>
+        <li>
+          El PDF exportado se genera sin etiquetas, así que no es un PDF accesible. El Excel sí
+          conserva la estructura de tabla.
+        </li>
+        <li>
+          El texto alternativo de las evidencias lo escribe quien audita: la app lo pide, pero no
+          puede garantizar su calidad.
+        </li>
+      </ul>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Informar de un problema</h2>
+      <p class="mt-3 text-base leading-relaxed text-slate-700">
+        Si encuentras una barrera de accesibilidad en la app, escribe a
+        <a
+          href="mailto:sergipicazo14@gmail.com"
+          class="foco rounded-sm font-medium text-violet-700 underline hover:text-violet-800"
+          >sergipicazo14&#64;gmail.com</a
+        >. Indica en qué pantalla estabas, qué intentabas hacer y qué navegador y tecnología de
+        apoyo usas.
+      </p>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold text-slate-900">Fecha de la declaración</h2>
+      <p class="mt-3 text-base leading-relaxed text-slate-700">
+        Esta declaración se revisó por última vez el
+        <time datetime="2026-09-21">21 de septiembre de 2026</time>.
+      </p>
+    </section>
+  </div>
+
+  <div
+    class="mt-16 flex flex-col items-start gap-4 rounded-xl bg-slate-50 p-8 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <p class="m-0 text-lg font-semibold text-slate-900">
+      Audita tus propios sitios con el mismo nivel de exigencia.
+    </p>
+    <a appButton variant="primary" routerLink="/auditorias/nueva">Empezar una auditoría</a>
+  </div>
+</div>

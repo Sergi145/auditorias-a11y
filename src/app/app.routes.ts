@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
 import { confirmarSalidaSinGuardar } from './features/auditorias/criterio-revision/confirmar-salida';
 
-// La landing ('bienvenida') es la puerta de entrada pública: vive fuera del
-// shell interno (sin drawer/nav lateral), como página propia. Todo lo demás
-// cuelga de Shell como ruta padre — Shell ya trae su propio <router-outlet>
-// (ver shell.html) — así que las rutas hijas conservan exactamente las
-// mismas URLs que antes ('auditorias', 'auditorias/nueva', etc.).
+// La zona pública ('bienvenida' y, desde la spec 24, las vistas
+// informativas) vive fuera del shell interno (sin drawer/nav lateral) y
+// comparte LayoutPublico. Va antes del padre del Shell: si ningún hijo
+// público coincide, el router prueba el siguiente padre con path ''. Todo lo
+// demás cuelga de Shell como ruta padre — Shell ya trae su propio
+// <router-outlet> (ver shell.html) — así que las rutas hijas conservan
+// exactamente las mismas URLs que antes ('auditorias', 'auditorias/nueva',
+// etc.).
 //
 // Orden de specs/02-maqueta-m3.md tabla de pantallas — las rutas estáticas
 // ('nueva', 'progreso', 'exportar', 'escaneo', 'criterios/:codigo') van
@@ -14,9 +17,36 @@ import { confirmarSalidaSinGuardar } from './features/auditorias/criterio-revisi
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'bienvenida' },
   {
-    path: 'bienvenida',
-    title: 'Bienvenida',
-    loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
+    path: '',
+    loadComponent: () =>
+      import('./features/publico/layout-publico/layout-publico').then((m) => m.LayoutPublico),
+    children: [
+      {
+        path: 'bienvenida',
+        title: 'Bienvenida',
+        loadComponent: () => import('./features/landing/landing').then((m) => m.Landing),
+      },
+      {
+        path: 'funcionalidades',
+        title: 'Funcionalidades',
+        loadComponent: () =>
+          import('./features/publico/funcionalidades/funcionalidades').then(
+            (m) => m.Funcionalidades,
+          ),
+      },
+      {
+        path: 'como-funciona',
+        title: 'Cómo funciona',
+        loadComponent: () =>
+          import('./features/publico/como-funciona/como-funciona').then((m) => m.ComoFunciona),
+      },
+      {
+        path: 'accesibilidad',
+        title: 'Declaración de accesibilidad',
+        loadComponent: () =>
+          import('./features/publico/accesibilidad/accesibilidad').then((m) => m.Accesibilidad),
+      },
+    ],
   },
   {
     path: '',
