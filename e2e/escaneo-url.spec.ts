@@ -31,6 +31,54 @@ function botonEjecutarEscaneo(page: Page) {
   return page.getByRole('button', { name: /Ejecutar escaneo|Escaneando…/ });
 }
 
+// Texto que hay ahora mismo en las regiones del LiveAnnouncer: lo que
+// anunciaría un lector de pantalla.
+const anunciado = (page: Page) =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('.cdk-live-announcer-element'))
+      .map((region) => (region.textContent ?? '').trim())
+      .join('|'),
+  );
+
+test('al empezar un escaneo de URL se anuncia a los lectores de pantalla', async ({ page }) => {
+  await crearPaginaYAbrirEscaneoUrl(page, 'https://pagina-a-escanear.test/');
+
+  // La respuesta se retiene hasta comprobar el aviso: el escaneo sigue en
+  // marcha, que es cuando quien usa un lector de pantalla necesita saberlo.
+  let liberarRespuesta!: () => void;
+  const respuestaLiberada = new Promise<void>((resolver) => (liberarRespuesta = resolver));
+  await page.route('**/api/escanear-url', async (route) => {
+    await respuestaLiberada;
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ violaciones: [] }),
+    });
+  });
+
+  await botonEjecutarEscaneo(page).click();
+
+  await expect(botonEjecutarEscaneo(page)).toHaveText('Escaneando…');
+  await expect.poll(() => anunciado(page)).toContain('Escaneando la URL');
+
+  liberarRespuesta();
+  await expect(page).toHaveURL(/\/paginas\/\d+$/);
+});
+
+test('al empezar un escaneo de HTML pegado se anuncia a los lectores de pantalla', async ({
+  page,
+}) => {
+  await crearPaginaYAbrirEscaneoUrl(page, 'https://pagina-a-escanear.test/');
+  await page.getByRole('tab', { name: 'Pegar HTML' }).click();
+  await page
+    .getByLabel('HTML de la página')
+    .fill('<!doctype html><html lang="es"><title>Prueba</title><img src="x.png"></html>');
+
+  await botonEjecutarEscaneo(page).click();
+
+  await expect.poll(() => anunciado(page)).toContain('Escaneando el HTML');
+});
+
 test('un escaneo de URL con violaciones marca el criterio como Falla automática y vuelve al checklist', async ({
   page,
 }) => {

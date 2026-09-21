@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -39,6 +40,7 @@ export class PaginaEscaneo {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
 
   protected readonly auditoriaId = this.route.snapshot.paramMap.get('auditoriaId')!;
   protected readonly paginaId = this.route.snapshot.paramMap.get('paginaId')!;
@@ -59,6 +61,13 @@ export class PaginaEscaneo {
   // ver specs/12-escaneo-url.md.
   protected readonly escaneando = signal(false);
 
+  // Que el botón pase a «Escaneando…» no basta para un lector de pantalla: el
+  // cambio de texto de un botón con el foco no se anuncia, y sin aviso quien lo
+  // usa no sabe si la pulsación ha hecho algo. El final ya lo anuncia el toast.
+  private anunciarInicio(mensaje: string): void {
+    void this.liveAnnouncer.announce(mensaje, 'polite');
+  }
+
   protected async ejecutarEscaneo(): Promise<void> {
     if (this.escaneando()) return;
     if (this.formularioHtml.invalid) {
@@ -67,6 +76,7 @@ export class PaginaEscaneo {
     }
 
     this.escaneando.set(true);
+    this.anunciarInicio('Escaneando el HTML. Puede tardar unos segundos.');
     try {
       const { criteriosMarcados } = await this.escaneoAxeService.ejecutarSobreHtml(
         this.paginaIdNum,
@@ -86,6 +96,7 @@ export class PaginaEscaneo {
     if (!pagina) return;
 
     this.escaneando.set(true);
+    this.anunciarInicio('Escaneando la URL. Puede tardar hasta un minuto.');
     try {
       const { criteriosMarcados } = await this.escaneoUrlService.ejecutarSobreUrl(
         this.paginaIdNum,

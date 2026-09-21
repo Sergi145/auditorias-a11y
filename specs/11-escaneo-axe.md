@@ -176,7 +176,9 @@ correcto sin necesitar ninguna migración de datos.
 - Mientras se ejecuta el escaneo, "Ejecutar escaneo" muestra el estado
   "Escaneando…" y queda deshabilitado; al terminar, un toast resume cuántos
   criterios se marcaron (o indica que no se encontraron fallos automáticos)
-  y el usuario vuelve al checklist de la página.
+  y el usuario vuelve al checklist de la página. *(Ampliado en la spec 12:
+  además, el inicio del escaneo se anuncia a los lectores de pantalla por
+  `LiveAnnouncer`, porque el cambio de texto del botón no se lee.)*
 - En `pagina-checklist`, cada fila con `resultado.origen === 'automatico'`
   muestra un distintivo visible "Automático" junto al estado.
 - `npm run lint` y `npm test` pasan sin fallos.
