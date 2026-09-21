@@ -88,7 +88,7 @@ async function recorridoPrimeraAuditoria(page: Page, recorrido: Recorrido): Prom
   await page.getByLabel('Nombre de la auditoría').fill('Tienda online');
   await page.getByLabel('Cliente').fill('ACME');
   await page.getByLabel('URL base').fill('https://tienda.example');
-  await page.getByLabel('Fecha de inicio').fill('2026-09-01');
+  await page.getByLabel('Fecha de inicio').fill('01/09/2026');
   await page.getByRole('button', { name: 'Crear auditoría' }).click();
 
   // Detalle de la auditoría
@@ -689,9 +689,6 @@ async function activarConTeclado(page: Page, control: Locator, tecla = 'Enter'):
 }
 
 test.describe('Recorrido 1 — solo teclado', () => {
-  // El campo de fecha se teclea en el orden del idioma del navegador (dd/mm/aaaa).
-  test.use({ locale: 'es-ES' });
-
   test('la primera auditoría completa se puede hacer sin ratón y el foco nunca se pierde', async ({
     page,
     recorrido,
@@ -709,8 +706,8 @@ test.describe('Recorrido 1 — solo teclado', () => {
     await escribirConTeclado(page, page.getByLabel('URL base'), 'https://tienda.example');
     const fecha = page.getByLabel('Fecha de inicio');
     await tabularHasta(page, fecha);
-    await page.keyboard.type('01092026');
-    await expect(fecha).toHaveValue('2026-09-01');
+    await page.keyboard.type('01/09/2026');
+    await expect(fecha).toHaveValue('01/09/2026');
     await activarConTeclado(page, page.getByRole('button', { name: 'Crear auditoría' }));
     await expect(page.getByRole('heading', { level: 1, name: 'Tienda online' })).toBeVisible();
     await recorrido.comprobarFoco('al llegar al detalle de la auditoría');

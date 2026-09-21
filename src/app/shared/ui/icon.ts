@@ -27,6 +27,9 @@ export type IconName =
   | 'chevron-down'
   | 'chevron-left'
   | 'chevron-right'
+  | 'chevrons-left'
+  | 'chevrons-right'
+  | 'calendar'
   | 'eye'
   | 'eye-off'
   | 'shield'
@@ -144,6 +147,19 @@ export type IconName =
         }
         @case ('chevron-right') {
           <path d="M9 6l6 6-6 6" />
+        }
+        @case ('chevrons-left') {
+          <path d="M11 6l-6 6 6 6" />
+          <path d="M18 6l-6 6 6 6" />
+        }
+        @case ('chevrons-right') {
+          <path d="M6 6l6 6-6 6" />
+          <path d="M13 6l6 6-6 6" />
+        }
+        @case ('calendar') {
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M3 10h18" />
+          <path d="M8 3v4M16 3v4" />
         }
         @case ('eye') {
           <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />

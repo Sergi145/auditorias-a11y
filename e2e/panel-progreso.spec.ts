@@ -20,7 +20,7 @@ async function crearAuditoriaConPagina(page: Page): Promise<void> {
   await page.getByLabel('Nombre de la auditoría').fill('Auditoría de prueba');
   await page.getByLabel('Cliente').fill('Cliente de prueba');
   await page.getByLabel('URL base').fill('https://ejemplo-auditoria.test');
-  await page.getByLabel('Fecha de inicio').fill('2026-01-01');
+  await page.getByLabel('Fecha de inicio').fill('01/01/2026');
   await page.getByRole('button', { name: 'Crear auditoría' }).click();
 
   await page.getByRole('link', { name: 'Añadir página' }).click();
@@ -155,7 +155,7 @@ test('una auditoría sin páginas muestra el panel con los cinco bloques a cero'
   await page.getByLabel('Nombre de la auditoría').fill('Auditoría vacía');
   await page.getByLabel('Cliente').fill('Cliente de prueba');
   await page.getByLabel('URL base').fill('https://ejemplo-auditoria.test');
-  await page.getByLabel('Fecha de inicio').fill('2026-01-01');
+  await page.getByLabel('Fecha de inicio').fill('01/01/2026');
   await page.getByRole('button', { name: 'Crear auditoría' }).click();
 
   await page.getByRole('link', { name: 'Progreso' }).click();

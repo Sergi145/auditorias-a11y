@@ -7,8 +7,9 @@ import { expect, test as base, type Locator, type Page, type TestInfo } from '@p
 // un lector de pantalla (regiones aria-live) en vez de detalles internos.
 
 // Etiquetas de axe equivalentes a WCAG 2.2 A/AA (las de 2.0 y 2.1 siguen
-// siendo parte de 2.2).
-const ETIQUETAS_WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
+// siendo parte de 2.2). Exportadas para los e2e que pasan axe con un diálogo
+// abierto, que `pasarAxe` no admite (espera a que no haya ningún fondo).
+export const ETIQUETAS_WCAG =['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
 
 export interface Recorrido {
   // Errores de consola y excepciones no capturadas vistas durante el test.
@@ -227,7 +228,7 @@ export async function crearAuditoria(page: Page, datos: DatosAuditoria): Promise
   await page.getByLabel('Nombre de la auditoría').fill(datos.nombre);
   await page.getByLabel('Cliente').fill(datos.cliente ?? 'Cliente de prueba');
   await page.getByLabel('URL base').fill(datos.url ?? 'https://ejemplo-auditoria.test');
-  await page.getByLabel('Fecha de inicio').fill('2026-01-01');
+  await page.getByLabel('Fecha de inicio').fill('01/01/2026');
   await page.getByRole('button', { name: 'Crear auditoría' }).click();
   await expect(page.getByRole('heading', { level: 1, name: datos.nombre })).toBeVisible();
 }
