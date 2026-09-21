@@ -108,6 +108,13 @@ el cliente aplique sus violaciones al checklist exactamente igual que el modo
     pantalla.
   - La señal `escaneando` es común a las dos pestañas: mientras corre un
     escaneo no se puede lanzar otro desde ninguna de ellas.
+  - **Aviso de inicio para lectores de pantalla** (añadido tras probar con
+    NVDA: el cambio de texto del botón a «Escaneando…» no se anuncia, así que
+    quien usa un lector no sabía que el escaneo había empezado). Al lanzar un
+    escaneo, `pagina-escaneo` lo anuncia con `LiveAnnouncer` (`polite`), en
+    ambas pestañas: «Escaneando el HTML. Puede tardar unos segundos.» y
+    «Escaneando la URL. Puede tardar hasta un minuto.». El final ya lo anuncia
+    el toast (`role="status"`).
   - Se eliminan el `formularioUrl.disable()` y la nota "llega en una rebanada
     futura", y se actualizan los comentarios de `pagina-escaneo.ts` y
     `escaneo-axe.ts` que dicen que el modo URL queda fuera.
@@ -253,6 +260,9 @@ type CodigoErrorEscaneoUrl =
 - Mientras corre un escaneo de URL, "Ejecutar escaneo" muestra "Escaneando…"
   con `aria-disabled="true"` y no se puede lanzar otro escaneo desde ninguna
   de las dos pestañas.
+- Al lanzar un escaneo (de HTML pegado o de URL) se anuncia por `LiveAnnouncer`
+  que el escaneo ha empezado, sin depender de que el lector de pantalla lea el
+  cambio de texto del botón (`e2e/escaneo-url.spec.ts`).
 - Con `npm start` (sin función disponible), ejecutar el escaneo de URL
   muestra el toast "El servicio de escaneo de URL no está disponible ahora
   mismo. Puedes usar «Pegar HTML»." y no modifica ningún `Resultado`.
