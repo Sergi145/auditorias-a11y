@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -40,6 +40,11 @@ export class PaginaNueva {
     notas_generales: [''],
   });
 
+  // Refs a los controles nativos en el mismo orden que el formulario, para
+  // poder mover el foco al primero inválido al enviar (ver enviar()).
+  private readonly inputNombre = viewChild<ElementRef<HTMLInputElement>>('inputNombre');
+  private readonly inputUrl = viewChild<ElementRef<HTMLInputElement>>('inputUrl');
+
   constructor() {
     if (this.paginaId !== null) {
       void this.cargarPagina(Number(this.paginaId));
@@ -56,6 +61,7 @@ export class PaginaNueva {
   protected async enviar(): Promise<void> {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.enfocarPrimerCampoInvalido();
       return;
     }
     if (this.paginaId !== null) {
@@ -72,5 +78,21 @@ export class PaginaNueva {
     // Crear también se anuncia, igual que editar — ver specs/22-informe-ux.md P7.
     this.toast.mostrar('Página añadida.');
     void this.router.navigate(['/auditorias', this.auditoriaId]);
+  }
+
+  // Mismo patrón que enfocarPrimerCampoInvalido() en auditoria-nueva.ts.
+  private enfocarPrimerCampoInvalido(): void {
+    const controles = this.formulario.controls;
+    const campos = [
+      [controles.nombre, this.inputNombre],
+      [controles.url, this.inputUrl],
+    ] as const;
+
+    for (const [control, ref] of campos) {
+      if (control.invalid) {
+        ref()?.nativeElement.focus();
+        return;
+      }
+    }
   }
 }
