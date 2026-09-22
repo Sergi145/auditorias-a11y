@@ -6,7 +6,7 @@
 </p>
 
 <form
-  class="formulario mt-4 flex max-w-[420px] flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+  class="formulario mt-4 flex max-w-[420px] flex-col items-stretch gap-3 sm:flex-row sm:items-start"
   [formGroup]="formularioNuevo"
   (ngSubmit)="anadirComponente()"
 >
@@ -31,9 +31,16 @@
       required
     />
   </app-form-field>
-  <button appButton type="submit">
+  <!-- items-start + este margen (altura de la etiqueta "Nuevo componente" +
+       el gap-1.5 del app-form-field) en vez de sm:items-center: con
+       items-center el botón se recentra sobre TODO el bloque
+       etiqueta+input+error, así que al aparecer el mensaje de error debajo
+       del input el botón se descuadra del input. Con items-start el ancla
+       es el input, que no se mueve al aparecer el error. -->
+  <button appButton type="submit" class="sm:mt-[1.625rem]">
     <app-icon name="add" />
     Añadir
+    <span class="sr-only">nuevo componente</span>
   </button>
 </form>
 
@@ -119,6 +126,7 @@
               <button appButton variant="text" type="button" (click)="eliminar(componente)">
                 <app-icon name="delete" />
                 Eliminar
+                <span class="sr-only">componente «{{ componente.nombre }}»</span>
               </button>
             </div>
           </article>
