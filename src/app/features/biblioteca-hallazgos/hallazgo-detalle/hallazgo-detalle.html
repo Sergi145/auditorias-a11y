@@ -12,32 +12,64 @@
   </p>
 
   <form class="formulario" [formGroup]="formulario" (ngSubmit)="guardar()">
-    <app-form-field label="Título" #campoTitulo="appFormField">
+    <app-form-field
+      label="Título"
+      #campoTitulo="appFormField"
+      [error]="
+        formulario.controls.titulo.invalid && formulario.controls.titulo.touched
+          ? 'Introduce un título.'
+          : null
+      "
+    >
       <input
         appInput
+        #inputTitulo
         [id]="campoTitulo.id"
         [attr.aria-describedby]="campoTitulo.describedBy"
+        [attr.aria-invalid]="formulario.controls.titulo.invalid && formulario.controls.titulo.touched"
         formControlName="titulo"
         required
       />
     </app-form-field>
 
-    <app-form-field label="Descripción del hallazgo" #campoDescripcion="appFormField">
+    <app-form-field
+      label="Descripción del hallazgo"
+      #campoDescripcion="appFormField"
+      [error]="
+        formulario.controls.descripcion.invalid && formulario.controls.descripcion.touched
+          ? 'Describe el hallazgo.'
+          : null
+      "
+    >
       <textarea
         appInput
+        #textareaDescripcion
         [id]="campoDescripcion.id"
         [attr.aria-describedby]="campoDescripcion.describedBy"
+        [attr.aria-invalid]="formulario.controls.descripcion.invalid && formulario.controls.descripcion.touched"
         formControlName="descripcion"
         rows="4"
         required
       ></textarea>
     </app-form-field>
 
-    <app-form-field label="Recomendación de solución" #campoRecomendacion="appFormField">
+    <app-form-field
+      label="Recomendación de solución"
+      #campoRecomendacion="appFormField"
+      [error]="
+        formulario.controls.recomendacion_fix.invalid && formulario.controls.recomendacion_fix.touched
+          ? 'Describe cómo solucionarlo.'
+          : null
+      "
+    >
       <textarea
         appInput
+        #textareaRecomendacion
         [id]="campoRecomendacion.id"
         [attr.aria-describedby]="campoRecomendacion.describedBy"
+        [attr.aria-invalid]="
+          formulario.controls.recomendacion_fix.invalid && formulario.controls.recomendacion_fix.touched
+        "
         formControlName="recomendacion_fix"
         rows="4"
         required

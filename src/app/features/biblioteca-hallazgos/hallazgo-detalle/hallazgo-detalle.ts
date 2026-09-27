@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -73,6 +73,14 @@ export class HallazgoDetalle {
     severidad_tipica: ['media' as Severidad],
   });
 
+  // Refs a los controles en el mismo orden que el formulario, para poder
+  // mover el foco al primero inválido al enviar (ver guardar()) — mismo
+  // patrón que enfocarPrimerCampoInvalido() en auditoria-nueva.ts.
+  private readonly inputTitulo = viewChild<ElementRef<HTMLInputElement>>('inputTitulo');
+  private readonly textareaDescripcion = viewChild<ElementRef<HTMLTextAreaElement>>('textareaDescripcion');
+  private readonly textareaRecomendacion =
+    viewChild<ElementRef<HTMLTextAreaElement>>('textareaRecomendacion');
+
   constructor() {
     void this.cargarHallazgo();
   }
@@ -94,10 +102,27 @@ export class HallazgoDetalle {
   protected async guardar(): Promise<void> {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
+      this.enfocarPrimerCampoInvalido();
       return;
     }
     await this.hallazgosPlantillaService.actualizar(this.hallazgoId, this.formulario.getRawValue());
     this.toast.mostrar('Hallazgo de la biblioteca actualizado.');
     void this.router.navigate(['/biblioteca']);
+  }
+
+  private enfocarPrimerCampoInvalido(): void {
+    const controles = this.formulario.controls;
+    const campos = [
+      [controles.titulo, this.inputTitulo],
+      [controles.descripcion, this.textareaDescripcion],
+      [controles.recomendacion_fix, this.textareaRecomendacion],
+    ] as const;
+
+    for (const [control, ref] of campos) {
+      if (control.invalid) {
+        ref()?.nativeElement.focus();
+        return;
+      }
+    }
   }
 }
