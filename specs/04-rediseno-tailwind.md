@@ -216,6 +216,21 @@ tarjetas de hallazgo con Editar/Eliminar y sugerencias de la biblioteca no
 tienen un destino principal al que llevar. Tampoco a la vista de
 componentes (`componentes-listado`), por decisión del usuario.
 
+## Nota de revisión (2026-09-27) — estado de error visible en los campos
+
+Un control con `aria-invalid="true"` no llevaba ninguna señal visual propia:
+nada lo distinguía de uno correcto salvo el mensaje de texto debajo, y ese
+mensaje tampoco llevaba icono. Se añade a `AppInput`/`AppSelect`
+(`field-controls.ts`) el selector `aria-[invalid=true]:border-red-600`
+(mismo patrón `aria-[current=page]` ya usado en `layout-publico.html`) para
+pintar el borde de rojo, y a `AppFormField` (`form-field.ts`) un icono
+`alert-circle` (`aria-hidden`, ya existía en `AppIcon`) delante del mensaje
+de error. El texto rojo del mensaje ya bastaba para WCAG 1.4.1 (el error no
+depende solo del color, hay texto), pero el borde y el icono lo hacen
+reconocible sin tener que leer el mensaje completo. Al ser parte de los
+componentes compartidos, se aplica automáticamente a todos los formularios
+de la app sin tocar cada pantalla.
+
 ## Nota de revisión (2026-09-27) — skip link no se visualiza con VoiceOver/TalkBack
 
 Comprobado en dispositivo real (iOS + VoiceOver, Android + TalkBack): al
