@@ -215,3 +215,31 @@ No se aplica al resto de `appCard`: formularios (hallazgo, evidencias),
 tarjetas de hallazgo con Editar/Eliminar y sugerencias de la biblioteca no
 tienen un destino principal al que llevar. Tampoco a la vista de
 componentes (`componentes-listado`), por decisión del usuario.
+
+## Nota de revisión (2026-09-27) — skip link no se visualiza con VoiceOver/TalkBack
+
+Comprobado en dispositivo real (iOS + VoiceOver, Android + TalkBack): al
+navegar hasta `AppSkipLink` ("Saltar al contenido principal", variante
+`fijo`), el lector de pantalla anuncia el enlace correctamente, pero no
+aparece visualmente en pantalla (se queda con el aspecto `sr-only`).
+
+No es un fallo de `AppSkipLink` ni de la técnica `sr-only
+focus:not-sr-only` usada (`src/app/shared/ui/skip-link.ts`) — es un bug de
+plataforma conocido y sin resolver, reproducido con la misma técnica en
+otras implementaciones:
+
+- **iOS Safari + VoiceOver**: mismo síntoma exacto reportado en el Design
+  System de GOV.UK, abierto sin arreglo —
+  [alphagov/govuk-frontend#4098](https://github.com/alphagov/govuk-frontend/issues/4098).
+- **Android Chrome + TalkBack**: reportado en Bootstrap como un bug de
+  Android que impide que el evento de foco se dispare, por lo que el
+  `:focus` de CSS nunca llega a aplicarse aunque el enlace se anuncie —
+  [twbs/bootstrap#20732](https://github.com/twbs/bootstrap/issues/20732).
+
+No se cambia código: no hay mitigación fiable (el propio bug en Android
+impide que el evento `focus` se dispare en algunos casos, así que ni un
+listener JS adicional lo resuelve de forma consistente) y la función
+principal del enlace — saltar el foco al contenido — sigue funcionando
+para quien usa lector de pantalla, que es a quien afecta la falta de
+revelación visual. Queda documentado aquí como limitación conocida de
+plataforma (WebKit/Android), no como pendiente de esta rebanada.
