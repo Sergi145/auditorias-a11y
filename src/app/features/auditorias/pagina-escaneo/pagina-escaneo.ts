@@ -1,5 +1,5 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -55,6 +55,9 @@ export class PaginaEscaneo {
   protected readonly formularioHtml = this.fb.nonNullable.group({
     html: ['', Validators.required],
   });
+  // Foco al textarea si se envía vacío — mismo patrón que
+  // enfocarPrimerCampoInvalido() en auditoria-nueva.ts.
+  private readonly textareaHtml = viewChild<ElementRef<HTMLTextAreaElement>>('textareaHtml');
 
   // Compartido entre las dos pestañas: mientras corre un escaneo (de
   // cualquiera de los dos modos) no se puede lanzar otro desde ninguna —
@@ -72,6 +75,7 @@ export class PaginaEscaneo {
     if (this.escaneando()) return;
     if (this.formularioHtml.invalid) {
       this.formularioHtml.markAllAsTouched();
+      this.textareaHtml()?.nativeElement.focus();
       return;
     }
 

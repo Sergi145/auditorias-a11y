@@ -265,3 +265,11 @@ correcto sin necesitar ninguna migración de datos.
   criterio — verificar que esto no deja información importante fuera de las
   notas cuando ocurre en HTML de prueba real.
 
+
+## Nota de revisión (2026-09-27) — foco al textarea si se escanea sin HTML
+
+En la pestaña "Pegar HTML" de `pagina-escaneo`, enviar el formulario con el
+campo vacío marcaba el error (mensaje + `aria-invalid`, ya existían), pero
+no movía el foco al textarea — a diferencia del resto de formularios de la
+app. Se añade el mismo patrón que `auditoria-nueva.ts`: al enviar vacío, el
+foco pasa al textarea.

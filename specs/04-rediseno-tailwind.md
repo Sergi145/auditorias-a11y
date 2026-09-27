@@ -215,3 +215,46 @@ No se aplica al resto de `appCard`: formularios (hallazgo, evidencias),
 tarjetas de hallazgo con Editar/Eliminar y sugerencias de la biblioteca no
 tienen un destino principal al que llevar. Tampoco a la vista de
 componentes (`componentes-listado`), por decisión del usuario.
+
+## Nota de revisión (2026-09-27) — estado de error visible en los campos
+
+Un control con `aria-invalid="true"` no llevaba ninguna señal visual propia:
+nada lo distinguía de uno correcto salvo el mensaje de texto debajo, y ese
+mensaje tampoco llevaba icono. Se añade a `AppInput`/`AppSelect`
+(`field-controls.ts`) el selector `aria-[invalid=true]:border-red-600`
+(mismo patrón `aria-[current=page]` ya usado en `layout-publico.html`) para
+pintar el borde de rojo, y a `AppFormField` (`form-field.ts`) un icono
+`alert-circle` (`aria-hidden`, ya existía en `AppIcon`) delante del mensaje
+de error. El texto rojo del mensaje ya bastaba para WCAG 1.4.1 (el error no
+depende solo del color, hay texto), pero el borde y el icono lo hacen
+reconocible sin tener que leer el mensaje completo. Al ser parte de los
+componentes compartidos, se aplica automáticamente a todos los formularios
+de la app sin tocar cada pantalla.
+
+## Nota de revisión (2026-09-27) — skip link no se visualiza con VoiceOver/TalkBack
+
+Comprobado en dispositivo real (iOS + VoiceOver, Android + TalkBack): al
+navegar hasta `AppSkipLink` ("Saltar al contenido principal", variante
+`fijo`), el lector de pantalla anuncia el enlace correctamente, pero no
+aparece visualmente en pantalla (se queda con el aspecto `sr-only`).
+
+No es un fallo de `AppSkipLink` ni de la técnica `sr-only
+focus:not-sr-only` usada (`src/app/shared/ui/skip-link.ts`) — es un bug de
+plataforma conocido y sin resolver, reproducido con la misma técnica en
+otras implementaciones:
+
+- **iOS Safari + VoiceOver**: mismo síntoma exacto reportado en el Design
+  System de GOV.UK, abierto sin arreglo —
+  [alphagov/govuk-frontend#4098](https://github.com/alphagov/govuk-frontend/issues/4098).
+- **Android Chrome + TalkBack**: reportado en Bootstrap como un bug de
+  Android que impide que el evento de foco se dispare, por lo que el
+  `:focus` de CSS nunca llega a aplicarse aunque el enlace se anuncie —
+  [twbs/bootstrap#20732](https://github.com/twbs/bootstrap/issues/20732).
+
+No se cambia código: no hay mitigación fiable (el propio bug en Android
+impide que el evento `focus` se dispare en algunos casos, así que ni un
+listener JS adicional lo resuelve de forma consistente) y la función
+principal del enlace — saltar el foco al contenido — sigue funcionando
+para quien usa lector de pantalla, que es a quien afecta la falta de
+revelación visual. Queda documentado aquí como limitación conocida de
+plataforma (WebKit/Android), no como pendiente de esta rebanada.

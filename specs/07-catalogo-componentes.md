@@ -276,3 +276,13 @@ el navegador gestionase la navegación al fragmento actualizaba la URL y
 desplazaba la vista, pero no siempre movía el foco (en algunos casos lo
 devolvía a `<body>`) — mismo patrón ya usado para el foco tras navegación
 en `Shell` (`src/app/shared/shell/shell.ts`).
+
+## Nota de revisión (2026-09-27) — foco al renombrar con el nombre vacío
+
+El formulario "Nuevo componente" ya llevaba el foco al input si se enviaba
+vacío (mismo patrón que `auditoria-nueva.ts`), pero el de renombrar un
+componente personalizado no: "Guardar" con el nombre vacío marcaba el
+control como tocado sin mostrar mensaje de error, sin `aria-invalid` y sin
+mover el foco. Ahora `guardarRenombrar()` sigue el mismo patrón: muestra
+"Introduce un nombre de componente.", marca `aria-invalid` y lleva el foco
+al input — nunca a un campo que ya esté bien.

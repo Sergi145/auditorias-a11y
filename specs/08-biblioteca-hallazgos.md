@@ -271,3 +271,14 @@ y contar usos) y desde `/biblioteca/:id` (editar), y borrada desde
   hoc, no incorporado a `e2e/`. Queda pendiente un escaneo de axe dedicado
   (contraste, validez ARIA más allá de roles/etiquetas) con la extensión de
   navegador, que es un paso manual del propio auditor.
+
+## Nota de revisión (2026-09-27) — errores visibles en el formulario de `hallazgo-detalle`
+
+El formulario de edición de una plantilla (`/biblioteca/:id`) marcaba sus
+campos obligatorios (Título, Descripción, Recomendación de solución) como
+tocados al enviarlos vacíos, pero no mostraba ningún mensaje de error, no
+marcaba `aria-invalid` y no movía el foco — a diferencia del resto de
+formularios de la app (`auditoria-nueva`, `pagina-nueva`...). Se añade el
+mismo patrón: mensaje de error por campo, `aria-invalid` y foco al primero
+inválido en el orden del formulario (`enfocarPrimerCampoInvalido()`, igual
+que en `auditoria-nueva.ts`), sin tocar un campo que ya sea válido.

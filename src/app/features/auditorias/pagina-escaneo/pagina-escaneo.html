@@ -17,8 +17,10 @@
       >
         <textarea
           appInput
+          #textareaHtml
           [id]="campoHtml.id"
           [attr.aria-describedby]="campoHtml.describedBy"
+          [attr.aria-invalid]="formularioHtml.controls.html.invalid && formularioHtml.controls.html.touched"
           formControlName="html"
           rows="8"
           placeholder="<html>...</html>"
