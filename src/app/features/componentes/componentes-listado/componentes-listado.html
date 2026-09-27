@@ -83,12 +83,24 @@
       <li>
         @if (componenteEnEdicion() === componente.id) {
           <article appCard class="py-3" [formGroup]="formularioRenombrar">
-            <app-form-field label="Nombre del componente" #campoRenombrar="appFormField">
+            <app-form-field
+              label="Nombre del componente"
+              #campoRenombrar="appFormField"
+              [error]="
+                formularioRenombrar.controls.nombre.invalid && formularioRenombrar.controls.nombre.touched
+                  ? 'Introduce un nombre de componente.'
+                  : null
+              "
+            >
               <input
                 appInput
+                #inputRenombrar
                 type="text"
                 [id]="campoRenombrar.id"
                 [attr.aria-describedby]="campoRenombrar.describedBy"
+                [attr.aria-invalid]="
+                  formularioRenombrar.controls.nombre.invalid && formularioRenombrar.controls.nombre.touched
+                "
                 formControlName="nombre"
               />
             </app-form-field>

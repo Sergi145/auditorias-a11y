@@ -49,6 +49,8 @@ export class ComponentesListado {
   protected readonly formularioRenombrar = this.fb.nonNullable.group({
     nombre: ['', Validators.required],
   });
+  // Foco al input al enviar vacío — mismo patrón que en formularioNuevo.
+  private readonly inputRenombrar = viewChild<ElementRef<HTMLInputElement>>('inputRenombrar');
 
   protected async anadirComponente(): Promise<void> {
     if (this.formularioNuevo.invalid) {
@@ -73,6 +75,7 @@ export class ComponentesListado {
   protected async guardarRenombrar(id: number): Promise<void> {
     if (this.formularioRenombrar.invalid) {
       this.formularioRenombrar.markAllAsTouched();
+      this.inputRenombrar()?.nativeElement.focus();
       return;
     }
     await this.componentesService.renombrar(id, this.formularioRenombrar.getRawValue().nombre);
